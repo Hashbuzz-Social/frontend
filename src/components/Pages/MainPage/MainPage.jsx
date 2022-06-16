@@ -6,6 +6,7 @@ import PrimaryButton from "../../Buttons/PrimaryButton";
 import Card from "../../Card/Card";
 import CheckBox from "../../CheckBox/CheckBox";
 import { ContainerStyled } from "../../ContainerStyled/ContainerStyled";
+import { APICall } from "../../../APIConfig/APIServices"
 import {
   Brand,
   CardWrap,
@@ -30,9 +31,32 @@ export const MainPage = () => {
   };
   let navigate = useNavigate();
 
-  const handleStart = () => {
-    navigate("/create");
-  };
+  const login = () => {
+    (async () => {
+
+      try {
+        const loginData = {
+          "username": "admin",
+          "password": "admin"
+        }
+        const response = await APICall("/user/login/", "POST", {}, loginData);
+        if (response.data) {
+          const { token } = response.data;
+          localStorage.setItem('token', token)
+          console.log(token)
+          navigate("/create");
+        }
+      } catch (error) {
+        console.error("error===", error);
+      }
+
+    })();
+  }
+
+  // const authHandler = (err, data) => {
+  //   console.log(err, data);
+  // };
+
   return (
     <ContainerStyled>
       <ContentHeaderText>
@@ -88,7 +112,13 @@ export const MainPage = () => {
         </Brand>
       </Connect>
       <div>
-        <PrimaryButton text="Start" variant="contained" onclick={handleStart} />
+        {/* <ReactTwitterLogin
+          authCallback={authHandler}
+          consumerKey='70jT2zeMdbbhGinO7R9TM8rmP'
+          consumerSecret='hS6iMJXxR1LmI8MKvwIilW476Kb2h25ej9dZoxhvtQICn5BioG'
+          children={<PrimaryButton text="Start" variant="contained" onclick={handleStart} />}
+        /> */}
+        <PrimaryButton text="Start" variant="contained" onclick={login} />
       </div>
     </ContainerStyled>
   );
