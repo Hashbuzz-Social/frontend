@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { cardData } from "../../../Data/Cards";
 import PrimaryButton from "../../Buttons/PrimaryButton";
@@ -10,19 +11,45 @@ import {
   StatusSection,
 } from "./CreateTwitterPage.styles";
 import { TableRow, TableBody } from "@mui/material";
-import { tableData, tableHeadRow } from "../../../Data/TwitterTable";
+import { tableHeadRow } from "../../../Data/TwitterTable";
 import {
   CustomRowHead,
   CustomTable2,
   CustomTableBodyCell,
   CustomTableHeadCell,
 } from "../../Tables/CreateTable.styles";
+import { APICall } from "../../../APIConfig/APIServices"
 
 export const CreateTwitterPage = () => {
+  const [tableData, setTableData] = useState([]);
+  const [userData, setUserData] = useState({});
+
+  // Similar to componentDidMount and componentDidUpdate:
+  useEffect(() => {
+    let mounted = true;
+    if (mounted) {
+      getCampaignList();
+    }
+    return () => mounted = false;
+  }, [])
   let navigate = useNavigate();
   const handleTemplate = () => {
     navigate("/template");
   };
+  const getCampaignList = async () => {
+    const user = localStorage.getItem('user');
+    setUserData(user);
+    cardData[0].content = user.hedera_wallet_id;
+    cardData[1].content = user.business_twitter_handle;
+    cardData[2].content = user.personal_twitter_handle;
+    cardData[3].content = user.available_budget;
+    cardData[4].content = user.campaign_status;
+    const response = await APICall("/campaign/campaign/", "GET", null, null);
+    if (response.data) {
+      setTableData(response.data.results);
+    }
+  };
+
   const handleTran = () => {
     navigate("/invoice");
   };
@@ -61,15 +88,15 @@ export const CreateTwitterPage = () => {
                   align={item.align}
                   style={{ minWidth: item.minWidth, width: item.width }}
                 >
-                  {item.cardNo}
+                  {item.id}
                 </CustomTableBodyCell>
                 <CustomTableBodyCell>{item.name}</CustomTableBodyCell>
-                <CustomTableBodyCell>{item.stats}</CustomTableBodyCell>
-                <CustomTableBodyCell>{item.spent}</CustomTableBodyCell>
-                <CustomTableBodyCell>{item.claimed}</CustomTableBodyCell>
+                <CustomTableBodyCell>{item.tweet_stat}</CustomTableBodyCell>
+                <CustomTableBodyCell>{item.amount_spent}</CustomTableBodyCell>
+                <CustomTableBodyCell>{item.amount_claimed}</CustomTableBodyCell>
                 <CustomTableBodyCell>
-                  {item.isbutton ? (
-                    item.actions.map((element) => (
+                  {!item.isbutton ? (
+                    ["Run", "Stop"].map((element) => (
                       <SecondaryButton text={element} margin="5%" />
                     ))
                   ) : (

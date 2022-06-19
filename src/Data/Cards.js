@@ -1,25 +1,25 @@
 export const cardData = [
   {
     title: "Hedera Account ID",
-    content: "0.0.1122",
+    content: "",
     buttonTag: "",
     isButton: false,
   },
   {
     title: "Brand Twitter Handle",
-    content: "@mytaskbar",
+    content: "",
     buttonTag: ["Reconnect"],
     isButton: true,
   },
   {
     title: "Twitter Handle",
-    content: "@ashh20x",
-    buttonTag: ["Edit"],
-    isButton: true,
+    content: "",
+    buttonTag: "",
+    isButton: false,
   },
   {
     title: "Available Budget",
-    content: "23450h",
+    content: "",
     buttonTag: ["Top-Up", "Reimburse"],
     isButton: true,
   },

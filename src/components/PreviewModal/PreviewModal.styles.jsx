@@ -153,3 +153,11 @@ export const CustomIframe = styled.iframe`
     height: 30vh;
   }
 `;
+
+export const Border = styled.div`
+  border-radius: 10px;
+  border:1px solid gray;
+  height:100%;
+  margin:30px
+ 
+`;
