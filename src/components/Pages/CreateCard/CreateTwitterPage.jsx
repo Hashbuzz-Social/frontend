@@ -19,10 +19,12 @@ import {
   CustomTableHeadCell,
 } from "../../Tables/CreateTable.styles";
 import { APICall } from "../../../APIConfig/APIServices"
+import TopUpModal from "../../PreviewModal/TopUpModal";
 
 export const CreateTwitterPage = () => {
   const [tableData, setTableData] = useState([]);
   const [userData, setUserData] = useState({});
+  const [openTopup, setTopUpOpen] = useState(false);
 
   // Similar to componentDidMount and componentDidUpdate:
   useEffect(() => {
@@ -53,6 +55,13 @@ export const CreateTwitterPage = () => {
   const handleTran = () => {
     navigate("/invoice");
   };
+
+  const handleButtonClick = (e) => {
+    console.log("---------ee-----", e);
+    if (e === 'Top-Up')
+      setTopUpOpen(true)
+  };
+
   return (
     <ContainerStyled align="center" justify="space-between">
       <CardSection>
@@ -62,6 +71,7 @@ export const CreateTwitterPage = () => {
             content={item.content}
             buttonTag={item.buttonTag}
             isButton={item.isButton}
+            buttonClick={(e) => handleButtonClick(e)}
           />
         ))}
       </CardSection>
@@ -116,6 +126,10 @@ export const CreateTwitterPage = () => {
         text="Create Twitter Card"
         variant="contained"
         onclick={handleTemplate}
+      />
+      <TopUpModal
+        open={openTopup}
+        setOpen={setTopUpOpen}
       />
     </ContainerStyled>
   );

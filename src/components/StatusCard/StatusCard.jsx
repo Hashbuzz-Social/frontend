@@ -2,7 +2,7 @@ import Typography from "../../Typography/Typography";
 import SecondaryButton from "../Buttons/SecondaryButton";
 import { CardContainer, ButtonSection } from "./StatusCard.styles";
 
-const StatusCard = ({ title, content, buttonTag, isButton }) => {
+const StatusCard = ({ title, content, buttonTag, isButton, buttonClick }) => {
   const TitleTheme = {
     color: "#000",
     size: "16px",
@@ -20,7 +20,7 @@ const StatusCard = ({ title, content, buttonTag, isButton }) => {
       <ButtonSection>
         {isButton &&
           buttonTag.map((item) => (
-            <SecondaryButton text={item} variant="contained" width="91px" margin="5%" />
+            <SecondaryButton text={item} variant="contained" width="91px" margin="5%" onclick={()=>buttonClick(item)}/>
           ))}
       </ButtonSection>
     </CardContainer>

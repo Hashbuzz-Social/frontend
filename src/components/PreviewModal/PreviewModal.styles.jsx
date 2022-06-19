@@ -122,7 +122,7 @@ export const TextWrap = styled.div`
 `;
 export const CustomInput = styled.input`
   height: 50px;
-  width: 70%;
+  width: 60%;
   background: #f3f3f3;
   border-radius: 4px;
   border: none;
@@ -160,4 +160,21 @@ export const Border = styled.div`
   height:100%;
   margin:30px
  
+`;
+
+export const Label = styled.div`
+  weight: 500;
+  size: "25px";
+  color: "#000000";
+  sizeRes: "28px";
+  width: 100%;
+  text-align: center;
+`;
+
+export const Row = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%
+  
+  // height: 5vh;
 `;

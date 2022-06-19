@@ -35,6 +35,7 @@ export const TemplatePage = () => {
   const [follow, setFollow] = useState(2000);
   const [open, setOpen] = useState(false);
 
+
   const theme = {
     weight: 500,
     size: "36px",
@@ -119,7 +120,7 @@ export const TemplatePage = () => {
             {buttonTags.slice(0, 2).map((item) => (
               <SecondaryButton text={item.replace(item[0], "")} />
             ))}
-            <SecondaryButton text="hashbuzz" />
+            {/* <SecondaryButton text="hashbuzz" /> */}
           </ButtonWrap>
           <CustomInput
             placeholder="http/123/reward/taskbar"
@@ -186,6 +187,7 @@ export const TemplatePage = () => {
         follow={follow}
         srcLink={srcLink}
       />
+     
     </ContainerStyled>
   );
 };

@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Typography from "../../Typography/Typography";
 import ModalTable from "../Tables/ModalTable";
+import { APICall, APIAuthCall } from "../../APIConfig/APIServices"
 
 const PreviewModal = ({
   open,
@@ -46,8 +47,22 @@ const PreviewModal = ({
     sizeRes: "16px",
   };
 
-  const handleSubmit = () => {
-    navigate("/onboarding");
+  const handleSubmit = async() => {
+    const userInfo = JSON.parse(localStorage.getItem('user'))
+    const postData = {
+      "campaign": 1,
+      "tweet_text": Text,
+      "replay_reward": reply,
+      "retweet_reward": retweet,
+      "like_reward": like,
+      "like_downloaded_reward": download,
+      "follow_reward": follow
+  }
+    const response = await APICall("/campaign/twitter-card/" + userInfo.id + "/", "POST", {}, postData);
+    if (response.data) {
+      // navigate("/create");
+      navigate("/onboarding");
+    }
   };
 
   return (
