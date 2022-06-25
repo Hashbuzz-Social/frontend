@@ -20,7 +20,6 @@ import {
 } from "../../Tables/CreateTable.styles";
 import { APICall } from "../../../APIConfig/APIServices"
 import TopUpModal from "../../PreviewModal/TopUpModal";
-
 export const CreateTwitterPage = () => {
   const [tableData, setTableData] = useState([]);
   const [userData, setUserData] = useState({});
@@ -46,7 +45,7 @@ export const CreateTwitterPage = () => {
     cardData[2].content = user.personal_twitter_handle;
     cardData[3].content = user.available_budget;
     cardData[4].content = user.campaign_status;
-    const response = await APICall("/campaign/campaign/", "GET", null, null);
+    const response = await APICall("/campaign/twitter-card/", "GET", null, null);
     if (response.data) {
       setTableData(response.data.results);
     }

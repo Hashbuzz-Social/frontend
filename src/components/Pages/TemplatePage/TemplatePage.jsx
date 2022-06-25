@@ -1,3 +1,4 @@
+import React, { useEffect, useRef } from 'react'
 import Typography from "../../../Typography/Typography";
 import { ContainerStyled } from "../../ContainerStyled/ContainerStyled";
 import {
@@ -12,6 +13,9 @@ import {
   TableSection,
   TextWrap,
   Wrapper,
+  WordsWrap,
+  EmoBtnWrap,
+  IconsWrap
 } from "./TemplatePage.styles";
 import PrimaryButton from "../../Buttons/PrimaryButton";
 import SecondaryButton from "../../Buttons/SecondaryButton";
@@ -19,7 +23,11 @@ import { TemplateTable } from "../../Tables/TemplateTable";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import PreviewModal from "../../PreviewModal/PreviewModal";
-
+import Picker from 'emoji-picker-react';
+// import "emoji-mart/css/emoji-mart.css"; 
+import { ImageIcon } from "./ImageIcon";
+import { YoutubeIcon } from "./YoutubeIcon";
+import { APICall } from '../../../APIConfig/APIServices';
 export const TemplatePage = () => {
   let navigate = useNavigate();
   const [srcLink, setSrcLink] = useState(
@@ -27,13 +35,23 @@ export const TemplatePage = () => {
   );
 
   const [buttonTags, setButtonTags] = useState([]);
-  const [Text, setText] = useState();
+  const [Text, setText] = useState('');
+  const [name, setName] = useState('');
   const [reply, setReply] = useState(10);
   const [retweet, setRetweet] = useState(30);
   const [like, setLike] = useState(100);
   const [download, setDownload] = useState(1000);
   const [follow, setFollow] = useState(2000);
   const [open, setOpen] = useState(false);
+  const [showEmojis, setShowEmojis] = useState(false);
+  const [isYoutube, setoutube] = useState(false);
+  const [media, setMedia] = useState([]);
+  const [displayMedia, setDisplayMedia] = useState([]);
+
+
+  // useEffect(() => {
+  //   new Picker({ data})
+  // }, [])
 
 
   const theme = {
@@ -65,7 +83,40 @@ export const TemplatePage = () => {
     const textInput = event.target.value;
     let x = textInput.split(" ").filter((item) => item[0] === "#");
     setButtonTags(x);
+    // if(Text.length<270)
     setText(textInput)
+  };
+
+  const handleImageChange = async (event) => {
+    console.log(event)
+    if (media.length <4) {
+      try {
+        const file = event.target.files[0];
+        var reader = new FileReader();
+        var url = URL.createObjectURL(file);
+        console.log(url)
+        setDisplayMedia([...displayMedia,url])
+        console.log(displayMedia)
+
+        let data = new FormData();
+        data.append('media_file', file);
+        data.append('media_type', 'image');
+        const response = await APICall('/campaign/media/', 'POST', {}, data, true);
+        setMedia([...media, response.id])
+        setoutube(false)
+      }
+      catch (err) {
+        console.log(err)
+      }
+    }
+    else {
+      console.log('Max 4 file');
+    }
+  };
+
+  const handleYouTubeClick = (event) => {
+    console.log(event)
+    setoutube(true)
   };
 
   const checking = (urls) => {
@@ -89,6 +140,10 @@ export const TemplatePage = () => {
     checking(event.target.value);
   };
 
+  const handleName = (event) => {
+    setName(event.target.value);
+  };
+
   const handleReply = (e) => {
     setReply(e.target.value);
   };
@@ -104,28 +159,46 @@ export const TemplatePage = () => {
   const handleFollow = (e) => {
     setFollow(e.target.value);
   };
+  const onEmojiClick = (event, emojiObject) => {
+    // if(Text.length<270)
+    setText([Text + ' ' + emojiObject.emoji]);
+  };
 
   return (
     <ContainerStyled>
+{
+        console.log("+++++>>>>",displayMedia)
+
+}
       <Typography theme={theme}>Template</Typography>
       <Wrapper>
         <LeftSec>
+          <CustomInput
+            placeholder="Enter name"
+            onChange={handleName}
+          />
           <CustomParagraph
             onChange={handleText}
+            value={Text}
             type="textarea"
             placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus a finibus nisl, ut porta felis. Etiam vitae mollis purus. isl, ut porta felis. Etiam vitae mollis purus."
           />
+          <WordsWrap>
+            <EmoBtnWrap className="button" onClick={() => setShowEmojis(!showEmojis)}>😊 </EmoBtnWrap>
+            <div>{272 - Text?.length || 272}</div>
+          </WordsWrap>
+          {showEmojis && (
+            <div>
+              <Picker native={true} onEmojiClick={onEmojiClick} pickerStyle={{ width: '100%' }} />
 
+            </div>
+          )}
           <ButtonWrap>
             {buttonTags.slice(0, 2).map((item) => (
               <SecondaryButton text={item.replace(item[0], "")} />
             ))}
             {/* <SecondaryButton text="hashbuzz" /> */}
           </ButtonWrap>
-          <CustomInput
-            placeholder="http/123/reward/taskbar"
-            onChange={handleLink}
-          />
           <TableSection>
             <TemplateTable
               handleReply={handleReply}
@@ -142,17 +215,40 @@ export const TemplatePage = () => {
           </TableSection>
         </LeftSec>
         <RightSec>
-          <CustomIframe
-            src={srcLink}
-            id="tutorial"
-            frameborder="0"
-            allow="autoplay; encrypted-media"
-            title="video"
-          ></CustomIframe>
+          <IconsWrap>
+            <label for="file"><span> <ImageIcon /></span></label>
+            <CustomInput type="file" alt="" id="file" style={{ display: 'none' }} accept="image/png, image/gif, image/jpeg" onChange={handleImageChange} />
+            <label onClick={handleYouTubeClick}><span>
+              <YoutubeIcon />
+            </span></label>
+          </IconsWrap>
+          {isYoutube ?
+            <CustomInput
+              placeholder="http/123/reward/taskbar"
+              onChange={handleLink}
+            />
+            : null}
+          {
+            displayMedia.length > 0 ?
+              <IconsWrap>
+                {displayMedia[0]?<img width={100} src={displayMedia[0]} alt="" />:null}
+                {displayMedia[1]?<img width={100} src={displayMedia[1]} alt="" />:null}
+                {displayMedia[2]?<img width={100} src={displayMedia[2]} alt="" />:null}
+                {displayMedia[3]?<img width={100} src={displayMedia[3]} alt="" />:null}
+              </IconsWrap>
+              :
+              <CustomIframe
+                src={srcLink}
+                id="tutorial"
+                frameborder="0"
+                allow="autoplay; encrypted-media"
+                title="video"
+              ></CustomIframe>
+          }
           <ContentWrap>
             <TextWrap>
               <Typography theme={main}>Reward scheme: </Typography>
-              <Typography theme={body}>xk reply yk Retweet zk like</Typography>
+              <Typography theme={body}>xk reply yk Retweet</Typography>
             </TextWrap>
             <TextWrap>
               <Typography theme={main}>To receive reward</Typography>
@@ -186,8 +282,11 @@ export const TemplatePage = () => {
         download={download}
         follow={follow}
         srcLink={srcLink}
+        name={name}
+        media={media}
+        displayMedia={displayMedia}
       />
-     
+
     </ContainerStyled>
   );
 };

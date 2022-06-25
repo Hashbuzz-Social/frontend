@@ -12,6 +12,7 @@ import {
   TableSection,
   TextWrap,
   Wrapper,
+  IconsWrap
 } from "./PreviewModal.styles";
 import { TemplateTable } from "../Tables/TemplateTable";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +32,8 @@ const PreviewModal = ({
   download,
   follow,
   srcLink,
+  name,
+  displayMedia
 }) => {
   let navigate = useNavigate();
   const handleClose = () => setOpen(false);
@@ -86,14 +89,33 @@ const PreviewModal = ({
         <Typography theme={theme}>Twitter card preview</Typography>
         <Wrapper>
           <LeftSec>
+            <CustomParagraph>{name}</CustomParagraph>
             <CustomParagraph>{Text}</CustomParagraph>
-            <CustomIframe
+            {/* <CustomIframe
               src={srcLink}
               id="tutorial"
               frameborder="0"
               allow="autoplay; encrypted-media"
               title="video"
-            ></CustomIframe>
+            ></CustomIframe> */}
+
+{
+            displayMedia.length > 0 ?
+              <IconsWrap>
+                {displayMedia[0]?<img width={100} src={displayMedia[0]} alt="" />:null}
+                {displayMedia[1]?<img width={100} src={displayMedia[1]} alt="" />:null}
+                {displayMedia[2]?<img width={100} src={displayMedia[2]} alt="" />:null}
+                {displayMedia[3]?<img width={100} src={displayMedia[3]} alt="" />:null}
+              </IconsWrap>
+              :
+              <CustomIframe
+                src={srcLink}
+                id="tutorial"
+                frameborder="0"
+                allow="autoplay; encrypted-media"
+                title="video"
+              ></CustomIframe>
+          }
             <TextWrap>
             <Typography theme={body}>Video Tiltle here</Typography>
             </TextWrap>
