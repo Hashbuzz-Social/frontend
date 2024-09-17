@@ -1,27 +1,33 @@
-import { Box, Container, Link, Stack, Typography, Grid, Alert, useTheme } from "@mui/material";
-import HashbuzzLogo from "../../../SVGR/HashbuzzLogo";
+import { Alert, Box, Button, Container, Grid, Link, Stack, Typography, useTheme } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 import React from "react";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "../../../Store/StoreProvider";
-import { useHashconnectService } from "../../../Wallet";
-import { SpeedDialActions } from "../../Components";
 import styled from "styled-components";
+import { useStore } from "../../../Store/StoreProvider";
+import HashbuzzLogo from "../../../SVGR/HashbuzzLogo";
+import { useHashconnectService } from "../../../Wallet";
 import { useHandleAuthenticate } from "../../../Wallet/useHandleAuthenticate";
+import { MenuItemsAndSpeedDial } from "../../Components";
+import HashbuzzIcon from "../../../SVGR/HashbuzzIcon";
+// import { SpeedDialActions } from "../../Components";
 
 const Landing = () => {
   const store = useStore();
   const theme = useTheme();
   const [cookies] = useCookies(["aSToken"]);
   const { pairingData } = useHashconnectService();
-  const {handleAuthenticate, authStatusLog} = useHandleAuthenticate()
+  const { handleAuthenticate, authStatusLog } = useHandleAuthenticate();
   const navigate = useNavigate();
   const ping = store.ping;
   const auth = store.auth;
   const pairedAccount = pairingData?.accountIds[0];
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   React.useEffect(() => {
-    if (cookies.aSToken && ping.status && pairedAccount || auth?.auth) {
+    if ((cookies.aSToken && ping.status && pairedAccount) || auth?.auth) {
       navigate("/dashboard");
     }
   }, [cookies.aSToken, navigate, pairedAccount, ping]);
@@ -45,6 +51,16 @@ const Landing = () => {
     }
   `;
 
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const menuOpen = Boolean(anchorEl);
+
   return (
     <Box
       sx={{
@@ -54,11 +70,11 @@ const Landing = () => {
         backgroundRepeat: "no-repeat",
         // paddingBottom: "20px",
         backgroundSize: "cover",
-        backgroundPosition: "right bottom",
+        backgroundPosition: "center",
         [theme.breakpoints.between("md", "xl")]: {
           backgroundPosition: "top right",
         },
-        backdropFilter: "blur(20px)",
+        // backdropFilter: "blur(20px)",
       }}
     >
       <Container>
@@ -68,31 +84,51 @@ const Landing = () => {
           justifyContent={"center"}
         >
           <HashbuzzLogo
-            height={150}
+            height={100}
             colors={{
               color1: "#fff",
               color2: "#fff",
             }}
           />
         </Stack>
+
+        <Button
+          startIcon={
+            <Avatar sx={{ width: 40, height: 40 , background:"#1976d2" }}>
+              <HashbuzzIcon size={40} color="#fff" />
+            </Avatar>
+          }
+          onClick={handleClick}
+          variant="outlined"
+          color="primary"
+          sx={{ ml: 2 , position:"fixed" , top: 20, right: 40  }}
+          aria-controls={menuOpen ? "wallet-connecter-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={menuOpen ? "true" : undefined}
+        
+        >
+          <Typography variant="subtitle1" component="span" color={"#fff"}>Sign UP</Typography>
+        </Button>
+
         <Box
           sx={{
-            background: "linear-gradient(rgba(0, 96, 231, 0.5), rgba(80, 360, 350, 0.7))",
+            background: "linear-gradient(rgba(0, 96, 231, 0.15), rgba(80, 360, 350, 0.17))",
             p: 3,
+            backdropFilter: "blur(12px)",
             borderRadius: 1,
             [theme.breakpoints.up("md")]: {
-              maxWidth: "900",
-              width: "75%",
+              maxWidth: "90%",
+              width: "max(768, 1150)",
               marginTop: 2,
             },
             // maxWidth: 1250,
             [theme.breakpoints.up("lg")]: {
-              maxWidth: 1150,
-              marginTop: 3,
+              maxWidth: "85%",
+              width: "max(900, 1200)",
             },
             [theme.breakpoints.up("xl")]: {
-              maxWidth: 800,
-              marginTop: 5,
+              maxWidth: "80%",
+              width: "max(1150, 14400)",
             },
             marginLeft: "auto",
             marginRight: "auto",
@@ -157,7 +193,8 @@ const Landing = () => {
           </Stack>
         </Box>
       </Container>
-      <SpeedDialActions />
+
+      <MenuItemsAndSpeedDial menuOpen={menuOpen} handleMenuClose={handleClose} anchorEl={anchorEl} />
     </Box>
   );
 };

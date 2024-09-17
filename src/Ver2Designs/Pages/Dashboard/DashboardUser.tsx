@@ -10,7 +10,7 @@ import { CardGenUtility } from "./CardGenUtility";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
 import { getErrorMessage, isAllowedToCmapigner } from "../../../Utilities/helpers";
-import SpeedDialActions from "../../Components/SpeedDialActions";
+import MenuItemsAndSpeedDial from "../../Components/SpeedDialActions";
 import * as SC from "./styled";
 
 const Dashboard = () => {
@@ -87,7 +87,7 @@ const Dashboard = () => {
       <CampaignList  />
 
       {/* speed dial  action button */}
-      <SpeedDialActions />
+      <MenuItemsAndSpeedDial />
     </React.Fragment>
   );
 };

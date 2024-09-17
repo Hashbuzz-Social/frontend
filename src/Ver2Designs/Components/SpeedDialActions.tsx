@@ -1,8 +1,15 @@
 import CloseIcon from "@mui/icons-material/Close";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import LogoutIcon from "@mui/icons-material/Logout";
+import { default as Logout, default as LogoutIcon } from "@mui/icons-material/Logout";
+import PersonAdd from "@mui/icons-material/PersonAdd";
 import QrCodeIcon from "@mui/icons-material/QrCode";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import Settings from "@mui/icons-material/Settings";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+import Divider from "@mui/material/Divider";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import Slide from "@mui/material/Slide";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
@@ -14,27 +21,36 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import HashbuzzIcon from "../../SVGR/HashbuzzIcon";
 import HashpackIcon from "../../SVGR/HashpackIcon";
+import HashPackLogoBlack from "../../SVGR/HashpackLogoBalck";
+import WalletConnectIcon from "../../SVGR/WalletConnectIcon";
+import WalletConnectLookup from "../../SVGR/WalletConnectLookup";
 import { useStore } from "../../Store/StoreProvider";
 import { useHashconnectService } from "../../Wallet";
 import { useConnectToExtension } from "../../Wallet/useConnectToExtension";
 import { useDisconnect } from "../../Wallet/useDisconnect";
 
-const postAuthActions = [
-  // {
-  //   icon: <img src={ℏicon} alt={"ℏ"} style={{ height: "24px", width: "auto", marginRight: 10, display: "inline-block" }} />,
-  //   name: "Topup",
-  //   id: "top-up",
-  // },
+type SpeedDialAction = {
+  icon: React.ReactNode;
+  name: React.ReactNode;
+  id: string;
+};
 
-  { icon: <LogoutIcon />, name: "Logout", id: "logout" },
+const postAuthActions: SpeedDialAction[] = [{ icon: <LogoutIcon />, name: "Logout", id: "logout" }];
+const beforeAuthActions: SpeedDialAction[] = [
+  { icon: <HashpackIcon height={24} />, name: <HashPackLogoBlack className="Hashpack-connecter-name" height={28} />, id: "hashpack-connect" },
+  { icon: <WalletConnectIcon height={24} />, name: <WalletConnectLookup className="walletconnect-connecter-name" height={28} />, id: "wallet-connect" },
+  {
+    icon: <QrCodeIcon />,
+    name: (
+      <Box component={"span"} style={{ display: "inline-flex", width: "max-content", alignItems: "center", height: 32 }}>
+        <HashPackLogoBlack className="Hashpack-QR-connecter-name" height={16} />
+        <QrCodeIcon fontSize="inherit" sx={{ margin: "0 5px" }} />
+        {" OR string"}
+      </Box>
+    ),
+    id: "qr-connect",
+  },
 ];
-const beforeAuthActions = [
-  { icon: <HashpackIcon height={24} />, name: "Hashpack", id: "hashpack-connect" },
-  { icon: <QrCodeIcon />, name: "QR", id: "qr-connect" },
-];
-// interface SpeedDialTooltipOpenProps {
-//   user?: CurrentUser;
-// }
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -45,7 +61,13 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const SpeedDialActions = () => {
+interface Props {
+  anchorEl?: HTMLElement | null;
+  menuOpen?: boolean;
+  handleMenuClose?: () => void;
+}
+
+const MenuItemsAndSpeedDial = ({ anchorEl, menuOpen, handleMenuClose }: Props) => {
   const [open, setOpen] = React.useState(false);
   const theme = useTheme();
   const [qrCodeOpen, setQrCodeOpen] = React.useState(false);
@@ -82,9 +104,7 @@ const SpeedDialActions = () => {
       } else {
         // await sendMarkOFwalletInstall();
         // Taskbar Alert - Hashpack browser extension not installed, please click on <Go> to visit HashPack website and install their wallet on your browser
-        alert(
-          "Alert - HashPack browser extension not installed, please click on <<OK>> to visit HashPack website and install their wallet on your browser.  Once installed you might need to restart your browser for Taskbar to detect wallet extension first time."
-        );
+        alert("Alert - HashPack browser extension not installed, please click on <<OK>> to visit HashPack website and install their wallet on your browser.  Once installed you might need to restart your browser for Taskbar to detect wallet extension first time.");
         window.open("https://www.hashpack.app");
       }
     } catch (e) {
@@ -116,9 +136,8 @@ const SpeedDialActions = () => {
 
   return (
     <React.Fragment>
-      {/* <Backdrop open={open} /> */}
       <SpeedDial
-        ariaLabel="SpeedDial tooltip example"
+        ariaLabel="Connect your wallet"
         sx={{ position: "fixed", bottom: 10, right: 40 }}
         icon={<HashbuzzIcon size={60} color="#fff" />}
         openIcon={<CloseIcon />}
@@ -131,26 +150,62 @@ const SpeedDialActions = () => {
           },
         }}
       >
-        {(cookies?.aSToken ? postAuthActions : beforeAuthActions).map((action) => {
-          // if(action.name === "Connect" && pairingData?.topic) return null;
-          return (
-            <SpeedDialAction
-              key={action.name}
-              icon={action.icon}
-              tooltipTitle={action.name}
-              tooltipOpen
-              onClick={(event) => handleClick(action.id)}
-            />
-          );
+        {(cookies?.aSToken ? postAuthActions : beforeAuthActions).map((action, index) => {
+          return <SpeedDialAction key={action.id} icon={action.icon} tooltipTitle={action.name} tooltipOpen onClick={(event) => handleClick(action.id)} />;
         })}
       </SpeedDial>
       <QRCodeDialog
         open={qrCodeOpen}
         onclose={() => {
           setQrCodeOpen(false);
-          // handleClose()
         }}
       />
+      <Menu
+        anchorEl={anchorEl}
+        id="account-menu"
+        open={!!menuOpen}
+        onClose={handleMenuClose}
+        onClick={handleMenuClose}
+        slotProps={{
+          paper: {
+            elevation: 0,
+            sx: {
+              overflow: "visible",
+              filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+              mt: 1.5,
+              "& .MuiAvatar-root": {
+                width: 32,
+                height: 32,
+                ml: -0.5,
+                mr: 1,
+              },
+              "&::before": {
+                content: '""',
+                display: "block",
+                position: "absolute",
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: "background.paper",
+                transform: "translateY(-50%) rotate(45deg)",
+                zIndex: 0,
+              },
+            },
+          },
+        }}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      >
+        {beforeAuthActions.map((action, index) => (
+          <>
+            <MenuItem key={action.id} onClick={() => handleClick(action.id)}>
+              {action.name}
+            </MenuItem>
+            {index !== beforeAuthActions.length - 1 && <Divider />}
+          </>
+        ))}
+      </Menu>
     </React.Fragment>
   );
 };
@@ -178,18 +233,10 @@ const QRCodeDialog = ({ open, onclose }: QRCodeDialogProps) => {
   }, [handleQRCodeDialogClose, pairingData]);
 
   return (
-    <Dialog
-      open={qrCodeOpen}
-      aria-labelledby="QRcode-dialog-title"
-      onClose={handleQRCodeDialogClose}
-      TransitionComponent={Transition}
-      aria-describedby="qr-code-dialog-having-paring-string"
-    >
+    <Dialog open={qrCodeOpen} aria-labelledby="QRcode-dialog-title" onClose={handleQRCodeDialogClose} TransitionComponent={Transition} aria-describedby="qr-code-dialog-having-paring-string">
       <DialogTitle id="QRcode-dialog-title">{"Hashpack pairing string"}</DialogTitle>
       <DialogContent>
-        <DialogContent id="qr-code-dialog-having-paring-string">
-          Copy paring string and paste it in your wallet extension or scan QR code with your mobile wallet.
-        </DialogContent>
+        <DialogContent id="qr-code-dialog-having-paring-string">Copy paring string and paste it in your wallet extension or scan QR code with your mobile wallet.</DialogContent>
         <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
           <Typography noWrap sx={{ width: 150 }}>
             {pairingString}
@@ -209,4 +256,4 @@ const QRCodeDialog = ({ open, onclose }: QRCodeDialogProps) => {
   );
 };
 
-export default SpeedDialActions;
+export default MenuItemsAndSpeedDial;
