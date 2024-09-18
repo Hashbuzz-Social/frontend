@@ -1,9 +1,8 @@
 import { useContext } from 'react';
-import { HashconectServiceContext } from './hashconnectService';
+import { HashconnectServiceContext } from './ConnectionProvider/HashconnectServiceContext';
 
 export const useHashconnectService = () => {
-  console.log("useHashconnectService is called")
-  const context = useContext(HashconectServiceContext);
+  const context = useContext(HashconnectServiceContext);
   return {
     ...context,
    

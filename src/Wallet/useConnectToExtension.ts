@@ -1,8 +1,9 @@
 import { useContext } from 'react';
-import { HashconectServiceContext } from './hashconnectService';
+import { HashconnectServiceContext } from './ConnectionProvider/HashconnectServiceContext';
+// import { HashconnectServiceContext } from './ConnectionProvider';
 
 export const useConnectToExtension = () => {
-  const { hashconnect } = useContext(HashconectServiceContext);
+  const { hashconnect } = useContext(HashconnectServiceContext);
 
   const connectToExtension = async () => {
     hashconnect?.connectToLocalWallet();

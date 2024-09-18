@@ -1,10 +1,11 @@
 import { useCallback, useContext, useState } from "react";
-import { HashconectServiceContext } from "./hashconnectService";
 import { useApiInstance } from "../APIConfig/api";
 import { useCookies } from "react-cookie";
 import { useAuth } from "../Store/useAuth";
 import { toast } from "react-toastify";
 import { useStore } from "../Store/StoreProvider";
+import { HashconnectServiceContext } from "./ConnectionProvider/HashconnectServiceContext";
+// import { HashconnectServiceContext } from "./ConnectionProvider";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 interface AuthenticationLog {
@@ -13,8 +14,7 @@ interface AuthenticationLog {
 }
 
 export const useHandleAuthenticate = () => {
-  console.log("useHandleAuthenticate is called")
-  const { topic, pairingData, hashconnect, setState } = useContext(HashconectServiceContext);
+  const { topic, pairingData, hashconnect } = useContext(HashconnectServiceContext);
   const { Auth } = useApiInstance();
   const [_, setCookies, removeCookie] = useCookies(["aSToken", "refreshToken"]);
   const { authCheckPing } = useAuth();

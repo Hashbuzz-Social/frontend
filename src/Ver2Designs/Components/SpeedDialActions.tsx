@@ -1,13 +1,9 @@
 import CloseIcon from "@mui/icons-material/Close";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { default as Logout, default as LogoutIcon } from "@mui/icons-material/Logout";
-import PersonAdd from "@mui/icons-material/PersonAdd";
+import { default as LogoutIcon } from "@mui/icons-material/Logout";
 import QrCodeIcon from "@mui/icons-material/QrCode";
-import Settings from "@mui/icons-material/Settings";
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Slide from "@mui/material/Slide";
@@ -28,6 +24,7 @@ import { useStore } from "../../Store/StoreProvider";
 import { useHashconnectService } from "../../Wallet";
 import { useConnectToExtension } from "../../Wallet/useConnectToExtension";
 import { useDisconnect } from "../../Wallet/useDisconnect";
+import { WalletConnectors } from "../../types";
 
 type SpeedDialAction = {
   icon: React.ReactNode;
@@ -125,9 +122,14 @@ const MenuItemsAndSpeedDial = ({ anchorEl, menuOpen, handleMenuClose }: Props) =
         break;
       case "qr-connect":
         handleQrCodeGen();
+        store.dispatch({ type: "SET_WALLET_CONNECTOR", payload: WalletConnectors.QrCode });
         break;
       case "hashpack-connect":
         connectHashpack();
+        store.dispatch({ type: "SET_WALLET_CONNECTOR", payload: WalletConnectors.HashPack });
+        break;
+      case "wallet-connect":
+        store.dispatch({ type: "SET_WALLET_CONNECTOR", payload: WalletConnectors.WalletConnect });
         break;
       default:
         break;

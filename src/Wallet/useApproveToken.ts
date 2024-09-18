@@ -1,12 +1,10 @@
-import { useContext } from 'react';
-
-import { HashconectServiceContext } from './hashconnectService';
 import { AccountAllowanceApproveTransaction } from '@hashgraph/sdk';
-import BigNumber from 'bignumber.js';
+import { useContext } from 'react';
 import { NETWORK } from '../Utilities/helpers';
+import { HashconnectServiceContext } from './ConnectionProvider/HashconnectServiceContext';
 
 export const useApproveToken = () => {
-  const { topic, hashconnect } = useContext(HashconectServiceContext);
+  const { topic, hashconnect } = useContext(HashconnectServiceContext);
 
   const approveToken = async (accountId: any, data: any) => {
     let contract_address: any = process.env.REACT_APP_CONTRACT_ADDRESS;

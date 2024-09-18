@@ -1,6 +1,7 @@
 import { AuthCred, CurrentUser } from "./users";
 import { Campaign } from "./campaign";
 import React from "react";
+import exp from "constants";
 
 export type ContractInfo = {
   contract_id: string;
@@ -19,6 +20,13 @@ export interface AppState {
   balances: EntityBalances[];
   contractInfo?: ContractInfo;
   toasts: { type: "error" | "info" | "success", message: string }[]
+  walletConnector?: WalletConnectors;
+}
+
+export enum WalletConnectors {
+  HashPack = "hashpack",
+  WalletConnect = "walletconnect",
+  QrCode = "qrcode"
 }
 
 export interface EntityBalances {
@@ -31,3 +39,11 @@ export interface EntityBalances {
 }
 
 export type BalOperation = "topup" | "reimburse";
+
+export enum NetworksTypes {
+  TESTNET = "hashbuzz:testnet",
+  MAINNET = "hashbuzz:mainnet",
+  PREVIEWNET = "hashbuzz:previewnet",
+}
+
+export type Networks = "testnet" | "mainnet" | "previewnet";
