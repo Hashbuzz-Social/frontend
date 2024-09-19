@@ -45,6 +45,7 @@ export const HashconnectServiceContext = createContext<
       hashconnect: HashConnect | null;
       walletConnectState: WalletConnectState;
       dispatch: React.Dispatch<WalletConnectAction>;
+      setState: React.Dispatch<React.SetStateAction<Partial<HashconnectContextAPI>>>
     }
   >
 >({});
@@ -120,8 +121,9 @@ export const HashconnectAPIProvider = ({ children, metaData, network, debug }: H
       hashconnect: hashconnectRef.current,
       walletConnectState,
       dispatch,
+      setState
     }),
-    [network, state, walletConnectState]
+    [network, state, walletConnectState , setState]
   );
 
   return <HashconnectServiceContext.Provider value={value}>{children}</HashconnectServiceContext.Provider>;

@@ -107,7 +107,7 @@ const Landing = () => {
           aria-expanded={menuOpen ? "true" : undefined}
         
         >
-          <Typography variant="subtitle1" component="span" color={"#fff"}>Sign UP</Typography>
+          <Typography variant="subtitle1" component="span" color={"#fff"}>Log In</Typography>
         </Button>
 
         <Box

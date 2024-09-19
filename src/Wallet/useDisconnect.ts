@@ -8,7 +8,7 @@ import { HashconnectServiceContext } from "./ConnectionProvider/HashconnectServi
 // import { HashconnectServiceContext } from "./ConnectionProvider";
 
 export const useDisconnect = () => {
-  const { topic, pairingData, hashconnect } = useContext(HashconnectServiceContext);
+  const { pairingData, hashconnect , setState } = useContext(HashconnectServiceContext);
   const { Auth } = useApiInstance();
   const [_, , removeCookies] = useCookies(["aSToken"]);
   const store = useStore();
@@ -16,7 +16,7 @@ export const useDisconnect = () => {
   const disconnect = useCallback(async () => {
     try {
       await hashconnect?.disconnect(pairingData?.topic!);
-      // setState!((exState) => ({ ...exState, pairingData: null }))!;
+      setState && setState((exState) => ({ ...exState, pairingData: null }));
       const logoutResponse = await Auth.doLogout();
       removeCookies("aSToken");
       store.dispatch({ type: "RESET_STATE" });

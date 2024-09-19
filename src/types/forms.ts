@@ -1,4 +1,3 @@
-import { CampaignStatus } from "../Utilities/helpers";
 import { CampaignCommands } from "./campaign";
 import { TokenBalances } from "./users";
 import { CurrentUser } from "./users";

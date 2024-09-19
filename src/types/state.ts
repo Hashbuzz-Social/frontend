@@ -1,7 +1,6 @@
 import { AuthCred, CurrentUser } from "./users";
 import { Campaign } from "./campaign";
 import React from "react";
-import exp from "constants";
 
 export type ContractInfo = {
   contract_id: string;
