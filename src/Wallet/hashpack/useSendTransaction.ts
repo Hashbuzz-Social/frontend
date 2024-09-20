@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { MessageTypes } from 'hashconnect';
-import { HashconnectServiceContext } from './ConnectionProvider/HashconnectServiceContext';
+import { HashconnectServiceContext } from '../ConnectionProvider/HashconnectServiceContext';
 
 export const useSendTransaction = () => {
   const { topic, hashconnect } = useContext(HashconnectServiceContext);

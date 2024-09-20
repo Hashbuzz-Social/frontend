@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { HashconnectServiceContext } from "./ConnectionProvider/HashconnectServiceContext";
+import { HashconnectServiceContext } from "../ConnectionProvider/HashconnectServiceContext";
 
 export const usePairingClear = () => {
   const { hashconnect , setState} = useContext(HashconnectServiceContext);

@@ -1,10 +1,10 @@
 import { useCallback, useContext, useState } from "react";
-import { useApiInstance } from "../APIConfig/api";
+import { useApiInstance } from "../../APIConfig/api";
 import { useCookies } from "react-cookie";
-import { useAuth } from "../Store/useAuth";
+import { useAuth } from "../../Store/useAuth";
 import { toast } from "react-toastify";
-import { useStore } from "../Store/StoreProvider";
-import { HashconnectServiceContext } from "./ConnectionProvider/HashconnectServiceContext";
+import { useStore } from "../../Store/StoreProvider";
+import { HashconnectServiceContext } from "../ConnectionProvider/HashconnectServiceContext";
 // import { HashconnectServiceContext } from "./ConnectionProvider";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

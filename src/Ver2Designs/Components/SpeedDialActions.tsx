@@ -22,9 +22,10 @@ import WalletConnectIcon from "../../SVGR/WalletConnectIcon";
 import WalletConnectLookup from "../../SVGR/WalletConnectLookup";
 import { useStore } from "../../Store/StoreProvider";
 import { useHashconnectService } from "../../Wallet";
-import { useConnectToExtension } from "../../Wallet/useConnectToExtension";
-import { useDisconnect } from "../../Wallet/useDisconnect";
+import { useConnectToExtension } from "../../Wallet/hashpack/useConnectToExtension";
+import { useDisconnect } from "../../Wallet/hashpack/useDisconnect";
 import { WalletConnectors } from "../../types";
+import useConnectViaWalletConnect from "../../Wallet/walletConnect/useConnectViaWalletConnect";
 
 type SpeedDialAction = {
   icon: React.ReactNode;
@@ -70,6 +71,7 @@ const MenuItemsAndSpeedDial = ({ anchorEl, menuOpen, handleMenuClose }: Props) =
   const [qrCodeOpen, setQrCodeOpen] = React.useState(false);
   const { pairingString, availableExtension } = useHashconnectService();
   const connectToExtension = useConnectToExtension();
+  const { handleConnect } = useConnectViaWalletConnect();
   const disconnect = useDisconnect();
   const isDeviceIsSm = useMediaQuery(theme.breakpoints.down("sm"));
   const store = useStore();
@@ -99,14 +101,16 @@ const MenuItemsAndSpeedDial = ({ anchorEl, menuOpen, handleMenuClose }: Props) =
       if (availableExtension) {
         connectToExtension();
       } else {
-        // await sendMarkOFwalletInstall();
-        // Taskbar Alert - Hashpack browser extension not installed, please click on <Go> to visit HashPack website and install their wallet on your browser
         alert("Alert - HashPack browser extension not installed, please click on <<OK>> to visit HashPack website and install their wallet on your browser.  Once installed you might need to restart your browser for Taskbar to detect wallet extension first time.");
-        window.open("https://www.hashpack.app");
+        window.open("https://www.hashpack.app", "_blank");
       }
     } catch (e) {
       console.log(e);
     }
+  };
+
+  const connectViaWalletConnect = () => {
+    handleConnect();
   };
 
   const handleClick = async (name: string) => {
@@ -130,6 +134,7 @@ const MenuItemsAndSpeedDial = ({ anchorEl, menuOpen, handleMenuClose }: Props) =
         break;
       case "wallet-connect":
         store.dispatch({ type: "SET_WALLET_CONNECTOR", payload: WalletConnectors.WalletConnect });
+        connectViaWalletConnect();
         break;
       default:
         break;

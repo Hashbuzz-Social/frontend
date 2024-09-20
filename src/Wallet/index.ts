@@ -1,1 +1,1 @@
-export * from './useHashconnectServicce';
+export * from './hashpack/useHashconnectServicce';

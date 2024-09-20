@@ -20,8 +20,8 @@ import StatusCard from "../../StatusCard/StatusCard";
 import { CustomRowHead, CustomTable2, CustomTableBodyCell, CustomTableHeadCell } from "../../Tables/CreateTable.styles";
 import notify from "../../Toaster/toaster";
 import { CardSection, LinkContainer, StatusSection, TableSection } from "./CreateTwitterPage.styles";
-import { useConnectToExtension } from "../../../Wallet/useConnectToExtension";
-import { useDisconnect } from "../../../Wallet/useDisconnect";
+import { useConnectToExtension } from "../../../Wallet/hashpack/useConnectToExtension";
+import { useDisconnect } from "../../../Wallet/hashpack/useDisconnect";
 
 export const CreateTwitterPage = () => {
   const [tableData, setTableData] = useState([]);

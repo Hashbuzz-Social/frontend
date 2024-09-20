@@ -9,5 +9,8 @@
     "Hashconnect",
     "Respectivewidth",
     "Respectivheight"
-  ]
+  ],
+  "editor":{
+    "printWidth": 120,
+  }
 }

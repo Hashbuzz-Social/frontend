@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import { HashconnectServiceContext } from "./ConnectionProvider/HashconnectServiceContext";
+import { HashconnectServiceContext } from "../ConnectionProvider/HashconnectServiceContext";
 import { ContractExecuteTransaction, ContractFunctionParameters, AccountId, ContractId } from "@hashgraph/sdk";
 import BigNumber from "bignumber.js";
-import { COLLECTOR_ACCOUNT, CONTRACT_ADDRESS, NETWORK } from "../Utilities/helpers";
+import { COLLECTOR_ACCOUNT, CONTRACT_ADDRESS, NETWORK } from "../../Utilities/helpers";
 
 export const useTransferTokenToContract = () => {
   const { topic, hashconnect } = useContext(HashconnectServiceContext);

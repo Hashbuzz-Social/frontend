@@ -1,7 +1,7 @@
 import { AccountAllowanceApproveTransaction } from '@hashgraph/sdk';
 import { useContext } from 'react';
-import { NETWORK } from '../Utilities/helpers';
-import { HashconnectServiceContext } from './ConnectionProvider/HashconnectServiceContext';
+import { NETWORK } from '../../Utilities/helpers';
+import { HashconnectServiceContext } from '../ConnectionProvider/HashconnectServiceContext';
 
 export const useApproveToken = () => {
   const { topic, hashconnect } = useContext(HashconnectServiceContext);

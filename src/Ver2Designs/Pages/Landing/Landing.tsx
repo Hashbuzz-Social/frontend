@@ -9,7 +9,7 @@ import styled from "styled-components";
 import { useStore } from "../../../Store/StoreProvider";
 import HashbuzzLogo from "../../../SVGR/HashbuzzLogo";
 import { useHashconnectService } from "../../../Wallet";
-import { useHandleAuthenticate } from "../../../Wallet/useHandleAuthenticate";
+import { useHandleAuthenticate } from "../../../Wallet/hashpack/useHandleAuthenticate";
 import { MenuItemsAndSpeedDial } from "../../Components";
 import HashbuzzIcon from "../../../SVGR/HashbuzzIcon";
 // import { SpeedDialActions } from "../../Components";

@@ -2,8 +2,8 @@ import { toast } from "react-toastify";
 import { useApiInstance } from "../APIConfig/api";
 import { CreateTransactionEntity } from "../types";
 import { useBalances } from "../Store/useBalances";
-import { useHashconnectService } from "./useHashconnectServicce";
-import { useSendTransaction } from "./useSendTransaction";
+import { useHashconnectService } from "./hashpack/useHashconnectServicce";
+import { useSendTransaction } from "./hashpack/useSendTransaction";
 
 
 export const useSmartContractServices = () => {
