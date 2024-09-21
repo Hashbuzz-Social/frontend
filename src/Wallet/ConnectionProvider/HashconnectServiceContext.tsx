@@ -2,9 +2,8 @@ import { DAppConnector, DAppSigner, ExtensionData } from "@hashgraph/hedera-wall
 import { SessionTypes } from "@walletconnect/types";
 import { HashConnect, HashConnectTypes } from "hashconnect";
 import { HashConnectConnectionState } from "hashconnect/dist/esm/types";
-import React, { createContext, useCallback, useEffect, useMemo, useReducer } from "react";
-import { useStore } from "../../Store/StoreProvider";
-import { Networks, WalletConnectors } from "../../types";
+import React, { createContext, useEffect, useMemo, useReducer, useRef } from "react";
+import { Networks } from "../../types";
 import useHashConnect from "./useHashConnectConnector";
 import useWalletConnect from "./useWalletConnectConnector";
 
@@ -19,7 +18,6 @@ export interface HashconnectContextAPI {
 
 // WalletConnect State Definition
 export interface WalletConnectState {
-  dAppConnector: DAppConnector | null;
   sessions: SessionTypes.Struct[];
   signers: DAppSigner[];
   selectedSigner: DAppSigner | null;
@@ -43,7 +41,6 @@ export interface HashconnectAPIProviderProps {
 
 // Initial State for WalletConnect
 const initialWalletConnectState: WalletConnectState = {
-  dAppConnector: null,
   sessions: [],
   signers: [],
   selectedSigner: null,
@@ -54,9 +51,9 @@ const initialWalletConnectState: WalletConnectState = {
 
 // WalletConnect Actions
 export type WalletConnectAction =
-  | { type: "SET_CONNECTOR"; payload: DAppConnector }
   | { type: "SET_SESSIONS"; payload: SessionTypes.Struct[] }
   | { type: "SET_SIGNERS"; payload: DAppSigner[] }
+  | { type: "SET_SELECTED_SIGNER"; payload: DAppSigner }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_MESSAGE"; payload: string }
   | { type: "SET_EXTENSIONS"; payload: ExtensionData[] }
@@ -70,10 +67,12 @@ export const HashconnectServiceContext = createContext<
     HashconnectContextAPI & {
       network: Networks;
       hashconnect: HashConnect | null;
+      dAppConnector: DAppConnector | null;
       walletConnectState: WalletConnectState;
       dispatch: React.Dispatch<WalletConnectAction>;
       setState: React.Dispatch<React.SetStateAction<Partial<HashconnectContextAPI>>>;
-      initWalletConnect:() => Promise<void>;
+      initWalletConnect: () => Promise<void>;
+      setNewSession: (session: SessionTypes.Struct) => void;
     }
   >
 >({
@@ -83,12 +82,12 @@ export const HashconnectServiceContext = createContext<
 // WalletConnect Reducer Function
 const walletConnectReducer = (state: WalletConnectState, action: WalletConnectAction): WalletConnectState => {
   switch (action.type) {
-    case "SET_CONNECTOR":
-      return { ...state, dAppConnector: action.payload };
     case "SET_SESSIONS":
-      return { ...state, sessions: action.payload };
+      return { ...state, sessions: [...state.sessions, ...action.payload] };
     case "SET_SIGNERS":
-      return { ...state, signers: action.payload };
+      return { ...state, signers: [...state.signers, ...action.payload] };
+    case "SET_SELECTED_SIGNER":
+      return { ...state, selectedSigner: action.payload };
     case "SET_LOADING":
       return { ...state, isLoading: action.payload };
     case "SET_MESSAGE":
@@ -109,58 +108,33 @@ const walletConnectReducer = (state: WalletConnectState, action: WalletConnectAc
 // Main Provider Component
 
 export const HashconnectAPIProvider = ({ children, metaData, network, debug }: HashconnectAPIProviderProps) => {
-  const { walletConnector } = useStore();
   const [state, setState] = React.useState<Partial<HashconnectContextAPI>>({});
   const [walletConnectState, dispatch] = useReducer(walletConnectReducer, initialWalletConnectState);
+  const walletConnectorRef = useRef<DAppConnector | null>(null);
+  const hashconnectRef = useRef<HashConnect | null>(null);
 
-  const { initHashconnect, hashconnectRef } = useHashConnect(metaData, network, setState, debug);
-  const { initWalletConnect } = useWalletConnect(
+  const { initHashconnect } = useHashConnect(metaData, network, setState, hashconnectRef, debug);
+  const { initWalletConnect, setNewSession } = useWalletConnect({
     dispatch,
-    {
+    metadata: {
       name: metaData.name,
       description: metaData.description,
       icons: [metaData.icon],
       url: "https://testnet.hashbuzz.social",
     },
     network,
-    debug
-  );
+    walletConnectorRef,
+    debug,
+  });
 
   useEffect(() => {
-    if (walletConnector === WalletConnectors.HashPack) {
-      initHashconnect().catch((error) => {
-        debug && console.error("Failed to initialize Hashconnect:", error);
-      });
-    }
-  }, [initHashconnect, walletConnector]);
-
-  /** Walletconnect Effects to watch */
-  React.useEffect(() => {
-    if (walletConnector === WalletConnectors.WalletConnect) {
-      // Initialize WalletConnect
-      initWalletConnect()
-        .then(() => {
-          saveWcDataToLocalStorage();
-        })
-        .catch((error) => {
-          console.error("Failed to initialize WalletConnect:", error);
-        });
-    }
-  }, [initWalletConnect, walletConnector]);
-
-  const saveWcDataToLocalStorage = useCallback(() => {
-    localStorage.setItem(
-      "hashbuzz-wc-state",
-      JSON.stringify({
-        projectId: walletConnectState.dAppConnector?.projectId,
-        name: metaData.name,
-        description: metaData.description,
-        url: "https://testnet.hashbuzz.social",
-        icons: [metaData.icon],
-        message: walletConnectState.message,
-      })
-    );
-  }, [walletConnectState, metaData]);
+    initHashconnect().catch((error) => {
+      debug && console.error("Failed to initialize Hashconnect:", error);
+    });
+    initWalletConnect().catch((error) => {
+      console.error("Failed to initialize WalletConnect:", error);
+    });
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -171,9 +145,11 @@ export const HashconnectAPIProvider = ({ children, metaData, network, debug }: H
       dispatch,
       setState,
       debug,
-      initWalletConnect
+      initWalletConnect,
+      dAppConnector: walletConnectorRef.current,
+      setNewSession: setNewSession,
     }),
-    [network, state, walletConnectState, setState]
+    [state, network, hashconnectRef, walletConnectState, dispatch, setState, debug, initWalletConnect, walletConnectorRef, setNewSession]
   );
 
   return <HashconnectServiceContext.Provider value={value}>{children}</HashconnectServiceContext.Provider>;

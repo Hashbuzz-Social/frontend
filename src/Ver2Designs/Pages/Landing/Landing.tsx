@@ -1,17 +1,15 @@
 import { Alert, Box, Button, Container, Grid, Link, Stack, Typography, useTheme } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
 import React from "react";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useStore } from "../../../Store/StoreProvider";
+import HashbuzzIcon from "../../../SVGR/HashbuzzIcon";
 import HashbuzzLogo from "../../../SVGR/HashbuzzLogo";
 import { useHashconnectService } from "../../../Wallet";
 import { useHandleAuthenticate } from "../../../Wallet/hashpack/useHandleAuthenticate";
 import { MenuItemsAndSpeedDial } from "../../Components";
-import HashbuzzIcon from "../../../SVGR/HashbuzzIcon";
 // import { SpeedDialActions } from "../../Components";
 
 const Landing = () => {
