@@ -8,7 +8,7 @@ import useModalWrapper from "./useModalWrapper";
  * @returns {Object} - An object containing handleConnect and handleDisconnectSessions functions.
  */
 const useConnectViaWalletConnect = () => {
-  const { dispatch,  dAppConnector , setNewSession} = useContext(HashconnectServiceContext);
+  const { dispatch, dAppConnector, setNewSession } = useContext(HashconnectServiceContext);
   const { modalWrapper } = useModalWrapper();
 
   /**
@@ -47,9 +47,9 @@ const useConnectViaWalletConnect = () => {
    */
   const handleDisconnectSessions = useCallback(async () => {
     modalWrapper(async () => {
+      console.log("Disconnecting all sessions");
       await dAppConnector!.disconnectAll();
-      dispatch && dispatch({ type: "SET_SIGNERS", payload: [] });
-      dispatch && dispatch({ type: "SET_SESSIONS", payload: [] });
+      dispatch && dispatch({ type: "SET_DISCONNECTED_STAE" });
       dispatch && dispatch({ type: "UPDATE_MODAL_STATE", payload: { status: "Success", message: "Session disconnected" } });
     });
   }, [dispatch, modalWrapper, dAppConnector]);

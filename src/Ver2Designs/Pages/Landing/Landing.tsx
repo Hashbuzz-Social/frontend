@@ -9,6 +9,8 @@ import HashbuzzIcon from "../../../SVGR/HashbuzzIcon";
 import HashbuzzLogo from "../../../SVGR/HashbuzzLogo";
 import { useHashconnectService } from "../../../Wallet";
 import useHandleAuthenticateWithHashconnect from "../../../Wallet/hashpack/useHandleAuthenticateWithHashconnect";
+import useConnectViaWalletConnect from "../../../Wallet/walletConnect/useConnectViaWalletConnect";
+import useWalletConnectService from "../../../Wallet/walletConnect/useWalletConnectService";
 import { MenuItemsAndSpeedDial } from "../../Components";
 
 const Landing = () => {
@@ -17,6 +19,9 @@ const Landing = () => {
   const [cookies] = useCookies(["aSToken"]);
   const { pairingData } = useHashconnectService();
   const { handleAuthenticate, authStatusLog } = useHandleAuthenticateWithHashconnect();
+
+  const  {sessions , selectedSigner} = useWalletConnectService();
+  const {handleDisconnectSessions} = useConnectViaWalletConnect();
   const navigate = useNavigate();
   const ping = store.ping;
   const auth = store.auth;
@@ -138,6 +143,18 @@ const Landing = () => {
               </Grid>
               <Grid item sm={6} xs={12}>
                 {authStatusLog.length > 0 ? <Alert severity={authStatusLog[authStatusLog.length - 1]?.type ?? "info"}>{authStatusLog[authStatusLog.length - 1]?.message ?? "Message"}</Alert> : null}
+              </Grid>
+            </Grid>
+          ) : null}
+          {Number(sessions?.length) > 0 ? (
+            <Grid container>
+              <Grid item sm={6} xs={12} sx={{ color: "#fff" }}>
+                <Typography variant="h5">Paired Wallet: {selectedSigner?.getAccountId().toString()}</Typography>
+              </Grid>
+              <Grid item sm={6} xs={12}>
+                <Button onClick={handleDisconnectSessions} variant="contained" color="error">
+                  Disconnect
+                </Button>
               </Grid>
             </Grid>
           ) : null}

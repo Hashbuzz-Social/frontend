@@ -23,7 +23,7 @@ const NETWORKS_LEDGERS: { [key in Networks]: LedgerId } = {
   previewnet: LedgerId.PREVIEWNET,
 };
 
-const useWalletConnect = ({ dispatch, metadata, network, walletConnectorRef, debug }: Props) => {
+const useWalletConnectConnector = ({ dispatch, metadata, network, walletConnectorRef, debug }: Props) => {
   debug = !!debug;
   const saveData = useSaveData(metadata);
 
@@ -36,6 +36,8 @@ const useWalletConnect = ({ dispatch, metadata, network, walletConnectorRef, deb
       dispatch({ type: "SET_SESSIONS", payload: [session] });
       const sessionAccount = session?.namespaces?.hedera?.accounts?.[0];
       const accountId = sessionAccount?.split(":").pop();
+
+      accountId && dispatch && dispatch({ type: "SET_PAIRED_ACCOUNT", payload: accountId });
 
       !!debug && console.log("Session Account: ", { sessionAccount, accountId });
 
@@ -71,7 +73,7 @@ const useWalletConnect = ({ dispatch, metadata, network, walletConnectorRef, deb
     walletConnectorRef.current.extensions.forEach((extension) => {
       debug && console.log("walletConnect::Extension: ", extension);
     });
-    
+
     const avilableExtesniosn = walletConnectorRef.current.extensions.filter((extension) => extension.available);
 
     if (avilableExtesniosn && avilableExtesniosn.length > 0) {
@@ -97,4 +99,4 @@ const useWalletConnect = ({ dispatch, metadata, network, walletConnectorRef, deb
   return { initWalletConnect, walletConnectorRef, setNewSession };
 };
 
-export default useWalletConnect;
+export default useWalletConnectConnector;

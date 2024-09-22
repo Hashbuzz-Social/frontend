@@ -5,7 +5,7 @@ import { HashConnectConnectionState } from "hashconnect/dist/esm/types";
 import React, { createContext, useEffect, useMemo, useReducer, useRef } from "react";
 import { Networks } from "../../types";
 import useHashConnect from "./useHashConnectConnector";
-import useWalletConnect from "./useWalletConnectConnector";
+import useWalletConnectConnector from "./useWalletConnectConnector";
 
 export interface HashconnectContextAPI {
   availableExtension: HashConnectTypes.WalletMetadata;
@@ -30,6 +30,7 @@ export interface WalletConnectState {
     isLoading?: boolean;
     data?: any;
   };
+  pairedAccountid: string | null;
 }
 
 export interface HashconnectAPIProviderProps {
@@ -47,6 +48,7 @@ const initialWalletConnectState: WalletConnectState = {
   isLoading: false,
   message: "",
   extensions: [],
+  pairedAccountid: null,
 };
 
 // WalletConnect Actions
@@ -59,6 +61,8 @@ export type WalletConnectAction =
   | { type: "SET_EXTENSIONS"; payload: ExtensionData[] }
   | { type: "SET_MODAL_STATE"; payload: WalletConnectState["modalState"] }
   | { type: "RESET_MODAL_STATE" }
+  | { type: "SET_DISCONNECTED_STAE" }
+  | { type: "SET_PAIRED_ACCOUNT"; payload: string }
   | { type: "UPDATE_MODAL_STATE"; payload: WalletConnectState["modalState"] };
 
 // Create context
@@ -100,6 +104,10 @@ const walletConnectReducer = (state: WalletConnectState, action: WalletConnectAc
       return { ...state, modalState: undefined };
     case "UPDATE_MODAL_STATE":
       return { ...state, modalState: { ...state.modalState, ...action.payload } };
+    case "SET_PAIRED_ACCOUNT":
+      return { ...state, pairedAccountid: action.payload };
+    case "SET_DISCONNECTED_STAE":
+      return { ...state, sessions: [], signers: [], selectedSigner: null, pairedAccountid: null };
     default:
       return state;
   }
@@ -114,7 +122,7 @@ export const HashconnectAPIProvider = ({ children, metaData, network, debug }: H
   const hashconnectRef = useRef<HashConnect | null>(null);
 
   const { initHashconnect } = useHashConnect(metaData, network, setState, hashconnectRef, debug);
-  const { initWalletConnect, setNewSession } = useWalletConnect({
+  const { initWalletConnect, setNewSession } = useWalletConnectConnector({
     dispatch,
     metadata: {
       name: metaData.name,
