@@ -8,16 +8,15 @@ import { useStore } from "../../../Store/StoreProvider";
 import HashbuzzIcon from "../../../SVGR/HashbuzzIcon";
 import HashbuzzLogo from "../../../SVGR/HashbuzzLogo";
 import { useHashconnectService } from "../../../Wallet";
-import { useHandleAuthenticate } from "../../../Wallet/hashpack/useHandleAuthenticate";
+import useHandleAuthenticateWithHashconnect from "../../../Wallet/hashpack/useHandleAuthenticateWithHashconnect";
 import { MenuItemsAndSpeedDial } from "../../Components";
-// import { SpeedDialActions } from "../../Components";
 
 const Landing = () => {
   const store = useStore();
   const theme = useTheme();
   const [cookies] = useCookies(["aSToken"]);
   const { pairingData } = useHashconnectService();
-  const { handleAuthenticate, authStatusLog } = useHandleAuthenticate();
+  const { handleAuthenticate, authStatusLog } = useHandleAuthenticateWithHashconnect();
   const navigate = useNavigate();
   const ping = store.ping;
   const auth = store.auth;
