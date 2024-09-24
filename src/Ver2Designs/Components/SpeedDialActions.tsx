@@ -1,16 +1,9 @@
 import CloseIcon from "@mui/icons-material/Close";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { default as LogoutIcon } from "@mui/icons-material/Logout";
+import LogoutIcon from "@mui/icons-material/Logout";
 import QrCodeIcon from "@mui/icons-material/QrCode";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import Divider from "@mui/material/Divider";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Slide from "@mui/material/Slide";
-import SpeedDial from "@mui/material/SpeedDial";
-import SpeedDialAction from "@mui/material/SpeedDialAction";
-import { TransitionProps } from "@mui/material/transitions";
-import * as React from "react";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Menu, MenuItem, SpeedDial, SpeedDialAction, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import React, { useCallback, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import QRCode from "react-qr-code";
 import { useNavigate } from "react-router-dom";
@@ -21,20 +14,21 @@ import HashPackLogoBlack from "../../SVGR/HashpackLogoBalck";
 import WalletConnectIcon from "../../SVGR/WalletConnectIcon";
 import WalletConnectLookup from "../../SVGR/WalletConnectLookup";
 import { useStore } from "../../Store/StoreProvider";
-import { useHashconnectService } from "../../Wallet";
 import { useConnectToExtension } from "../../Wallet/hashpack/useConnectToExtension";
 import { useDisconnect } from "../../Wallet/hashpack/useDisconnect";
-import { WalletConnectors } from "../../types";
+import { useHashconnectService } from "../../Wallet/hashpack/useHashconnectServicce";
 import useConnectViaWalletConnect from "../../Wallet/walletConnect/useConnectViaWalletConnect";
 
-type SpeedDialAction = {
+// Action Types
+type SpeedDialActionType = {
   icon: React.ReactNode;
   name: React.ReactNode;
   id: string;
 };
 
-const postAuthActions: SpeedDialAction[] = [{ icon: <LogoutIcon />, name: "Logout", id: "logout" }];
-const beforeAuthActions: SpeedDialAction[] = [
+const postAuthActions: SpeedDialActionType[] = [{ icon: <LogoutIcon />, name: "Logout", id: "logout" }];
+
+const beforeAuthActions: SpeedDialActionType[] = [
   { icon: <HashpackIcon height={24} />, name: <HashPackLogoBlack className="Hashpack-connecter-name" height={28} />, id: "hashpack-connect" },
   { icon: <WalletConnectIcon height={24} />, name: <WalletConnectLookup className="walletconnect-connecter-name" height={28} />, id: "wallet-connect" },
   {
@@ -50,200 +44,98 @@ const beforeAuthActions: SpeedDialAction[] = [
   },
 ];
 
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
-interface Props {
-  anchorEl?: HTMLElement | null;
-  menuOpen?: boolean;
-  handleMenuClose?: () => void;
-}
-
-const MenuItemsAndSpeedDial = ({ anchorEl, menuOpen, handleMenuClose }: Props) => {
-  const [open, setOpen] = React.useState(false);
-  const theme = useTheme();
-  const [qrCodeOpen, setQrCodeOpen] = React.useState(false);
-  const { pairingString, availableExtension } = useHashconnectService();
-  const connectToExtension = useConnectToExtension();
-  const { handleConnect } = useConnectViaWalletConnect();
-  const disconnect = useDisconnect();
-  const isDeviceIsSm = useMediaQuery(theme.breakpoints.down("sm"));
-  const store = useStore();
-  const navigate = useNavigate();
-  const [cookies] = useCookies(["aSToken"]);
-
-  const handleOpen = React.useCallback(() => setOpen(true), []);
-  const handleClose = React.useCallback(() => setOpen(false), []);
-
-  const connectWalletProcess = () => {
-    // console.log("Connect logo");
-  };
-  const showSnackBar = () => {};
-
-  const handleQrCodeGen = () => {
-    if (pairingString) {
-      handleClose();
-      setQrCodeOpen(true);
-    }
-  };
-
-  const connectHashpack = async () => {
-    try {
-      if (isDeviceIsSm) {
-        handleQrCodeGen();
-      }
-      if (availableExtension) {
-        connectToExtension();
-      } else {
-        alert("Alert - HashPack browser extension not installed, please click on <<OK>> to visit HashPack website and install their wallet on your browser.  Once installed you might need to restart your browser for Taskbar to detect wallet extension first time.");
-        window.open("https://www.hashpack.app", "_blank");
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const connectViaWalletConnect = () => {
-    handleConnect();
-  };
-
-  const handleClick = async (name: string) => {
-    switch (name) {
-      case "top-up":
-        if (store?.currentUser?.hedera_wallet_id) connectWalletProcess();
-        else showSnackBar();
-        break;
-      case "logout":
-        await disconnect();
-        toast.info("Logout Successfully.");
-        navigate("/");
-        break;
-      case "qr-connect":
-        handleQrCodeGen();
-        store.dispatch({ type: "SET_WALLET_CONNECTOR", payload: WalletConnectors.QrCode });
-        break;
-      case "hashpack-connect":
-        connectHashpack();
-        store.dispatch({ type: "SET_WALLET_CONNECTOR", payload: WalletConnectors.HashPack });
-        break;
-      case "wallet-connect":
-        store.dispatch({ type: "SET_WALLET_CONNECTOR", payload: WalletConnectors.WalletConnect });
-        connectViaWalletConnect();
-        break;
-      default:
-        break;
-    }
-  };
+// SpeedDial Component
+const SpeedDialComponent = React.memo<{ actions: SpeedDialActionType[]; handleClick: (id: string) => void }>(({ actions, handleClick }) => {
+  const [open, setOpen] = useState(false);
+  const handleOpen = useCallback(() => setOpen(true), []);
+  const handleClose = useCallback(() => setOpen(false), []);
 
   return (
-    <React.Fragment>
-      <SpeedDial
-        ariaLabel="Connect your wallet"
-        sx={{ position: "fixed", bottom: 10, right: 40 }}
-        icon={<HashbuzzIcon size={60} color="#fff" />}
-        openIcon={<CloseIcon />}
-        onClose={handleClose}
-        onOpen={handleOpen}
-        open={open}
-        FabProps={{
-          sx: {
-            colorScheme: "light",
-          },
-        }}
-      >
-        {(cookies?.aSToken ? postAuthActions : beforeAuthActions).map((action, index) => {
-          return <SpeedDialAction key={action.id} icon={action.icon} tooltipTitle={action.name} tooltipOpen onClick={(event) => handleClick(action.id)} />;
-        })}
-      </SpeedDial>
-      <QRCodeDialog
-        open={qrCodeOpen}
-        onclose={() => {
-          setQrCodeOpen(false);
-        }}
-      />
-      <Menu
-        anchorEl={anchorEl}
-        id="account-menu"
-        open={!!menuOpen}
-        onClose={handleMenuClose}
-        onClick={handleMenuClose}
-        slotProps={{
-          paper: {
-            elevation: 0,
-            sx: {
-              overflow: "visible",
-              filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-              mt: 1.5,
-              "& .MuiAvatar-root": {
-                width: 32,
-                height: 32,
-                ml: -0.5,
-                mr: 1,
-              },
-              "&::before": {
-                content: '""',
-                display: "block",
-                position: "absolute",
-                top: 0,
-                right: 14,
-                width: 10,
-                height: 10,
-                bgcolor: "background.paper",
-                transform: "translateY(-50%) rotate(45deg)",
-                zIndex: 0,
-              },
-            },
-          },
-        }}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-      >
-        {beforeAuthActions.map((action, index) => (
-          <>
-            <MenuItem key={action.id} onClick={() => handleClick(action.id)}>
-              {action.name}
-            </MenuItem>
-            {index !== beforeAuthActions.length - 1 && <Divider />}
-          </>
-        ))}
-      </Menu>
-    </React.Fragment>
+    <SpeedDial ariaLabel="Connect your wallet" sx={{ position: "fixed", bottom: 10, right: 40 }} icon={<HashbuzzIcon size={60} color="#fff" />} openIcon={<CloseIcon />} onClose={handleClose} onOpen={handleOpen} open={open}>
+      {actions.map((action) => (
+        <SpeedDialAction key={action.id} icon={action.icon} tooltipTitle={action.name} tooltipOpen onClick={() => handleClick(action.id)} />
+      ))}
+    </SpeedDial>
   );
-};
+});
 
-interface QRCodeDialogProps {
-  open: boolean;
-  onclose: () => void;
-}
+// Menu Component
+const MenuComponent = React.memo<{
+  anchorEl: Element | null;
+  menuOpen: boolean;
+  handleMenuClose: (event: React.MouseEvent) => void;
+  actions: SpeedDialActionType[];
+  handleClick: (id: string) => void;
+}>(({ anchorEl, menuOpen, handleMenuClose, actions, handleClick }) => (
+  <Menu
+    anchorEl={anchorEl}
+    id="account-menu"
+    open={!!menuOpen}
+    onClose={handleMenuClose}
+    onClick={handleMenuClose}
+    slotProps={{
+      paper: {
+        elevation: 0,
+        sx: {
+          overflow: "visible",
+          filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+          mt: 1.5,
+          "& .MuiAvatar-root": {
+            width: 32,
+            height: 32,
+            ml: -0.5,
+            mr: 1,
+          },
+          "&::before": {
+            content: '""',
+            display: "block",
+            position: "absolute",
+            top: 0,
+            right: 14,
+            width: 10,
+            height: 10,
+            bgcolor: "background.paper",
+            transform: "translateY(-50%) rotate(45deg)",
+            zIndex: 0,
+          },
+        },
+      },
+    }}
+    transformOrigin={{ horizontal: "right", vertical: "top" }}
+    anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+  >
+    {actions.map((action, index) => (
+      <React.Fragment key={action.id}>
+        <MenuItem onClick={() => handleClick(action.id)}>{action.name}</MenuItem>
+        {index !== actions.length - 1 && <Divider />}
+      </React.Fragment>
+    ))}
+  </Menu>
+));
 
-const QRCodeDialog = ({ open, onclose }: QRCodeDialogProps) => {
-  const [qrCodeOpen, setQrCodeOpen] = React.useState(false);
+// QRCodeDialog Component
+const QRCodeDialog = ({ open, onclose }: { open: boolean; onclose?: () => void }) => {
+  const [qrCodeOpen, setQrCodeOpen] = useState(false);
   const { pairingString, pairingData } = useHashconnectService();
 
-  const handleQRCodeDialogClose = React.useCallback(() => {
+  const handleQRCodeDialogClose = useCallback(() => {
     setQrCodeOpen(false);
     if (onclose) onclose();
   }, [onclose]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setQrCodeOpen(open);
   }, [open]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (pairingData?.topic) handleQRCodeDialogClose();
   }, [handleQRCodeDialogClose, pairingData]);
 
   return (
-    <Dialog open={qrCodeOpen} aria-labelledby="QRcode-dialog-title" onClose={handleQRCodeDialogClose} TransitionComponent={Transition} aria-describedby="qr-code-dialog-having-paring-string">
+    <Dialog open={qrCodeOpen} aria-labelledby="QRcode-dialog-title" onClose={handleQRCodeDialogClose}>
       <DialogTitle id="QRcode-dialog-title">{"Hashpack pairing string"}</DialogTitle>
       <DialogContent>
-        <DialogContent id="qr-code-dialog-having-paring-string">Copy paring string and paste it in your wallet extension or scan QR code with your mobile wallet.</DialogContent>
+        <DialogContent id="qr-code-dialog-having-paring-string">Copy pairing string and paste it in your wallet extension or scan QR code with your mobile wallet.</DialogContent>
         <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
           <Typography noWrap sx={{ width: 150 }}>
             {pairingString}
@@ -253,7 +145,7 @@ const QRCodeDialog = ({ open, onclose }: QRCodeDialogProps) => {
           </Button>
         </Stack>
         <Stack alignItems={"center"} justifyContent={"center"} sx={{ marginTop: 3 }}>
-          {pairingString ? <QRCode value={pairingString} size={256} bgColor="#ffffff" viewBox={`0 0 256 256`} /> : null}
+          {pairingString && <QRCode value={pairingString} size={256} bgColor="#ffffff" viewBox={`0 0 256 256`} />}
         </Stack>
       </DialogContent>
       <DialogActions>
@@ -263,4 +155,86 @@ const QRCodeDialog = ({ open, onclose }: QRCodeDialogProps) => {
   );
 };
 
-export default MenuItemsAndSpeedDial;
+export interface MenuItemsAndSpeedDialProps {
+  anchorEl: Element | null;
+  menuOpen?: boolean;
+  handleMenuClose: (event: React.MouseEvent) => void;
+}
+
+// Main Component
+const MenuItemsAndSpeedDial = ({ anchorEl, menuOpen, handleMenuClose }: MenuItemsAndSpeedDialProps) => {
+  const theme = useTheme();
+  const isDeviceIsSm = useMediaQuery(theme.breakpoints.down("sm"));
+  const { availableExtension, pairingString } = useHashconnectService();
+  const connectToExtension = useConnectToExtension();
+  const { handleConnect } = useConnectViaWalletConnect();
+  const disconnect = useDisconnect();
+  const store = useStore();
+  const navigate = useNavigate();
+  const [cookies] = useCookies(["aSToken"]);
+  const [qrCodeOpen, setQrCodeOpen] = useState(false);
+
+  const connectHashpack = useCallback(async () => {
+    try {
+      if (isDeviceIsSm) {
+        handleQrCodeGen();
+      } else if (availableExtension) {
+        connectToExtension();
+      } else {
+        alert("Please install HashPack extension.");
+        window.open("https://www.hashpack.app", "_blank");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }, [availableExtension, connectToExtension, isDeviceIsSm]);
+
+  const handleQrCodeGen = useCallback(() => {
+    if (pairingString) {
+      setQrCodeOpen(true);
+    }
+  }, [pairingString]);
+
+  const connectViaWalletConnect = useCallback(() => {
+    handleConnect();
+  }, [handleConnect]);
+
+  const handleClick = useCallback(
+    async (name) => {
+      switch (name) {
+        case "top-up":
+          // logic here
+          break;
+        case "logout":
+          await disconnect();
+          toast.info("You have successfully logged out.");
+          navigate("/");
+          break;
+        case "hashpack-connect":
+          connectHashpack();
+          break;
+        case "wallet-connect":
+          connectViaWalletConnect();
+          break;
+        case "qr-connect":
+          handleQrCodeGen();
+          break;
+        default:
+          console.warn("Unexpected action: ", name);
+      }
+    },
+    [connectHashpack, connectViaWalletConnect, disconnect, handleQrCodeGen, navigate]
+  );
+
+  const actions = cookies.aSToken ? postAuthActions : beforeAuthActions;
+
+  return (
+    <>
+      <SpeedDialComponent actions={actions} handleClick={handleClick} />
+      <MenuComponent anchorEl={anchorEl} menuOpen={!!menuOpen} handleMenuClose={handleMenuClose} actions={actions} handleClick={handleClick} />
+      <QRCodeDialog open={qrCodeOpen} onclose={() => setQrCodeOpen(false)} />
+    </>
+  );
+};
+
+export default React.memo(MenuItemsAndSpeedDial);

@@ -1,9 +1,8 @@
-import { useContext } from 'react';
-import { MessageTypes } from 'hashconnect';
-import { HashconnectServiceContext } from '../ConnectionProvider/HashconnectServiceContext';
+import { MessageTypes } from "hashconnect";
+import { useHashconnectService } from "./useHashconnectServicce";
 
 export const useSendTransaction = () => {
-  const { topic, hashconnect } = useContext(HashconnectServiceContext);
+  const { topic, hashconnect } = useHashconnectService();
 
   const sendTransaction = async (trans: Uint8Array, acctToSign: string, return_trans: boolean = false, hideNfts: boolean = false) => {
     const transaction: MessageTypes.Transaction = {

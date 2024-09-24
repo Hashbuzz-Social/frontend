@@ -13,7 +13,7 @@ import { useStore } from "../../../Store/StoreProvider";
 import HederaIcon from "../../../SVGR/HederaIcon";
 import { BalOperation, EntityBalances } from "../../../types";
 import { isAllowedToCmapigner, isAnyBalancesIsAvailable } from "../../../Utilities/helpers";
-import { useHashconnectService } from "../../../Wallet";
+import { useHashconnectService } from "../../../Wallet/hashpack/useHashconnectServicce";
 import { useConnectToExtension } from "../../../Wallet/hashpack/useConnectToExtension";
 import { cardStyle } from "./CardGenUtility";
 import TopupModal from "./TopupModal";

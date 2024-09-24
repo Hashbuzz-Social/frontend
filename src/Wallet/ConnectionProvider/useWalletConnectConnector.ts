@@ -1,4 +1,4 @@
-import { DAppConnector, HederaChainId, HederaJsonRpcMethod, HederaSessionEvent } from "@hashgraph/hedera-wallet-connect";
+import { DAppConnector, HederaJsonRpcMethod } from "@hashgraph/hedera-wallet-connect";
 import { AccountId, LedgerId } from "@hashgraph/sdk";
 import { SessionTypes, SignClientTypes } from "@walletconnect/types";
 import React, { useCallback } from "react";
@@ -61,10 +61,9 @@ const useWalletConnectConnector = ({ dispatch, metadata, network, walletConnecto
     debug && console.log("walletConnect::Initiating Wallet Connect");
     if (!walletConnectorRef.current) {
       debug && console.log("walletConnect::Creating new Wallet Connect");
-      walletConnectorRef.current = new DAppConnector({ ...metadata }, NETWORKS_LEDGERS[network], projectId, Object.values(HederaJsonRpcMethod), [HederaSessionEvent.ChainChanged, HederaSessionEvent.AccountsChanged], [HederaChainId.Testnet]);
-      // dispatch({ type: "SET_CONNECTOR", payload: walletConnectorRef.current });
+      walletConnectorRef.current = new DAppConnector({ ...metadata }, NETWORKS_LEDGERS[network], projectId, Object.values(HederaJsonRpcMethod));
     }
-    await walletConnectorRef.current.init({ logger: "debug" });
+    await walletConnectorRef.current.init({ logger: "error" });
     walletConnectorRef.current.onSessionIframeCreated = (session) => {
       debug && console.log("walletConnect::Session iframe created: ", session);
       !!session && setNewSession(session);

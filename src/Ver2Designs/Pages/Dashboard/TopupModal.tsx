@@ -11,9 +11,10 @@ import { unstable_batchedUpdates } from "react-dom";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
 import { useStore } from "../../../Store/StoreProvider";
-import { useHashconnectService } from "../../../Wallet";
+// import { useHashconnectService } from "../../../Wallet";
 import { useSmartContractServices } from "../../../Wallet/smartcontractService";
 import { BalOperation, EntityBalances, FormFelid } from "../../../types";
+import { useHashconnectService } from "../../../Wallet/hashpack/useHashconnectServicce";
 interface TopupModalProps {
   data: EntityBalances | null;
   open: boolean;
@@ -43,21 +44,19 @@ const FORM_INITIAL_STATE: CurrentFormState = {
 const calculateCharge = (amt: number) => amt * 0.1;
 const calculateTotal = (amt: number) => amt + calculateCharge(amt);
 
-
-const getTheBalOfEntity = (balances:EntityBalances[] , tokenId:string):number => {
-  const bal  = balances.find(en => en.entityId === tokenId)?.entityBalance;
-  return bal? +bal : 0;
-} 
+const getTheBalOfEntity = (balances: EntityBalances[], tokenId: string): number => {
+  const bal = balances.find((en) => en.entityId === tokenId)?.entityBalance;
+  return bal ? +bal : 0;
+};
 
 const TopupModal = ({ data, open, onClose, operation }: TopupModalProps) => {
   const [formData, setFromData] = React.useState<CurrentFormState>(JSON.parse(JSON.stringify(FORM_INITIAL_STATE)));
   const inputRef = React.createRef<HTMLInputElement>();
   const [loading, setLoading] = React.useState(false);
 
-
   const { topUpAccount } = useSmartContractServices();
   const { pairingData } = useHashconnectService();
-  const { Transaction  ,User} = useApiInstance();
+  const { Transaction, User } = useApiInstance();
   const store = useStore();
   const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
@@ -119,27 +118,23 @@ const TopupModal = ({ data, open, onClose, operation }: TopupModalProps) => {
   }, [inputRef]);
 
   const reimburse = async () => {
-    if (store?.balances && data?.entityId && formData.amount.value >  getTheBalOfEntity(store?.balances ,data.entityId )) return toast.error("Wrong amount entered.");
+    if (store?.balances && data?.entityId && formData.amount.value > getTheBalOfEntity(store?.balances, data.entityId)) return toast.error("Wrong amount entered.");
     setLoading(true);
     try {
       const response = await Transaction.reimburseAmount({ type: data?.entityType?.toUpperCase(), token_id: data?.entityId, amount: formData?.amount?.value });
       const currentUser = await User.getCurrentUser();
       const balancesData = await User.getTokenBalances();
-      const balances:EntityBalances[] = [
+      const balances: EntityBalances[] = [
         {
           ...INITIAL_HBAR_BALANCE_ENTITY,
           entityBalance: (currentUser?.available_budget ?? 0 / 1e8).toFixed(4),
           entityId: currentUser?.hedera_wallet_id ?? "",
         },
-        ...(balancesData.map((d) => ({ entityBalance: d.available_balance.toFixed(4),
-          entityIcon: d.token_symbol,
-          entitySymbol: "",
-          entityId: d.token_id,
-          entityType: d.token_type,})))
-      ]
-      store.dispatch({type:"UPDATE_CURRENT_USER", payload:currentUser})
-      store.dispatch({type:"SET_BALANCES", payload:balances})
-    
+        ...balancesData.map((d) => ({ entityBalance: d.available_balance.toFixed(4), entityIcon: d.token_symbol, entitySymbol: "", entityId: d.token_id, entityType: d.token_type })),
+      ];
+      store.dispatch({ type: "UPDATE_CURRENT_USER", payload: currentUser });
+      store.dispatch({ type: "SET_BALANCES", payload: balances });
+
       toast.info(response?.message);
       setLoading(false);
       if (onClose) onClose();
@@ -236,7 +231,6 @@ const TopupModal = ({ data, open, onClose, operation }: TopupModalProps) => {
         )}
       </DialogContent>
       <DialogActions>
-       
         {operation === "reimburse" ? (
           <LoadingButton onClick={reimburse} autoFocus variant="contained" loading={loading} loadingPosition="start" disabled={loading}>
             Reimburse

@@ -1,9 +1,9 @@
-import { useCallback, useContext } from 'react';
-import { MessageTypes } from 'hashconnect';
-import { HashconnectServiceContext } from '../ConnectionProvider/HashconnectServiceContext';
+import { MessageTypes } from "hashconnect";
+import { useCallback } from "react";
+import { useHashconnectService } from "./useHashconnectServicce";
 
 export const useRequestAccountInfo = () => {
-  const { topic, network, hashconnect } = useContext(HashconnectServiceContext);
+  const { topic, network, hashconnect } = useHashconnectService();
 
   const requestAccountInfo = useCallback(async () => {
     const request: MessageTypes.AdditionalAccountRequest = {

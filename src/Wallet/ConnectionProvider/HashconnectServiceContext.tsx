@@ -1,15 +1,16 @@
 import { DAppConnector, DAppSigner, ExtensionData } from "@hashgraph/hedera-wallet-connect";
 import { SessionTypes } from "@walletconnect/types";
 import { HashConnect, HashConnectTypes } from "hashconnect";
-import { HashConnectConnectionState } from "hashconnect/dist/esm/types";
+import { HashConnectConnectionState as HashConnectConnectionStatuses } from "hashconnect/dist/esm/types";
 import React, { createContext, useEffect, useMemo, useReducer, useRef } from "react";
 import { Networks } from "../../types";
 import useHashConnect from "./useHashConnectConnector";
 import useWalletConnectConnector from "./useWalletConnectConnector";
 
-export interface HashconnectContextAPI {
+/** Hashconnect status update for the wallet */
+export interface HashconnectState {
   availableExtension: HashConnectTypes.WalletMetadata;
-  state: HashConnectConnectionState;
+  connectionStatus: HashConnectConnectionStatuses;
   topic: string;
   pairingString: string;
   pairingData: HashConnectTypes.SavedPairingData | null;
@@ -67,18 +68,19 @@ export type WalletConnectAction =
 
 // Create context
 export const HashconnectServiceContext = createContext<
-  Partial<
-    HashconnectContextAPI & {
-      network: Networks;
-      hashconnect: HashConnect | null;
-      dAppConnector: DAppConnector | null;
-      walletConnectState: WalletConnectState;
-      dispatch: React.Dispatch<WalletConnectAction>;
-      setState: React.Dispatch<React.SetStateAction<Partial<HashconnectContextAPI>>>;
-      initWalletConnect: () => Promise<void>;
-      setNewSession: (session: SessionTypes.Struct) => void;
-    }
-  >
+  Partial<{
+    /** Hashconnect states */
+    hashconnectState: HashconnectState;
+    network: Networks;
+    hashconnect: HashConnect | null;
+    setState: React.Dispatch<React.SetStateAction<Partial<HashconnectState>>>;
+    /** Wallet Connect states */
+    dAppConnector: DAppConnector | null;
+    walletConnectState: WalletConnectState;
+    dispatch: React.Dispatch<WalletConnectAction>;
+    initWalletConnect: () => Promise<void>;
+    setNewSession: (session: SessionTypes.Struct) => void;
+  }>
 >({
   walletConnectState: initialWalletConnectState,
 });
@@ -116,7 +118,7 @@ const walletConnectReducer = (state: WalletConnectState, action: WalletConnectAc
 // Main Provider Component
 
 export const HashconnectAPIProvider = ({ children, metaData, network, debug }: HashconnectAPIProviderProps) => {
-  const [state, setState] = React.useState<Partial<HashconnectContextAPI>>({});
+  const [state, setState] = React.useState<Partial<HashconnectState>>({});
   const [walletConnectState, dispatch] = useReducer(walletConnectReducer, initialWalletConnectState);
   const walletConnectorRef = useRef<DAppConnector | null>(null);
   const hashconnectRef = useRef<HashConnect | null>(null);

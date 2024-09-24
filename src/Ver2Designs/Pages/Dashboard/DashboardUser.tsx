@@ -16,7 +16,7 @@ import * as SC from "./styled";
 const Dashboard = () => {
   const store = useStore();
   const { Integrations } = useApiInstance();
-  const {currentUser , dispatch} = store;
+  const { currentUser, dispatch } = store;
 
   const personalHandleIntegration = async (event: React.MouseEvent<HTMLButtonElement>) => {
     try {
@@ -84,10 +84,10 @@ const Dashboard = () => {
       </SC.StyledCardGenUtility>
 
       {/* Campaign List section */}
-      <CampaignList  />
+      <CampaignList />
 
       {/* speed dial  action button */}
-      <MenuItemsAndSpeedDial />
+      {/* <MenuItemsAndSpeedDial /> */}
     </React.Fragment>
   );
 };

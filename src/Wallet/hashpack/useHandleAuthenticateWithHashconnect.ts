@@ -1,9 +1,9 @@
-import { useCallback, useContext } from "react";
-import { HashconnectServiceContext } from "../ConnectionProvider/HashconnectServiceContext";
+import { useCallback } from "react";
 import useAuthenticationHelpers from "../authentication/useAuthenticationHelpers";
+import { useHashconnectService } from "./useHashconnectServicce";
 
 const useHandleAuthenticateWithHashconnect = () => {
-  const { topic, pairingData, hashconnect } = useContext(HashconnectServiceContext);
+  const { topic, pairingData, hashconnect } = useHashconnectService();
   const { createChallenge, generateAuth, handleSuccess, handleError, authStatusLog, setAuthStatusLog, delay } = useAuthenticationHelpers();
 
   const authenticateWithHashconnect = async (topic: string, accountId: string, server: any, payload: any) => {

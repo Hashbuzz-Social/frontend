@@ -1,12 +1,11 @@
-import { useContext } from "react";
-import { HashconnectServiceContext } from "../ConnectionProvider/HashconnectServiceContext";
+import { useHashconnectService } from "./useHashconnectServicce";
 
 export const usePairingClear = () => {
-  const { hashconnect , setState} = useContext(HashconnectServiceContext);
+  const { hashconnect, setState } = useHashconnectService();
 
   const clearPairings = () => {
     hashconnect?.clearConnectionsAndData();
-    setState && setState((exState) => ({ ...exState, pairingData: null })); 
+    setState && setState((exState) => ({ ...exState, pairingData: null }));
   };
 
   return clearPairings;

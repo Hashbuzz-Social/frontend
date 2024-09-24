@@ -1,14 +1,13 @@
-import { useCallback, useContext } from "react";
-import { useApiInstance } from "../../APIConfig/api";
+import { useCallback } from "react";
 import { useCookies } from "react-cookie";
-import { useStore } from "../../Store/StoreProvider";
 import { toast } from "react-toastify";
+import { useApiInstance } from "../../APIConfig/api";
+import { useStore } from "../../Store/StoreProvider";
 import { getErrorMessage } from "../../Utilities/helpers";
-import { HashconnectServiceContext } from "../ConnectionProvider/HashconnectServiceContext";
-// import { HashconnectServiceContext } from "./ConnectionProvider";
+import { useHashconnectService } from "./useHashconnectServicce";
 
 export const useDisconnect = () => {
-  const { pairingData, hashconnect , setState } = useContext(HashconnectServiceContext);
+  const { pairingData, hashconnect, setState } = useHashconnectService();
   const { Auth } = useApiInstance();
   const [_, , removeCookies] = useCookies(["aSToken"]);
   const store = useStore();

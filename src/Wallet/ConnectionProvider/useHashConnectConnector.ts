@@ -1,12 +1,10 @@
 import { HashConnect, HashConnectTypes, MessageTypes } from "hashconnect";
-import { HashConnectConnectionState } from "hashconnect/dist/esm/types";
+import { HashConnectConnectionState as HashConnectConnectionStatuses } from "hashconnect/dist/esm/types";
 import React, { useCallback, useEffect } from "react";
 import { Networks } from "../../types";
-import { HashconnectContextAPI } from "./HashconnectServiceContext";
+import { HashconnectState } from "./HashconnectServiceContext";
 
-const useHashConnect = (metaData: HashConnectTypes.AppMetadata, network: Networks, setState: React.Dispatch<React.SetStateAction<Partial<HashconnectContextAPI>>>,hashconnectRef:React.MutableRefObject<HashConnect | null>, debug?: boolean) => {
-
-
+const useHashConnect = (metaData: HashConnectTypes.AppMetadata, network: Networks, setState: React.Dispatch<React.SetStateAction<Partial<HashconnectState>>>, hashconnectRef: React.MutableRefObject<HashConnect | null>, debug?: boolean) => {
   const initHashconnect = useCallback(async () => {
     !!debug && console.log("Hashconnect Initializing HashConnect");
     if (!hashconnectRef.current) {
@@ -29,14 +27,14 @@ const useHashConnect = (metaData: HashConnectTypes.AppMetadata, network: Network
 
   const handlePairingEvent = useCallback(
     (data: MessageTypes.ApprovePairing) => {
-     !! debug && console.log("Paired with wallet:", data);
+      !!debug && console.log("Paired with wallet:", data);
       setState((prevState) => ({ ...prevState, pairingData: data.pairingData }));
     },
     [setState, debug]
   );
 
   const handleConnectionChange = useCallback(
-    (state: HashConnectConnectionState) => {
+    (state: HashConnectConnectionStatuses) => {
       !!debug && console.log("HashConnect state change:", state);
       setState((prevState) => ({ ...prevState, state }));
     },
@@ -58,8 +56,7 @@ const useHashConnect = (metaData: HashConnectTypes.AppMetadata, network: Network
     }
   }, [hashconnectRef.current, handleFoundExtension, handlePairingEvent, handleConnectionChange, debug]);
 
-  return { initHashconnect  , hashconnectRef};
+  return { initHashconnect, hashconnectRef };
 };
-
 
 export default useHashConnect;
