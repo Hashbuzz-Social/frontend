@@ -20,13 +20,13 @@ const useAuthenticationHelpers = () => {
   const { dispatch } = useStore();
 
   const createChallenge = async () => {
-    const { payload, server } = await Auth.createChallenge({ url: window.location.origin });
+    const { payload, server } = await Auth.hashconnect.getHashconnectChallenge({ url: window.location.origin });
     return { payload, server };
   };
 
   const generateAuth = async (authResponse: any, server: any, accountId: string) => {
     const { signedPayload, userSignature } = authResponse;
-    return await Auth.generateAuth({
+    return await Auth.hashconnect.verifyHashconnectSign({
       payload: signedPayload?.originalPayload,
       clientPayload: signedPayload,
       signatures: {
@@ -76,6 +76,5 @@ const useAuthenticationHelpers = () => {
     delay,
   };
 };
-
 
 export default useAuthenticationHelpers;
