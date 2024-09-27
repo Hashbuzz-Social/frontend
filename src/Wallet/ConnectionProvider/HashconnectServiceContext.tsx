@@ -1,11 +1,17 @@
 import { DAppConnector, DAppSigner, ExtensionData } from "@hashgraph/hedera-wallet-connect";
 import { SessionTypes } from "@walletconnect/types";
-import { HashConnect, HashConnectTypes } from "hashconnect";
-import { HashConnectConnectionState as HashConnectConnectionStatuses } from "hashconnect/dist/esm/types";
-import React, { createContext, useEffect, useMemo, useReducer, useRef } from "react";
+import { HashConnect, HashConnectTypes, MessageTypes } from "hashconnect";
+import { HashConnectConnectionState, HashConnectConnectionState as HashConnectConnectionStatuses } from "hashconnect/dist/esm/types";
+import React, { createContext, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { Networks } from "../../types";
 import useHashConnect from "./useHashConnectConnector";
 import useWalletConnectConnector from "./useWalletConnectConnector";
+
+const appMetadata: HashConnectTypes.AppMetadata = {
+  name: "dApp Example",
+  description: "An example hedera dApp",
+  icon: "https://www.hashpack.app/img/logo.svg",
+};
 
 /** Hashconnect status update for the wallet */
 export interface HashconnectState {
@@ -123,7 +129,22 @@ export const HashconnectAPIProvider = ({ children, metaData, network, debug }: H
   const walletConnectorRef = useRef<DAppConnector | null>(null);
   const hashconnectRef = useRef<HashConnect | null>(null);
 
-  const { initHashconnect, onConnectionChange, onFoundExtension, onParingEvent } = useHashConnect(metaData, network, setState, hashconnectRef, debug);
+  const initHashconnect = useCallback(async () => {
+    if (!hashconnectRef.current) {
+      hashconnectRef.current = new HashConnect(true); // Initialize hashconnect if not already initialized
+    }
+    const hashconnect = hashconnectRef.current;
+    //initialize and use returned data
+    let initData = await hashconnect.init(metaData ?? appMetadata, network, false);
+    const topic = initData.topic;
+    const pairingString = initData.pairingString;
+    //Saved pairings will return here, generally you will only have one unless you are doing something advanced
+    const pairingData = initData.savedPairings[0];
+
+    setState((exState) => ({ ...exState, topic, pairingData, pairingString }));
+  }, [metaData, network]);
+
+  // const { onConnectionChange, onFoundExtension, onParingEvent } = useHashConnect(metaData, network, setState, hashconnectRef, debug);
   const { initWalletConnect, setNewSession } = useWalletConnectConnector({
     dispatch,
     metadata: {
@@ -136,6 +157,21 @@ export const HashconnectAPIProvider = ({ children, metaData, network, debug }: H
     walletConnectorRef,
     debug,
   });
+
+  const onFoundExtension = (data: HashConnectTypes.WalletMetadata) => {
+    console.log("Found extension", data);
+    setState((exState) => ({ ...exState, availableExtension: data }));
+  };
+
+  const onParingEvent = async (data: MessageTypes.ApprovePairing) => {
+    console.log("Paired with wallet", data);
+    setState((exState) => ({ ...exState, pairingData: data.pairingData }));
+  };
+
+  const onConnectionChange = useCallback((data: HashConnectConnectionState) => {
+    console.log("hashconnect state change event", state);
+    setState((exState) => ({ ...exState, state: data }));
+  }, []);
 
   //register events
   React.useEffect(() => {
