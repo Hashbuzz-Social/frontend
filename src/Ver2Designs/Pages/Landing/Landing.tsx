@@ -39,8 +39,9 @@ const Landing = () => {
     if (pairedAccount && !ping.status && !cookies.aSToken) {
       handleAuthenticate();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pairedAccount, ping, cookies]);
+  }, [pairedAccount, ping.status, cookies.aSToken]);
+
+  console.log("pairingData-landing", pairingData);
 
   const StyledText = styled.div`
     display: flex;

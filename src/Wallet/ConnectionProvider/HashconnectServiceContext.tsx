@@ -70,7 +70,7 @@ export type WalletConnectAction =
 export const HashconnectServiceContext = createContext<
   Partial<{
     /** Hashconnect states */
-    hashconnectState: HashconnectState;
+    hashconnectState: Partial<HashconnectState>;
     network: Networks;
     hashconnect: HashConnect | null;
     setState: React.Dispatch<React.SetStateAction<Partial<HashconnectState>>>;
@@ -123,7 +123,7 @@ export const HashconnectAPIProvider = ({ children, metaData, network, debug }: H
   const walletConnectorRef = useRef<DAppConnector | null>(null);
   const hashconnectRef = useRef<HashConnect | null>(null);
 
-  const { initHashconnect } = useHashConnect(metaData, network, setState, hashconnectRef, debug);
+  const { initHashconnect, onConnectionChange, onFoundExtension, onParingEvent } = useHashConnect(metaData, network, setState, hashconnectRef, debug);
   const { initWalletConnect, setNewSession } = useWalletConnectConnector({
     dispatch,
     metadata: {
@@ -137,6 +137,23 @@ export const HashconnectAPIProvider = ({ children, metaData, network, debug }: H
     debug,
   });
 
+  //register events
+  React.useEffect(() => {
+    hashconnectRef.current?.foundExtensionEvent.on(onFoundExtension);
+    hashconnectRef?.current?.pairingEvent.on(onParingEvent);
+    hashconnectRef?.current?.connectionStatusChangeEvent.on(onConnectionChange);
+    return () => {
+      hashconnectRef?.current?.foundExtensionEvent.off(onFoundExtension);
+      hashconnectRef?.current?.pairingEvent.on(onParingEvent);
+      hashconnectRef?.current?.connectionStatusChangeEvent.off(onConnectionChange);
+    };
+  }, []);
+
+  //Call Initialization
+  React.useEffect(() => {
+    initHashconnect();
+  }, [initHashconnect]);
+
   useEffect(() => {
     initHashconnect().catch((error) => {
       debug && console.error("Failed to initialize Hashconnect:", error);
@@ -148,7 +165,7 @@ export const HashconnectAPIProvider = ({ children, metaData, network, debug }: H
 
   const value = useMemo(
     () => ({
-      ...state,
+      hashconnectState: state,
       network,
       hashconnect: hashconnectRef.current,
       walletConnectState,

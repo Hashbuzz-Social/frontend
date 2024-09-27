@@ -1,6 +1,6 @@
 import { HashConnect, HashConnectTypes, MessageTypes } from "hashconnect";
 import { HashConnectConnectionState as HashConnectConnectionStatuses } from "hashconnect/dist/esm/types";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { Networks } from "../../types";
 import { HashconnectState } from "./HashconnectServiceContext";
 
@@ -15,48 +15,24 @@ const useHashConnect = (metaData: HashConnectTypes.AppMetadata, network: Network
     const { topic, pairingString, savedPairings } = initData;
     setState((prevState) => ({ ...prevState, topic, pairingString, pairingData: savedPairings[0] }));
     debug && console.log("HashConnect initialized with topic:", topic);
-  }, [metaData, network, setState]);
+  }, [hashconnectRef, metaData, network, setState, debug]);
 
-  const handleFoundExtension = useCallback(
-    (data: HashConnectTypes.WalletMetadata) => {
-      !!debug && console.log("Found extension:", data);
-      setState((prevState) => ({ ...prevState, availableExtension: data }));
-    },
-    [setState, debug]
-  );
+  const onFoundExtension = (data: HashConnectTypes.WalletMetadata) => {
+    debug && console.log("Found extension", data);
+    setState((exState) => ({ ...exState, availableExtension: data }));
+  };
 
-  const handlePairingEvent = useCallback(
-    (data: MessageTypes.ApprovePairing) => {
-      !!debug && console.log("Paired with wallet:", data);
-      setState((prevState) => ({ ...prevState, pairingData: data.pairingData }));
-    },
-    [setState, debug]
-  );
+  const onParingEvent = async (data: MessageTypes.ApprovePairing) => {
+    debug && console.log("Paired with wallet", data);
+    setState((exState) => ({ ...exState, pairingData: data.pairingData }));
+  };
 
-  const handleConnectionChange = useCallback(
-    (state: HashConnectConnectionStatuses) => {
-      !!debug && console.log("HashConnect state change:", state);
-      setState((prevState) => ({ ...prevState, state }));
-    },
-    [setState, debug]
-  );
+  const onConnectionChange = (data: HashConnectConnectionStatuses) => {
+    debug && console.log("hashconnect state change event", data);
+    setState((exState) => ({ ...exState, state: data }));
+  };
 
-  useEffect(() => {
-    if (hashconnectRef.current) {
-      !!debug && console.log("Hashconnect Ref for hashconnect initilaization ", hashconnectRef.current);
-      hashconnectRef.current.foundExtensionEvent.on(handleFoundExtension);
-      hashconnectRef.current.pairingEvent.on(handlePairingEvent);
-      hashconnectRef.current.connectionStatusChangeEvent.on(handleConnectionChange);
-
-      return () => {
-        hashconnectRef.current?.foundExtensionEvent.off(handleFoundExtension);
-        hashconnectRef.current?.pairingEvent.off(handlePairingEvent);
-        hashconnectRef.current?.connectionStatusChangeEvent.off(handleConnectionChange);
-      };
-    }
-  }, [hashconnectRef.current, handleFoundExtension, handlePairingEvent, handleConnectionChange, debug]);
-
-  return { initHashconnect, hashconnectRef };
+  return { initHashconnect, hashconnectRef, onFoundExtension, onParingEvent, onConnectionChange };
 };
 
 export default useHashConnect;
