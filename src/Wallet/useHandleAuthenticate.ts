@@ -12,7 +12,7 @@ interface AuthenticationLog {
 }
 
 export const useHandleAuthenticate = () => {
-  console.log("useHandleAuthenticate is called")
+  console.log("useHandleAuthenticate is called");
   const { topic, pairingData, hashconnect, setState } = useContext(HashconectServiceContext);
   const { Auth } = useApiInstance();
   const [_, setCookies, removeCookie] = useCookies(["aSToken", "refreshToken"]);
@@ -24,7 +24,7 @@ export const useHandleAuthenticate = () => {
     console.log("Authentication Initialized::");
 
     await delay(1000);
-    const { payload, server } = await Auth.createChallenge({ url: window.location.origin });
+    const { payload, server } = await Auth.hashconnect.getHashconnectChallenge({ url: window.location.origin });
     if (topic && accountId) {
       await delay(1500);
       hashconnect
@@ -32,7 +32,7 @@ export const useHandleAuthenticate = () => {
         .then(async (authResponse) => {
           if (authResponse.success && authResponse.signedPayload && authResponse.userSignature) {
             const { signedPayload, userSignature } = authResponse;
-            const authGenResponse = await Auth.generateAuth({
+            const authGenResponse = await Auth.hashconnect.verifyHashconnectSign({
               payload: signedPayload.originalPayload,
               clientPayload: signedPayload,
               signatures: {
@@ -45,15 +45,15 @@ export const useHandleAuthenticate = () => {
             });
 
             if (authGenResponse && authGenResponse.deviceId && authGenResponse.ast) {
-              const {refreshToken , deviceId , ast} = authGenResponse
-        
+              const { refreshToken, deviceId, ast } = authGenResponse;
+
               localStorage.setItem("device_id", deviceId);
               setCookies("aSToken", ast, {
                 expires: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
                 sameSite: true,
                 maxAge: 24 * 60 * 60,
               });
-              setCookies("refreshToken" ,refreshToken ,{sameSite:true} )
+              setCookies("refreshToken", refreshToken, { sameSite: true });
               setAuthStatusLog((_d) => [..._d, { type: "success", message: "Authentication Completed." }]);
               await delay(1500);
               await authCheckPing();
@@ -74,5 +74,5 @@ export const useHandleAuthenticate = () => {
     }
   }, [Auth, hashconnect, pairingData?.accountIds, topic, setCookies, removeCookie, authCheckPing]);
 
-  return {handleAuthenticate,authStatusLog};
+  return { handleAuthenticate, authStatusLog };
 };
