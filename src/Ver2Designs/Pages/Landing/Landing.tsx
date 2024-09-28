@@ -19,7 +19,7 @@ const Landing = () => {
   const theme = useTheme();
   const [cookies] = useCookies(["aSToken"]);
   const { pairingData } = useHashconnectService();
-  const { handleAuthenticate, authStatusLog } = useHandleAuthenticateWithHashconnect();
+  const { handleAuthenticateWithHashpack, authStatusLog } = useHandleAuthenticateWithHashconnect();
 
   const { sessions, selectedSigner, modalState } = useWalletConnectService();
   const { handleDisconnectSessions } = useConnectViaWalletConnect();
@@ -37,7 +37,7 @@ const Landing = () => {
 
   React.useEffect(() => {
     if (pairedAccount && !ping.status && !cookies.aSToken) {
-      handleAuthenticate();
+      handleAuthenticateWithHashpack();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pairedAccount, ping, cookies]);

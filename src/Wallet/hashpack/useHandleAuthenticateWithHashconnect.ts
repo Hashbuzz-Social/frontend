@@ -10,7 +10,7 @@ const useHandleAuthenticateWithHashconnect = () => {
     return await hashconnect?.authenticate(topic, accountId, server.account, Buffer.from(server.signature), payload);
   };
 
-  const handleAuthenticate = useCallback(async () => {
+  const handleAuthenticateWithHashpack = useCallback(async () => {
     try {
       const accountId = pairingData?.accountIds[0];
       if (!topic || !accountId) return;
@@ -36,7 +36,7 @@ const useHandleAuthenticateWithHashconnect = () => {
     }
   }, [createChallenge, generateAuth, handleSuccess, handleError, authenticateWithHashconnect, topic, pairingData?.accountIds, delay, setAuthStatusLog]);
 
-  return { handleAuthenticate, authStatusLog };
+  return { handleAuthenticateWithHashpack, authStatusLog };
 };
 
 export default useHandleAuthenticateWithHashconnect;

@@ -38,6 +38,7 @@ export const HashconnectAPIProvider = ({ children, metaData, network, debug }: H
   const hashconnectRef = useRef<HashConnect | null>(null);
 
   const { initHashconnect } = useHashConnect(metaData, network, setState, hashconnectRef, debug);
+
   useEffect(() => {
     initHashconnect().catch((error) => {
       debug && console.error("Failed to initialize Hashconnect:", error);
