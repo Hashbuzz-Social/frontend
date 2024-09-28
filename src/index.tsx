@@ -1,43 +1,15 @@
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+// index.tsx
 import React from "react";
 import ReactDOM from "react-dom";
+import CombinedProviders from "./CombinedProviders";
 import AppRouter from "./AppRouter";
-import { HashconnectAPIProvider } from "./Wallet/ConnectionProvider/HashconnectProvider";
-import "./index.css";
-import { CookiesProvider } from "react-cookie";
-import { NETWORK } from "./Utilities/helpers";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import AxiosProvider from "./APIConfig/AxiosProvider";
-import { StoreProvider } from "./Store/StoreProvider";
-
-const theme = createTheme();
 
 const App = () => {
   return (
     <React.StrictMode>
-      <CookiesProvider>
-        <StoreProvider>
-          <AxiosProvider>
-            <HashconnectAPIProvider
-              metaData={{
-                name: "hashbuzz would like to connect to your wallet.",
-                description: `Please select which account you wish to connect with, hashbuzz will never store your private key information or your seed phrases. \n
-              Note - Ledger accounts are unable to be used with HashConnect at this time.`,
-                icon: "https://testnet.hashbuzz.social/favicons/apple-touch-icon.png",
-              }}
-              //@ts-ignore
-              network={NETWORK}
-              debug={true}
-            >
-              <ThemeProvider theme={theme}>
-                <AppRouter />
-              </ThemeProvider>
-            </HashconnectAPIProvider>
-          </AxiosProvider>
-        </StoreProvider>
-        <ToastContainer />
-      </CookiesProvider>
+      <CombinedProviders>
+        <AppRouter />
+      </CombinedProviders>
     </React.StrictMode>
   );
 };

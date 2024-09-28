@@ -46,19 +46,6 @@ export type WalletConnectAction =
   | { type: "SET_PAIRED_ACCOUNT"; payload: string }
   | { type: "UPDATE_MODAL_STATE"; payload: WalletConnectState["modalState"] };
 
-// Create context
-export const WalletConnectContext = createContext<
-  Partial<{
-    network: Networks;
-    dAppConnector: DAppConnector | null;
-    walletConnectState: WalletConnectState;
-    dispatch: React.Dispatch<WalletConnectAction>;
-    setNewSession: (session: SessionTypes.Struct) => void;
-  }>
->({
-  walletConnectState: initialWalletConnectState,
-});
-
 // WalletConnect Reducer Function
 const walletConnectReducer = (state: WalletConnectState, action: WalletConnectAction): WalletConnectState => {
   switch (action.type) {
@@ -89,13 +76,13 @@ const walletConnectReducer = (state: WalletConnectState, action: WalletConnectAc
   }
 };
 
-export const HashconnectServiceContext = createContext<
+// Create context
+export const WalletConnectContext = createContext<
   Partial<{
     network: Networks;
     dAppConnector: DAppConnector | null;
     walletConnectState: WalletConnectState;
     dispatch: React.Dispatch<WalletConnectAction>;
-    initWalletConnect: () => Promise<void>;
     setNewSession: (session: SessionTypes.Struct) => void;
   }>
 >({
@@ -108,7 +95,7 @@ export interface WalletConnectProviedrProps {
   debug?: boolean;
 }
 
-export const walletConnectProvider: React.FC<WalletConnectProviedrProps> = ({ children, metadata, network, debug }) => {
+const WalletConnectProvider: React.FC<WalletConnectProviedrProps> = ({ children, metadata, network, debug }) => {
   const [state, dispatch] = useReducer(walletConnectReducer, initialWalletConnectState);
   const walletConnectorRef = useRef<DAppConnector | null>(null);
 
@@ -138,5 +125,7 @@ export const walletConnectProvider: React.FC<WalletConnectProviedrProps> = ({ ch
     [state, network]
   );
 
-  return <HashconnectServiceContext.Provider value={value}>{children}</HashconnectServiceContext.Provider>;
+  return <WalletConnectContext.Provider value={value}>{children}</WalletConnectContext.Provider>;
 };
+
+export default WalletConnectProvider;
