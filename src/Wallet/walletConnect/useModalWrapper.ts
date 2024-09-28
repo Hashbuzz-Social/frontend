@@ -1,5 +1,5 @@
 import { useCallback, useContext, useMemo } from "react";
-import { HashconnectServiceContext } from "../ConnectionProvider/HashconnectServiceContext";
+import { HashconnectServiceContext } from "../ConnectionProvider/HashconnectProvider";
 
 const useModalWrapper = () => {
   const { dispatch, walletConnectState } = useContext(HashconnectServiceContext);

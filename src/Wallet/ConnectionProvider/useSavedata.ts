@@ -1,9 +1,10 @@
 import { useCallback, useContext } from "react";
-import { HashconnectServiceContext } from "./HashconnectServiceContext";
+import { HashconnectServiceContext } from "./HashconnectProvider";
 import { SignClientTypes } from "@walletconnect/types";
+import useWalletConnectService from "../walletConnect/useWalletConnectService";
 
 const useSaveData = (metaData: SignClientTypes.Metadata) => {
-  const { walletConnectState , dAppConnector} = useContext(HashconnectServiceContext);
+  const { message, dAppConnector } = useWalletConnectService();
 
   return useCallback(() => {
     localStorage.setItem(
@@ -14,10 +15,10 @@ const useSaveData = (metaData: SignClientTypes.Metadata) => {
         description: metaData.description,
         url: "https://testnet.hashbuzz.social",
         icons: metaData.icons,
-        message: walletConnectState?.message,
+        message: message,
       })
     );
-  }, [walletConnectState, metaData]);
+  }, [dAppConnector, metaData, message]);
 };
 
 export default useSaveData;

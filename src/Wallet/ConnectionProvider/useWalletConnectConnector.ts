@@ -3,8 +3,8 @@ import { AccountId, LedgerId } from "@hashgraph/sdk";
 import { SessionTypes, SignClientTypes } from "@walletconnect/types";
 import React, { useCallback } from "react";
 import { Networks } from "../../types";
-import { WalletConnectAction } from "./HashconnectServiceContext";
 import useSaveData from "./useSavedata";
+import { WalletConnectAction } from "./WalletConnectProvider";
 
 const projectId = process.env.REACT_APP_PROJECT_ID || "";
 

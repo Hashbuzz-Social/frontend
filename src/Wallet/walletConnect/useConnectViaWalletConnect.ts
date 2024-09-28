@@ -1,14 +1,14 @@
 import { SessionTypes } from "@walletconnect/types";
-import { useCallback, useContext } from "react";
-import { HashconnectServiceContext } from "../ConnectionProvider/HashconnectServiceContext";
+import { useCallback } from "react";
 import useModalWrapper from "./useModalWrapper";
+import useWalletConnectService from "./useWalletConnectService";
 
 /**
  * Custom hook to handle WalletConnect functionality.
  * @returns {Object} - An object containing handleConnect and handleDisconnectSessions functions.
  */
 const useConnectViaWalletConnect = () => {
-  const { dispatch, dAppConnector, setNewSession } = useContext(HashconnectServiceContext);
+  const { dispatch, dAppConnector, setNewSession } = useWalletConnectService();
   const { modalWrapper } = useModalWrapper();
 
   /**

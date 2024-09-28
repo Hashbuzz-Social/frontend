@@ -2,7 +2,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import React from "react";
 import ReactDOM from "react-dom";
 import AppRouter from "./AppRouter";
-import { HashconnectAPIProvider } from "./Wallet/ConnectionProvider/HashconnectServiceContext";
+import { HashconnectAPIProvider } from "./Wallet/ConnectionProvider/HashconnectProvider";
 import "./index.css";
 import { CookiesProvider } from "react-cookie";
 import { NETWORK } from "./Utilities/helpers";
