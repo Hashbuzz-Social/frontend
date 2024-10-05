@@ -2,7 +2,7 @@ import React from "react";
 import { useCookies } from "react-cookie";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../APIConfig/api";
-import { getErrorMessage } from "../Utilities/helpers";
+import { getErrorMessage } from "../utils/helpers";
 import { CurrentUser } from "../types";
 import { AppState, EntityBalances } from "../types/state";
 
@@ -54,54 +54,61 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
         ...prevState,
         currentUser,
         auth: {
-          ast: aSToken, auth: true, deviceId: localStorage.getItem("device_id") ?? "", message: "", refreshTok: "" ,
+          ast: aSToken,
+          auth: true,
+          deviceId: localStorage.getItem("device_id") ?? "",
+          message: "",
+          refreshTok: "",
         },
       }));
     }
   }, [cookies]);
 
-  const checkAndUpdateEntityBalances = React.useCallback(async (topup = false) => {
-    try {
-      const balancesData = await User.getTokenBalances();
-      let available_budget = 0;
-      if (!topup) {
-        available_budget = Number(state.currentUser?.available_budget);
-      } else {
-        const currentUser = await User.getCurrentUser();
-        available_budget = currentUser?.available_budget ?? 0;
-      }
+  const checkAndUpdateEntityBalances = React.useCallback(
+    async (topup = false) => {
+      try {
+        const balancesData = await User.getTokenBalances();
+        let available_budget = 0;
+        if (!topup) {
+          available_budget = Number(state.currentUser?.available_budget);
+        } else {
+          const currentUser = await User.getCurrentUser();
+          available_budget = currentUser?.available_budget ?? 0;
+        }
 
-      updateState((prevState) => {
-        const balances: EntityBalances[] = [
-          {
-            ...INITIAL_HBAR_BALANCE_ENTITY,
-            entityBalance: (available_budget / 1e8).toFixed(4),
-            entityId: prevState.currentUser?.hedera_wallet_id ?? "",
-          },
-        ];
+        updateState((prevState) => {
+          const balances: EntityBalances[] = [
+            {
+              ...INITIAL_HBAR_BALANCE_ENTITY,
+              entityBalance: (available_budget / 1e8).toFixed(4),
+              entityId: prevState.currentUser?.hedera_wallet_id ?? "",
+            },
+          ];
 
-        balancesData.forEach((d) => {
-          balances.push({
-            entityBalance: d.available_balance.toFixed(4),
-            entityIcon: d.token_symbol,
-            entitySymbol: "",
-            entityId: d.token_id,
-            entityType: d.token_type,
-            decimals: d.decimals,
+          balancesData.forEach((d) => {
+            balances.push({
+              entityBalance: d.available_balance.toFixed(4),
+              entityIcon: d.token_symbol,
+              entitySymbol: "",
+              entityId: d.token_id,
+              entityType: d.token_type,
+              decimals: d.decimals,
+            });
           });
+
+          return { ...prevState, balances };
         });
 
-        return { ...prevState, balances };
-      });
-
-      toast.success("Balance is updated successfully.");
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    }
-  }, [User, state.currentUser?.available_budget, state.currentUser?.hedera_wallet_id]);
+        toast.success("Balance is updated successfully.");
+      } catch (err) {
+        toast.error(getErrorMessage(err));
+      }
+    },
+    [User, state.currentUser?.available_budget, state.currentUser?.hedera_wallet_id]
+  );
 
   const authCheckPing = React.useCallback(async () => {
-    console.log("Auth" , Auth);
+    console.log("Auth", Auth);
     try {
       const data = await Auth.authPing();
       if (data.wallet_id) {
@@ -120,16 +127,14 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
 
   const startBalanceQueryTimer = React.useCallback(() => {
     if (balanceQueryTimer) clearTimeout(balanceQueryTimer);
-    setBalanceQueryTimer(
-      setTimeout(() => checkAndUpdateEntityBalances(true), 35000)
-    ); // 35 seconds
+    setBalanceQueryTimer(setTimeout(() => checkAndUpdateEntityBalances(true), 35000)); // 35 seconds
   }, [balanceQueryTimer, checkAndUpdateEntityBalances]);
 
   React.useEffect(() => {
     if (cookies.aSToken) {
       authCheckPing();
     }
-  }, [authCheckPing, cookies.aSToken , Auth]);
+  }, [authCheckPing, cookies.aSToken, Auth]);
 
   React.useEffect(() => {
     if (state.ping.status) {
@@ -171,11 +176,7 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
     [state, authCheckPing, checkAndUpdateEntityBalances, startBalanceQueryTimer]
   );
 
-  return (
-    <StoreContext.Provider value={contextValue}>
-      {children}
-    </StoreContext.Provider>
-  );
+  return <StoreContext.Provider value={contextValue}>{children}</StoreContext.Provider>;
 };
 
 // Hook function for accessing the context.

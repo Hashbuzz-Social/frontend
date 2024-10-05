@@ -1,13 +1,14 @@
+import { useEffect } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { ProtectedRoute } from "./APIConfig/AuthGuard";
-import { CreateCampaign, Dashboard, Landing, PageNotfound } from "./Ver2Designs";
+import { Dashboard, Landing, PageNotfound } from "./Ver2Designs";
 import { AdminDashboard } from "./Ver2Designs/Admin";
 import AdminAuthGuard from "./Ver2Designs/Admin/AdminAuthGuard";
 import MainLayout from "./Ver2Designs/Layout";
+import useConnector from "./Wallet/hooks/useConnector";
+import { loadState, saveState } from "./Wallet/services/localstorage";
+import useWalletConnectService from "./Wallet/services/walletConnectService";
 import StyledComponentTheme from "./theme/Theme";
-import { Template } from "./screens/Template";
-import { Invoice } from "./screens/Invoice";
-import { OnBoarding } from "./screens/OnBoarding";
 
 const router = createBrowserRouter([
   {
@@ -30,26 +31,26 @@ const router = createBrowserRouter([
         path: "dashboard",
         element: <Dashboard />,
       },
-      {
-        path: "campaign",
-        element: <Template />,
-      },
-      {
-        path: "create-campaign",
-        element: <CreateCampaign />,
-      },
-      {
-        path: "invoice",
-        element: <Invoice />,
-      },
-      {
-        path: "onboarding",
-        element: <OnBoarding />,
-      },
-      {
-        path: "settings",
-        element: "",
-      },
+      // {
+      //   path: "campaign",
+      //   element: <Template />,
+      // },
+      // {
+      //   path: "create-campaign",
+      //   element: <CreateCampaign />,
+      // },
+      // {
+      //   path: "invoice",
+      //   element: <Invoice />,
+      // },
+      // {
+      //   path: "onboarding",
+      //   element: <OnBoarding />,
+      // },
+      // {
+      //   path: "settings",
+      //   element: "",
+      // },
       {
         path: "transactions",
         element: "",
@@ -72,10 +73,41 @@ const router = createBrowserRouter([
   { path: "/*", element: <PageNotfound /> },
 ]);
 
-const AppRouter = () => (
-  <StyledComponentTheme>
-    <RouterProvider router={router} />
-  </StyledComponentTheme>
-);
+const AppRouter = () => {
+  const initializeConnector = useWalletConnectService();
+  const { projectId, name, description, url, icons } = useConnector();
+
+  // Static Data Loading
+  useEffect(() => {
+    const savedState = loadState();
+  }, []);
+
+  //Initialize Connector
+  useEffect(() => {
+    if (projectId && name && description && url && icons.length > 0) {
+      initializeConnector().catch((error) => {
+        console.error("Error initializing connector", error);
+      });
+    }
+  }, [projectId, name, description, url, icons]);
+
+  //Persist state to localStorage
+  useEffect(() => {
+    saveState({
+      projectId,
+      name,
+      description,
+      url,
+      icons,
+      // Add other necessary state variables if needed
+    });
+  }, [projectId, name, description, url, icons]);
+
+  return (
+    <StyledComponentTheme>
+      <RouterProvider router={router} />
+    </StyledComponentTheme>
+  );
+};
 
 export default AppRouter;

@@ -4,6 +4,7 @@ export const dAppApiURL = process.env.REACT_APP_DAPP_API;
 export const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS;
 export const COLLECTOR_ACCOUNT = process.env.REACT_APP_COLLECTOR_ACCOUNT;
 export const ADMIN_ADDRESS = String(process.env.REACT_APP_ADMIN_ADDRESS).split(",");
+export const WalletConnectProject = process.env.REACT_APP_PROJECT_ID;
 
 export enum CampaignStatus {
   ApprovalPending = "ApprovalPending",
@@ -94,4 +95,9 @@ export const calculateDimensions = ({ originalDimensions, newHeight, newWidth }:
   } else {
     return originalDimensions;
   }
+};
+
+export const getLastItem = <T>(array: T[]): T | undefined => {
+  if (array.length === 0) return undefined;
+  return array[array.length - 1];
 };

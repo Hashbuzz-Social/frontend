@@ -14,7 +14,7 @@ import { unstable_batchedUpdates } from "react-dom";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
 import { useStore } from "../../../Store/StoreProvider";
-import { getErrorMessage } from "../../../Utilities/helpers";
+import { getErrorMessage } from "../../../utils/helpers";
 import { AdminPasswordFormState, CurrentUser, FormFelid } from "../../../types";
 
 type CurrentFormState = AdminPasswordFormState & {
@@ -44,7 +44,6 @@ const validateForm = (data: CurrentFormState, updateState: React.Dispatch<React.
 
   const password = data.password.value;
   const confirmPassword = data.confirmPassword.value;
-
 
   if (password.length < 8 || !checkPasswordExp.test(password)) {
     isValid = false;
@@ -77,7 +76,7 @@ const AdminPasswordSetup = ({ user }: AdminPasswordSetupProps) => {
     unstable_batchedUpdates(() => {
       setAdminPassModalOpen(Boolean(["SUPER_ADMIN", "ADMIN"].includes(user.role) && !user.adminActive));
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -90,7 +89,7 @@ const AdminPasswordSetup = ({ user }: AdminPasswordSetupProps) => {
         });
         if (response.message) toast.success(response.message);
         // if (response.user && store?.updateState) store.updateState((_d) => ({ ..._d, currentUser: response.user }));
-        if(response.user) store.dispatch({"type":"UPDATE_CURRENT_USER", payload:response.user})
+        if (response.user) store.dispatch({ type: "UPDATE_CURRENT_USER", payload: response.user });
         unstable_batchedUpdates(() => {
           setAdminPassModalOpen(false);
           setFormData(JSON.parse(JSON.stringify(FORM_INITIAL_STATE)));
@@ -122,22 +121,14 @@ const AdminPasswordSetup = ({ user }: AdminPasswordSetupProps) => {
   };
 
   return (
-    <Dialog
-      open={adminPassModalOpen}
-      onClose={(event, reason) => {}}
-      aria-labelledby="twitter-concent-dialog-title"
-      aria-describedby="twitter-concent-dialog-description"
-    >
+    <Dialog open={adminPassModalOpen} onClose={(event, reason) => {}} aria-labelledby="twitter-concent-dialog-title" aria-describedby="twitter-concent-dialog-description">
       <form onSubmit={handleSubmit}>
         <DialogTitle id="twitter-concent-dialog-title">{"Set your admin password"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="twitter-concent-dialog-description">
             As you are an admin user so you are requested to set an admin password for accessing the Admin dashboard.
             <List>
-              <ListItem>
-                Password must be 8 or more that 8 character long. It should contains once uppercase , one lowercase , once numeric and special
-                character
-              </ListItem>
+              <ListItem>Password must be 8 or more that 8 character long. It should contains once uppercase , one lowercase , once numeric and special character</ListItem>
             </List>
           </DialogContentText>
           <Box>
@@ -155,12 +146,7 @@ const AdminPasswordSetup = ({ user }: AdminPasswordSetupProps) => {
                 value={formData.password.value}
                 endAdornment={
                   <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => handleClickShowPassword("password")}
-                      onMouseDown={handleMouseDownPassword}
-                      edge="end"
-                    >
+                    <IconButton aria-label="toggle password visibility" onClick={() => handleClickShowPassword("password")} onMouseDown={handleMouseDownPassword} edge="end">
                       {formData.password.showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
@@ -183,12 +169,7 @@ const AdminPasswordSetup = ({ user }: AdminPasswordSetupProps) => {
                 value={formData.confirmPassword.value}
                 endAdornment={
                   <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => handleClickShowPassword("confirmPassword")}
-                      onMouseDown={handleMouseDownPassword}
-                      edge="end"
-                    >
+                    <IconButton aria-label="toggle password visibility" onClick={() => handleClickShowPassword("confirmPassword")} onMouseDown={handleMouseDownPassword} edge="end">
                       {formData.confirmPassword.showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>

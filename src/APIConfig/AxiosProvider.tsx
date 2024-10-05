@@ -2,7 +2,7 @@ import React, { createContext, useContext, useRef, useEffect, useState } from "r
 import axios, { AxiosInstance } from "axios";
 import { useCookies } from "react-cookie";
 import { toast } from "react-toastify";
-import { getErrorMessage } from "../Utilities/helpers";
+import { getErrorMessage } from "../utils/helpers";
 import { useStore } from "../Store/StoreProvider";
 
 const getDeviceId = () => {
@@ -19,9 +19,9 @@ const useRefreshToken = false; // Flag to enable/disable token refresh
 export const AxiosContext = createContext<AxiosInstance | null>(null);
 
 const AxiosProvider: React.FC = ({ children }) => {
-  const [cookies, setCookie] = useCookies(["aSToken" , "refreshToken"]);
+  const [cookies, setCookie] = useCookies(["aSToken", "refreshToken"]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const {auth} = useStore();
+  const { auth } = useStore();
 
   const axiosInstance = useRef<AxiosInstance>(
     axios.create({
@@ -33,14 +33,14 @@ const AxiosProvider: React.FC = ({ children }) => {
     })
   );
 
-  console.log("cookies", cookies)
+  console.log("cookies", cookies);
 
   const refreshAccessToken = async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
     try {
       // Your logic to refresh the token
-      const response = await axiosInstance.current.post<{ast:string, message:string}>("/auth/refresh-token", {
+      const response = await axiosInstance.current.post<{ ast: string; message: string }>("/auth/refresh-token", {
         refreshToken: cookies.refreshToken,
       });
       const newToken = response.data.ast;
@@ -79,7 +79,7 @@ const AxiosProvider: React.FC = ({ children }) => {
           config.headers["Authorization"] = `aSToken ${token}`;
         }
 
-        if(!token && config.headers && auth?.ast){
+        if (!token && config.headers && auth?.ast) {
           config.headers["Authorization"] = `aSToken ${auth.ast}`;
         }
 
@@ -121,7 +121,7 @@ const AxiosProvider: React.FC = ({ children }) => {
       instance.interceptors.request.eject(requestInterceptor);
       instance.interceptors.response.eject(responseInterceptor);
     };
-  }, [cookies.aSToken , auth?.ast]);
+  }, [cookies.aSToken, auth?.ast]);
 
   return <AxiosContext.Provider value={axiosInstance.current}>{children}</AxiosContext.Provider>;
 };

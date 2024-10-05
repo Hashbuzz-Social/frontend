@@ -1,5 +1,5 @@
 import { GridColDef } from "@mui/x-data-grid";
-import { CampaignStatus, getCardStausText } from "../../../../Utilities/helpers";
+import { CampaignStatus, getCardStausText } from "../../../../utils/helpers";
 
 export const campaignListColumns: GridColDef[] = [
   { field: "id", headerName: "Card No.", width: 100, align: "center" },

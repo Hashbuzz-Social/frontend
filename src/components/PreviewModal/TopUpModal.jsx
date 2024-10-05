@@ -7,7 +7,7 @@ import { useHashconnectService } from "../../Wallet";
 import { useSmartContractServices } from "../../Wallet/smartcontractService";
 import { useStore } from "../../Store/StoreProvider";
 import Typography from "../../Typography/Typography";
-import { delay } from "../../Utilities/helpers";
+import { delay } from "../../utils/helpers";
 import PrimaryButton from "../Buttons/PrimaryButton";
 import { ErrorTextWrap } from "../Pages/TemplatePage/TemplatePage.styles";
 import { BoxCont, ButtonWrapPrimary, CustomInput, CustomParagraph, Label, OverlayBox, Row } from "./PreviewModal.styles";
@@ -187,11 +187,7 @@ const TopUpModal = ({ open, setOpen, isTopUp }) => {
 
       <ButtonWrapPrimary>
         <PrimaryButton text="CANCEL" inverse={true} onclick={handleClose} colors="#EF5A22" border="1px solid #EF5A22" />
-        {isTopUp ? (
-          <PrimaryButton text={"PAY"} onclick={submitPay} />
-        ) : (
-          <PrimaryButton disabled={buttonDisabled || !amount || amount < 1} text={"Reimburse"} onclick={submitReimburse} />
-        )}
+        {isTopUp ? <PrimaryButton text={"PAY"} onclick={submitPay} /> : <PrimaryButton disabled={buttonDisabled || !amount || amount < 1} text={"Reimburse"} onclick={submitReimburse} />}
       </ButtonWrapPrimary>
       <div style={{ marginBottom: 30 }}></div>
       {paymentStatus && (

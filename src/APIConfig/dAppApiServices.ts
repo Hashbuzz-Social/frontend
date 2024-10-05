@@ -1,5 +1,5 @@
 import axios, { Method } from "axios";
-import { dAppApiURL } from "../Utilities/helpers";
+import { dAppApiURL } from "../utils/helpers";
 import { getCookie } from "./api";
 
 interface APIProps {
@@ -11,7 +11,7 @@ interface APIProps {
 export const useDappAPICall = () => {
   const dAppAPICall = async (props: APIProps) => {
     const token = getCookie("token");
-    console.log(token, 'token')
+    console.log(token, "token");
     const { method, url, data } = props;
     const request = await axios({
       method,

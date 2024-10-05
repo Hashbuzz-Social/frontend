@@ -2,34 +2,35 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../APIConfig/api";
 import { EntityBalances } from "../types";
-import { getErrorMessage } from "../Utilities/helpers";
+import { getErrorMessage } from "../utils/helpers";
 import { useStore } from "./StoreProvider";
 
 const INITIAL_HBAR_BALANCE_ENTITY = {
-    entityBalance: 0.00,
-    entityIcon: "HBAR",
-    entitySymbol: "ℏ",
-    entityId: "",
-    entityType: "HBAR",
-  };
+  entityBalance: 0.0,
+  entityIcon: "HBAR",
+  entitySymbol: "ℏ",
+  entityId: "",
+  entityType: "HBAR",
+};
 
 export const useBalances = () => {
-    const { dispatch, currentUser } = useStore();
-    const { User } = useApiInstance();
-    const [balanceQueryTimer, setBalanceQueryTimer] = useState<NodeJS.Timeout | null>(null);
-  
-    const checkAndUpdateEntityBalances = useCallback(async (topup?: boolean) => {
+  const { dispatch, currentUser } = useStore();
+  const { User } = useApiInstance();
+  const [balanceQueryTimer, setBalanceQueryTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const checkAndUpdateEntityBalances = useCallback(
+    async (topup?: boolean) => {
       try {
         const balancesData = await User.getTokenBalances();
         let availableBudget = 0;
-        if(topup){
+        if (topup) {
           const currentUserUpdated = await User.getCurrentUser();
-          availableBudget = currentUserUpdated.available_budget
-          dispatch({type:"UPDATE_CURRENT_USER", payload:currentUserUpdated})
-        }else{
-          availableBudget = Number(currentUser?.available_budget)
+          availableBudget = currentUserUpdated.available_budget;
+          dispatch({ type: "UPDATE_CURRENT_USER", payload: currentUserUpdated });
+        } else {
+          availableBudget = Number(currentUser?.available_budget);
         }
-  
+
         const balances: EntityBalances[] = [
           {
             ...JSON.parse(JSON.stringify(INITIAL_HBAR_BALANCE_ENTITY)),
@@ -45,28 +46,30 @@ export const useBalances = () => {
             decimals: d.decimals,
           })),
         ];
-  
+
         dispatch({ type: "SET_BALANCES", payload: balances });
         toast.success("Balance updated successfully.");
       } catch (err) {
         toast.error(getErrorMessage(err));
       }
-    }, [User, currentUser , dispatch]);
-  
-    const startBalanceQueryTimer = useCallback(() => {
-      console.log("I have been called");
-      if (balanceQueryTimer) clearTimeout(balanceQueryTimer);
-      setBalanceQueryTimer(setTimeout(() => checkAndUpdateEntityBalances(true), 35000));
-    }, [balanceQueryTimer, checkAndUpdateEntityBalances]);
-  
-    useEffect(() => {
-      if (currentUser?.hedera_wallet_id) {
-        checkAndUpdateEntityBalances();
-      }
-    }, [currentUser?.hedera_wallet_id]);
-  
-    return {
-      checkAndUpdateEntityBalances,
-      startBalanceQueryTimer,
-    };
+    },
+    [User, currentUser, dispatch]
+  );
+
+  const startBalanceQueryTimer = useCallback(() => {
+    console.log("I have been called");
+    if (balanceQueryTimer) clearTimeout(balanceQueryTimer);
+    setBalanceQueryTimer(setTimeout(() => checkAndUpdateEntityBalances(true), 35000));
+  }, [balanceQueryTimer, checkAndUpdateEntityBalances]);
+
+  useEffect(() => {
+    if (currentUser?.hedera_wallet_id) {
+      checkAndUpdateEntityBalances();
+    }
+  }, [currentUser?.hedera_wallet_id]);
+
+  return {
+    checkAndUpdateEntityBalances,
+    startBalanceQueryTimer,
   };
+};

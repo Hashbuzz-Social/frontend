@@ -5,7 +5,7 @@ import { unstable_batchedUpdates } from "react-dom";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
 import { useStore } from "../../../Store/StoreProvider";
-import { getErrorMessage } from "../../../Utilities/helpers";
+import { getErrorMessage } from "../../../utils/helpers";
 import { AllTokensQuery } from "../../../types";
 import { DashboardHeader } from "../../Components";
 import AddNewTokenModal from "./AddNewTokenModal";
@@ -13,7 +13,7 @@ import AddNewTokenModal from "./AddNewTokenModal";
 const AdminDashboard = () => {
   const [tokenModalOpen, setTokenModalOpen] = React.useState(false);
   const [listedTokens, setListedTokens] = React.useState<AllTokensQuery | null>(null);
-  const { dispatch , contractInfo} = useStore();
+  const { dispatch, contractInfo } = useStore();
 
   const { Admin } = useApiInstance();
   // const store = useStore();
@@ -31,12 +31,12 @@ const AdminDashboard = () => {
     try {
       (async () => {
         const contractInfo = await Admin.getActiveContractInfo();
-        dispatch({type:"SET_CONTRACT_INFO" ,payload:contractInfo})
+        dispatch({ type: "SET_CONTRACT_INFO", payload: contractInfo });
       })();
     } catch (err) {
       toast.error(getErrorMessage(err));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -56,7 +56,13 @@ const AdminDashboard = () => {
                   {"Admin Dashboard"}
                 </Typography>
                 {/* https://hashscan.io/testnet/contract/0.0.3980646 */}
-                <Typography>Active contract Id:- <Link href={`https://hashscan.io/testnet/contract/${contractInfo?.contract_id}`} target="_blank"> {contractInfo?.contract_id ?? ""}</Link></Typography>
+                <Typography>
+                  Active contract Id:-{" "}
+                  <Link href={`https://hashscan.io/testnet/contract/${contractInfo?.contract_id}`} target="_blank">
+                    {" "}
+                    {contractInfo?.contract_id ?? ""}
+                  </Link>
+                </Typography>
               </Box>
             </Grid>
             <Grid md={6}>

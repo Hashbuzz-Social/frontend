@@ -1,6 +1,6 @@
 import React from "react";
 import { SvgBaseProps } from "../types";
-import { calculateDimensions } from "../Utilities/helpers";
+import { calculateDimensions } from "../utils/helpers";
 
 const originalDimensions = { height: 332, width: 480 };
 

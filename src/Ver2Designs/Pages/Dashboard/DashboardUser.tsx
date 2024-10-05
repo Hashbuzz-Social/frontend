@@ -9,8 +9,8 @@ import CampaignList from "./CampaignList";
 import { CardGenUtility } from "./CardGenUtility";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
-import { getErrorMessage, isAllowedToCmapigner } from "../../../Utilities/helpers";
-import MenuItemsAndSpeedDial from "../../Components/SpeedDialActions";
+import { getErrorMessage, isAllowedToCmapigner } from "../../../utils/helpers";
+import MenuItemsAndSpeedDial from "../../../components/SpeedDialActions";
 import * as SC from "./styled";
 
 const Dashboard = () => {
