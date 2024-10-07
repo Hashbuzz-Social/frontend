@@ -7,5 +7,6 @@ module.exports = override(
     "@hooks": path.resolve(__dirname, "src/hooks"),
     "@svgr": path.resolve(__dirname, "src/SVGR"),
     "@wallet": path.resolve(__dirname, "src/Wallet"),
+    "@store": path.resolve(__dirname, "src/Store"),
   })
 );

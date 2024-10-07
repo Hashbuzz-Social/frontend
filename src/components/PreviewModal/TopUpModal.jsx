@@ -5,13 +5,13 @@ import { toast } from "react-toastify";
 import { useDappAPICall } from "../../APIConfig/dAppApiServices";
 import { useHashconnectService } from "../../Wallet";
 import { useSmartContractServices } from "../../Wallet/smartcontractService";
-import { useStore } from "../../Store/StoreProvider";
 import Typography from "../../Typography/Typography";
 import { delay } from "../../utils/helpers";
 import PrimaryButton from "../Buttons/PrimaryButton";
 import { ErrorTextWrap } from "../Pages/TemplatePage/TemplatePage.styles";
 import { BoxCont, ButtonWrapPrimary, CustomInput, CustomParagraph, Label, OverlayBox, Row } from "./PreviewModal.styles";
 import { useConnectToExtension } from "../../Wallet/hashpack/useConnectToExtension";
+import { useStore } from "@store/hooks";
 const TopUpModal = ({ open, setOpen, isTopUp }) => {
   const [amount, setAmount] = useState(0);
   const [paymentStatus, setPaymentStatus] = useState(null);

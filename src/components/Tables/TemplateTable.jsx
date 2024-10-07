@@ -5,7 +5,7 @@ import { BorderlessCell, BorderlessHead, CustomRowHead, CustomTable, CustomTable
 import CheckIcon from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
 import { useEffect, useState } from "react";
-import { useStore } from "../../Store/StoreProvider";
+import { useStore } from "@store/hooks";
 
 export const TemplateTable = ({ handleReply, handleRetweet, handleLike, handleDownload, handleFollow, type, reply, retweet, selectedToken, like, download, follow, quote }) => {
   const store = useStore();

@@ -20,7 +20,8 @@
       "@components/*": ["components/*"],
       "@hooks/*": ["hooks/*"],
       "@svgr/*": ["SVGR/*"],
-      "@wallet/*": ["Wallet/*"]
+      "@wallet/*": ["Wallet/*"],
+      "@store/*": ["Store/*"]
     }
   },
   "include": ["src"]

@@ -7,8 +7,8 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
-import { useStore } from "../../../Store/StoreProvider";
 import { EntityBalances } from "../../../types";
+import { useStore } from "@store/hooks";
 interface TopupModalProps {
   open: boolean;
   onClose: () => void;

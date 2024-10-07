@@ -7,8 +7,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { CurrentUser } from "../../../types";
 import { useApiInstance } from "../../../APIConfig/api";
-import { useStore } from "../../../Store/StoreProvider";
 import { toast } from "react-toastify";
+import { useStore } from "@store/hooks";
 
 interface ConsentModalProps {
   user: CurrentUser;
@@ -29,7 +29,7 @@ const ConsentModal = ({ user }: ConsentModalProps) => {
   const handleConcentAgree = async () => {
     try {
       const updateUser = await User.updateConsent({ consent: true });
-       store.dispatch({type:"UPDATE_CURRENT_USER", payload:updateUser});
+      store.dispatch({ type: "UPDATE_CURRENT_USER", payload: updateUser });
       setConsentModalOpen(false);
     } catch (error) {
       //@ts-ignore

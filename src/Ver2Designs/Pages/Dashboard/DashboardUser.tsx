@@ -2,15 +2,14 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import BusinessIcon from "@mui/icons-material/Business";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import { Button, Typography } from "@mui/material";
+import { useStore } from "@store/hooks";
 import React from "react";
-import { useStore } from "../../../Store/StoreProvider";
-import Balances from "./Balances";
-import CampaignList from "./CampaignList";
-import { CardGenUtility } from "./CardGenUtility";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
 import { getErrorMessage, isAllowedToCmapigner } from "../../../utils/helpers";
-import MenuItemsAndSpeedDial from "../../../components/SpeedDialActions";
+import Balances from "./Balances";
+import CampaignList from "./CampaignList";
+import { CardGenUtility } from "./CardGenUtility";
 import * as SC from "./styled";
 
 const Dashboard = () => {

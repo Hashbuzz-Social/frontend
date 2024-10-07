@@ -14,7 +14,8 @@ import * as React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import HederaIcon from "../../SVGR/HederaIcon";
-import { useStore } from "../../Store/StoreProvider";
+import { useStore } from "@store/hooks";
+
 
 const HeaderMenu = () => {
   const store = useStore();

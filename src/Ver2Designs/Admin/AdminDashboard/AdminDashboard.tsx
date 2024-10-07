@@ -4,11 +4,11 @@ import React from "react";
 import { unstable_batchedUpdates } from "react-dom";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
-import { useStore } from "../../../Store/StoreProvider";
 import { getErrorMessage } from "../../../utils/helpers";
 import { AllTokensQuery } from "../../../types";
 import { DashboardHeader } from "../../Components";
 import AddNewTokenModal from "./AddNewTokenModal";
+import { useStore } from "@store/hooks";
 
 const AdminDashboard = () => {
   const [tokenModalOpen, setTokenModalOpen] = React.useState(false);
@@ -16,7 +16,6 @@ const AdminDashboard = () => {
   const { dispatch, contractInfo } = useStore();
 
   const { Admin } = useApiInstance();
-  // const store = useStore();
 
   React.useEffect(() => {
     (async () => {
@@ -88,21 +87,21 @@ const AdminDashboard = () => {
                 <Grid container spacing={1} sx={{ marginTop: 2 }}>
                   {listedTokens?.data && listedTokens.data.length > 0
                     ? listedTokens.data.map((token) => {
-                        const tokenInfo = token.tokendata;
-                        return (
-                          <Grid item md={6}>
-                            <Box sx={{ display: "flex", alignItems: "center", padding: 1 }} component={Card}>
-                              <Avatar variant="rounded">{tokenInfo.symbol}</Avatar>
-                              <Stack spacing={0.5} sx={{ marginLeft: 2 }}>
-                                <Typography fontWeight={700}>{tokenInfo.name}</Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                  Id:{tokenInfo.token_id} | Treasury Id: {tokenInfo.treasury_account_id}
-                                </Typography>
-                              </Stack>
-                            </Box>
-                          </Grid>
-                        );
-                      })
+                      const tokenInfo = token.tokendata;
+                      return (
+                        <Grid item md={6}>
+                          <Box sx={{ display: "flex", alignItems: "center", padding: 1 }} component={Card}>
+                            <Avatar variant="rounded">{tokenInfo.symbol}</Avatar>
+                            <Stack spacing={0.5} sx={{ marginLeft: 2 }}>
+                              <Typography fontWeight={700}>{tokenInfo.name}</Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Id:{tokenInfo.token_id} | Treasury Id: {tokenInfo.treasury_account_id}
+                              </Typography>
+                            </Stack>
+                          </Box>
+                        </Grid>
+                      );
+                    })
                     : null}
                 </Grid>
               </Box>

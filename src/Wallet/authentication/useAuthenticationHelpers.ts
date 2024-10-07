@@ -1,10 +1,10 @@
 import { useCallback, useState } from "react";
 import { useApiInstance } from "../../APIConfig/api";
 import { useCookies } from "react-cookie";
-import { useAuth } from "../../Store/useAuth";
+import { useAuth } from "../../Store/hooks/useAuth";
 import { toast } from "react-toastify";
-import { useStore } from "../../Store/StoreProvider";
 import { GnerateReseponse, WCPayload } from "types";
+import { useStore } from "@store/hooks";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApiInstance } from "../../../APIConfig/api";
 import Image from "../../../IconsPng/arrow-symbol.png";
-import { useStore } from "../../../Store/StoreProvider";
 import Typography from "../../../Typography/Typography";
 import PrimaryButton from "../../Buttons/PrimaryButton";
 import SecondaryButton from "../../Buttons/SecondaryButton";
@@ -15,6 +14,7 @@ import ChatgptModal from "./ChatgptModal/ChatgptModal";
 import { ShowImage } from "./ShowImage";
 import { ButtonWrap, ButtonWrapPrimary, CustomCheckboxInput, CustomIframe, CustomInput, CustomParagraph, EmoBtnWrap, ErrorTextWrap, IconsWrap, ImgWrap, LeftSec, RightSec, SimpleDiv, TableSection, WordsWrap, Wrapper } from "./TemplatePage.styles";
 import { YoutubeIcon } from "./YoutubeIcon";
+import { useStore } from "@store/hooks";
 
 export const TemplatePage = () => {
   let navigate = useNavigate();
@@ -62,10 +62,8 @@ export const TemplatePage = () => {
       }
     });
     setAllTokens(updatedTokens);
-  }; 
+  };
   const store = useStore();
-
-
 
   const theme = {
     weight: 500,
@@ -76,7 +74,7 @@ export const TemplatePage = () => {
   const handlePreview = () => {
     setOpen(true);
   };
- 
+
   const handleText = (event) => {
     if (271 - Text?.length === 0) {
       console.log("message for reached text enter limit!");
@@ -160,7 +158,6 @@ export const TemplatePage = () => {
     setMedia([event.target.value]);
     setDisplayMedia([]);
   };
- 
 
   const handleName = (event) => {
     console.log(event.target.value);
@@ -172,7 +169,6 @@ export const TemplatePage = () => {
     }
   };
 
-  
   const handleBudget = (event) => {
     // 1habr = Math.pow(10,8) tinyhabrs;
     console.log(event.target.value);
@@ -188,18 +184,12 @@ export const TemplatePage = () => {
     } else {
       console.log(store?.balances, selectedToken, "store?.balances?.[selectedToken]?.entityBalance");
       let currentToken = store?.balances?.filter((item) => item?.entityId === selectedToken);
-      if (
-        Number(event.target.value) <= currentToken?.[0]?.entityBalance
-      ) {
+      if (Number(event.target.value) <= currentToken?.[0]?.entityBalance) {
         setBudget(event.target.value);
         setBudgetMessage("");
         setButtonDisabled(false);
       } else {
-        setBudgetMessage(
-          `You have exceeded the total budget of ${
-            currentToken?.[0]?.entityBalance
-          } ${currentToken?.[0]?.entityIcon}`
-        );
+        setBudgetMessage(`You have exceeded the total budget of ${currentToken?.[0]?.entityBalance} ${currentToken?.[0]?.entityIcon}`);
         setButtonDisabled(true);
       }
     }
@@ -249,13 +239,12 @@ export const TemplatePage = () => {
     setDisplayMedia(imagesArr);
   };
 
-
   useEffect(() => {
     setSelectedToken(allTokens?.[0]?.value);
   }, [allTokens]);
   useEffect(() => {
     getTokens();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -273,15 +262,7 @@ export const TemplatePage = () => {
             <MenuItem value={"HBAR"}>HBAR</MenuItem>
           </Select>
           {type === "FUNGIBLE" && (
-            <Select
-              style={{ margin: "20px 0" }}
-              labelId="token_id"
-              id="token_id"
-              placeholder="Select Token Id"
-              value={selectedToken}
-              label="Token Id"
-              onChange={selectTokenIdHandler}
-            >
+            <Select style={{ margin: "20px 0" }} labelId="token_id" id="token_id" placeholder="Select Token Id" value={selectedToken} label="Token Id" onChange={selectTokenIdHandler}>
               {allTokens?.map((item) => {
                 return <MenuItem value={item?.value}>{`${item?.token_symbol}-${item?.value}`}</MenuItem>;
               })}

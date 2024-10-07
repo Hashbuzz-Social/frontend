@@ -8,7 +8,6 @@ import Countdown from "react-countdown";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../../APIConfig/api";
-import { useStore } from "../../../../Store/StoreProvider";
 import { ADMIN_ADDRESS, CampaignStatus } from "../../../../utils/helpers";
 import { Loader } from "../../../../components/Loader/Loader";
 import DetailsModal from "../../../../components/PreviewModal/DetailsModal";
@@ -21,6 +20,7 @@ import { campaignListColumnsAdmin } from "./CampaignListColumnsAdmin";
 import { claimRewardCampaignColumns } from "./ClaimRewardCampaignList";
 import TabNavigation, { TabsLabel } from "./TabNavigationComponent";
 import { campaignListColumns } from "./campaignListCoulmns";
+import { useStore } from "@store/hooks";
 
 const isButtonDisabled = (campaignStats: CampaignStatus, approve: boolean) => {
   const disabledStatuses = new Set([CampaignStatus.RewardDistributionInProgress, CampaignStatus.CampaignDeclined, CampaignStatus.RewardsDistributed, CampaignStatus.CampaignRunning, CampaignStatus.ApprovalPending]);

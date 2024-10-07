@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import { useApiInstance } from "../APIConfig/api";
-import { useBalances } from "../Store/useBalances";
+import { useBalances } from "../Store/hooks/useBalances";
 import { CreateTransactionEntity } from "../types";
 
 export const useSmartContractServices = () => {
@@ -38,7 +38,7 @@ export const useSmartContractServices = () => {
   // }
   // };
 
-  const topUpAccount = async (entity: CreateTransactionEntity) => {};
+  const topUpAccount = async (entity: CreateTransactionEntity) => { };
 
   return { topUpAccount };
 };

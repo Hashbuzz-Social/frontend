@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { useApiInstance } from "../APIConfig/api";
-import { EntityBalances } from "../types";
-import { getErrorMessage } from "../utils/helpers";
-import { useStore } from "./StoreProvider";
+import { useApiInstance } from "../../APIConfig/api";
+import { EntityBalances } from "../../types";
+import { getErrorMessage } from "../../utils/helpers";
+import { useStore } from "./useStore";
 
 const INITIAL_HBAR_BALANCE_ENTITY = {
   entityBalance: 0.0,
@@ -73,3 +73,5 @@ export const useBalances = () => {
     startBalanceQueryTimer,
   };
 };
+
+export default useBalances;

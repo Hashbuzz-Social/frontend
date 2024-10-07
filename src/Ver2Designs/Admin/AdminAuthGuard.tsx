@@ -1,8 +1,7 @@
 import { useCookies } from "react-cookie";
-import { useStore } from "../../Store/StoreProvider";
 import PageNotfound from "../Pages/PageNotfound";
 import AdminAuth from "./AdminAuth";
-// import { useStore } from "../Store/StoreProvider";
+import { useStore } from "@store/hooks";
 
 const AdminAuthGuard = ({ children }: { children: JSX.Element }) => {
   const [cookies] = useCookies(["aSToken", "adminToken"]);

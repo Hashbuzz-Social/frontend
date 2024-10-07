@@ -16,14 +16,14 @@ const INITIAL_STATE: AppState = {
   walletConnector: WalletConnectors.HashPack,
 };
 
-type Action = { type: "SET_PING"; payload: { status: boolean; hedera_wallet_id: string } } | { type: "UPDATE_STATE"; payload: Partial<AppState> } | { type: "SET_BALANCES"; payload: EntityBalances[] } | { type: "ADD_TOAST"; payload: { type: "success" | "error"; message: string } } | { type: "RESET_TOAST" } | { type: "RESET_STATE" } | { type: "SET_CONTRACT_INFO"; payload: ContractInfo } | { type: "UPDATE_CURRENT_USER"; payload: CurrentUser } | {type:"SET_AUTH_CRED" , payload:AuthCred} | {type:"SET_WALLET_CONNECTOR", payload:WalletConnectors};
+type Action = { type: "SET_PING"; payload: { status: boolean; hedera_wallet_id: string } } | { type: "UPDATE_STATE"; payload: Partial<AppState> } | { type: "SET_BALANCES"; payload: EntityBalances[] } | { type: "ADD_TOAST"; payload: { type: "success" | "error"; message: string } } | { type: "RESET_TOAST" } | { type: "RESET_STATE" } | { type: "SET_CONTRACT_INFO"; payload: ContractInfo } | { type: "UPDATE_CURRENT_USER"; payload: CurrentUser } | { type: "SET_AUTH_CRED", payload: AuthCred } | { type: "SET_WALLET_CONNECTOR", payload: WalletConnectors };
 
 const storeReducer = (state: AppState, action: Action): AppState => {
   switch (action.type) {
     case "SET_PING":
       return {
         ...state,
-        ping: {...action.payload},
+        ping: { ...action.payload },
         checkRefresh: true,
       };
     case "UPDATE_STATE":
@@ -37,10 +37,10 @@ const storeReducer = (state: AppState, action: Action): AppState => {
         balances: action.payload,
       };
     case "SET_AUTH_CRED":
-        return {
-          ...state,
-          auth:action.payload
-        }
+      return {
+        ...state,
+        auth: action.payload
+      }
     case "ADD_TOAST":
       return {
         ...state,
@@ -74,7 +74,7 @@ const storeReducer = (state: AppState, action: Action): AppState => {
   }
 };
 
-const StoreContext = createContext<StoreContextType | undefined>(undefined);
+export const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(storeReducer, JSON.parse(JSON.stringify(INITIAL_STATE)));
@@ -82,10 +82,3 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   return <StoreContext.Provider value={{ ...state, dispatch }}>{children}</StoreContext.Provider>;
 };
 
-export const useStore = () => {
-  const context = useContext(StoreContext);
-  if (!context) {
-    throw new Error("useStore must be used within a StoreProvider");
-  }
-  return context;
-};

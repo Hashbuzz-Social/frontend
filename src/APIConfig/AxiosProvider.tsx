@@ -1,15 +1,18 @@
-import React, { createContext, useContext, useRef, useEffect, useState } from "react";
+import { useStore } from "@store/hooks";
 import axios, { AxiosInstance } from "axios";
+import { ClientJS } from "clientjs";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useCookies } from "react-cookie";
 import { toast } from "react-toastify";
 import { getErrorMessage } from "../utils/helpers";
-import { useStore } from "../Store/StoreProvider";
 
-const getDeviceId = () => {
-  // Your logic to get device ID
-  const deviceId = localStorage.getItem("device_id"); // Replace with actual logic
-  console.log("Device ID:", deviceId);
-  return deviceId;
+const getOrSetDeviceId = (deviceId?: string): string | null => {
+  if (deviceId !== undefined) {
+    localStorage.setItem("device_id", deviceId); // Set the device ID
+    return deviceId;
+  } else {
+    return localStorage.getItem("device_id"); // Get the device ID
+  }
 };
 
 const refreshTokenInterval = 2 * 60 * 1000; // Refresh token every 12 minutes
@@ -21,6 +24,7 @@ export const AxiosContext = createContext<AxiosInstance | null>(null);
 const AxiosProvider: React.FC = ({ children }) => {
   const [cookies, setCookie] = useCookies(["aSToken", "refreshToken"]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [deviceId, setDeviceId] = useState<string | null>(getOrSetDeviceId());
   const { auth } = useStore();
 
   const axiosInstance = useRef<AxiosInstance>(
@@ -32,8 +36,6 @@ const AxiosProvider: React.FC = ({ children }) => {
       },
     })
   );
-
-  console.log("cookies", cookies);
 
   const refreshAccessToken = async () => {
     if (isRefreshing) return;
@@ -65,12 +67,20 @@ const AxiosProvider: React.FC = ({ children }) => {
     }
   }, [cookies.refreshToken]);
 
+
+  // Manage device client id and set it in the header
+  useEffect(() => {
+    if (!deviceId) {
+      const deviceClinet = new ClientJS();
+      setDeviceId(getOrSetDeviceId(deviceClinet.getFingerprint().toString()));
+    }
+  }, [deviceId]);
+
   useEffect(() => {
     const instance = axiosInstance.current;
 
     const requestInterceptor = instance.interceptors.request.use(
       (config) => {
-        const deviceId = getDeviceId();
         if (config.headers && deviceId) {
           config.headers["X-Device-ID"] = deviceId;
         }
@@ -121,7 +131,7 @@ const AxiosProvider: React.FC = ({ children }) => {
       instance.interceptors.request.eject(requestInterceptor);
       instance.interceptors.response.eject(responseInterceptor);
     };
-  }, [cookies.aSToken, auth?.ast]);
+  }, [cookies.aSToken, auth?.ast, deviceId]);
 
   return <AxiosContext.Provider value={axiosInstance.current}>{children}</AxiosContext.Provider>;
 };

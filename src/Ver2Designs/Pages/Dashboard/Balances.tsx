@@ -6,15 +6,14 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Popper from "@mui/material/Popper";
 import React, { useState } from "react";
-import { unstable_batchedUpdates } from "react-dom";
-import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
-import { useStore } from "../../../Store/StoreProvider";
+
 import HederaIcon from "../../../SVGR/HederaIcon";
 import { BalOperation, EntityBalances } from "../../../types";
 import { isAllowedToCmapigner, isAnyBalancesIsAvailable } from "../../../utils/helpers";
 import { cardStyle } from "./CardGenUtility";
 import TopupModal from "./TopupModal";
+import { useStore } from "@store/hooks";
 
 const formatBalance = (balObj: EntityBalances): string => {
   if (balObj) {
@@ -134,7 +133,7 @@ const Balances = () => {
       startIcon={<RemoveCircle />}
       disabled={!isAllowedToCmapigner(store?.currentUser?.role)}
       title="Reimburse from hashbuzz contract to your wallet"
-      //  onClick={() => handleTopupOrReimClick("reimburse")}
+    //  onClick={() => handleTopupOrReimClick("reimburse")}
     />,
     <Button
       key="top-up"
@@ -207,7 +206,7 @@ const Balances = () => {
                     startIcon={"ℏ"}
                     disabled={!isAllowedToCmapigner(store?.currentUser?.role)}
                     endIcon={<KeyboardArrowDownIcon />}
-                    // onClick={(event) => handleTopupOrReimClick("topup", event)}
+                  // onClick={(event) => handleTopupOrReimClick("topup", event)}
                   >
                     Topup
                   </Button>
@@ -238,7 +237,7 @@ const Balances = () => {
                       {balances!.map((bal, index) => (
                         <MenuItem
                           disabled={!isAllowedToCmapigner(store?.currentUser?.role)}
-                          // onClick={(event) => handleMenuItemClick(event, index)}
+                        // onClick={(event) => handleMenuItemClick(event, index)}
                         >
                           <ListItemAvatar>{bal?.entityIcon}</ListItemAvatar>
                           <ListItemText>

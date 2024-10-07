@@ -13,9 +13,9 @@ import * as React from "react";
 import { unstable_batchedUpdates } from "react-dom";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
-import { useStore } from "../../../Store/StoreProvider";
 import { getErrorMessage } from "../../../utils/helpers";
 import { AdminPasswordFormState, CurrentUser, FormFelid } from "../../../types";
+import { useStore } from "@store/hooks";
 
 type CurrentFormState = AdminPasswordFormState & {
   confirmPassword: FormFelid<string>;
@@ -121,7 +121,7 @@ const AdminPasswordSetup = ({ user }: AdminPasswordSetupProps) => {
   };
 
   return (
-    <Dialog open={adminPassModalOpen} onClose={(event, reason) => {}} aria-labelledby="twitter-concent-dialog-title" aria-describedby="twitter-concent-dialog-description">
+    <Dialog open={adminPassModalOpen} onClose={(event, reason) => { }} aria-labelledby="twitter-concent-dialog-title" aria-describedby="twitter-concent-dialog-description">
       <form onSubmit={handleSubmit}>
         <DialogTitle id="twitter-concent-dialog-title">{"Set your admin password"}</DialogTitle>
         <DialogContent>

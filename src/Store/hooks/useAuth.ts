@@ -1,11 +1,11 @@
 import { useCallback, useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { useApiInstance } from "../APIConfig/api";
-import { useStore } from "./StoreProvider";
+import { useApiInstance } from "../../APIConfig/api";
+import { useStore } from "./useStore";
 import debounce from "lodash/debounce";
 
 export const useAuth = () => {
-  const [cookies] = useCookies(["aSToken"])
+  const [cookies] = useCookies(["aSToken"]);
   const { dispatch } = useStore();
   const { Auth } = useApiInstance();
 
@@ -25,7 +25,7 @@ export const useAuth = () => {
   const debouncedAuthCheckPing = useCallback(debounce(authCheckPing, 2000), [authCheckPing]);
 
   useEffect(() => {
-    if(cookies.aSToken) debouncedAuthCheckPing();
+    if (cookies.aSToken) debouncedAuthCheckPing();
 
     // Clean up the debounce effect on unmount
     return () => {
@@ -37,3 +37,5 @@ export const useAuth = () => {
     authCheckPing: debouncedAuthCheckPing,
   };
 };
+
+export default useAuth;

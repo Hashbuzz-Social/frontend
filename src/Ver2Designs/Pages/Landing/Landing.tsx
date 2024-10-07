@@ -10,16 +10,23 @@ import LandingPageSpeedDaial from "./Compoents/MenuItesmsList/SpeedDial";
 import * as SC from "./styled";
 import AuthFlowCard from "./Compoents/AuthenticationFlowCard/AuthFlowCard";
 import useAsyncStatusWrapper from "@wallet/services/useAsyncStatusWrapper";
+import { useCookies } from "react-cookie";
+import { useNavigate } from "react-router-dom";
+import { useStore } from "@store/hooks";
 
 const Landing = () => {
   const theme = useTheme();
+  const { ping, auth } = useStore();
+  const [cookies] = useCookies(["aSToken"]);
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const { state, dAppConnector } = useSessions();
+  const { state, dAppConnector, } = useSessions();
   const conenctToWallet = useConnectHandler();
   const { modalWrapper } = useAsyncStatusWrapper();
   const { isLoading, extensions, selectedSigner } = state || {};
 
   const isReadyToAuthenticate = useMemo(() => !!(dAppConnector && selectedSigner), [dAppConnector, selectedSigner]);
+  const pairedAccount = state?.selectedSigner?.getAccountId().toString();
 
   // Menu button click listener
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -35,6 +42,13 @@ const Landing = () => {
   };
 
   const menuOpen = Boolean(anchorEl);
+
+
+  React.useEffect(() => {
+    if (cookies.aSToken && ping.status && (pairedAccount || auth?.auth)) {
+      navigate("/dashboard");
+    }
+  }, [cookies.aSToken, ping.status, pairedAccount, auth?.auth]);
 
   return (
     <Box sx={SC.landingPageContainerCss(theme)}>

@@ -3,9 +3,9 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../APIConfig/api";
-import { useStore } from "../../Store/StoreProvider";
 import { getErrorMessage } from "../../utils/helpers";
 import { DashboardHeader } from "../Components";
+import { useStore } from "@store/hooks";
 // import { DashboardHeader } from "../../Components";
 const MainLayout = () => {
   const theme = useTheme();

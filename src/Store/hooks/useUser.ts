@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
-import { CurrentUser } from "../types";
-import { useStore } from "./StoreProvider";
+import { CurrentUser } from "../../types";
+import { useStore } from "./useStore";
 import { useCookies } from "react-cookie";
 
 export const useUser = () => {
@@ -19,11 +19,9 @@ export const useUser = () => {
     }
   }, [dispatch]);
 
-  // useEffect(() => {
-  //     checkAndUpdateLoggedInUser();
-  // }, []);
-
   return {
     checkAndUpdateLoggedInUser,
   };
 };
+
+export default useUser;

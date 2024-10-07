@@ -102,6 +102,8 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
     dispatch({ type: "DISCONNECT", payload: { topic } });
   };
 
+  // Set device id to the cookies.
+
   // Wallet event handlers.
   useEffect(() => {
     dAppConnectorRef.current?.walletConnectClient?.on("session_delete", handdleSessionDelete);
