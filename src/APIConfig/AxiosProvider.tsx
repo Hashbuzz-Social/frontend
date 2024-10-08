@@ -114,9 +114,7 @@ const AxiosProvider: React.FC = ({ children }) => {
         const token = cookies.aSToken;
         if (token && config.headers) {
           config.headers["Authorization"] = `aSToken ${token}`;
-        }
-
-        if (!token && config.headers && auth?.ast) {
+        } else if (!token && config.headers && auth?.ast) {
           config.headers["Authorization"] = `aSToken ${auth.ast}`;
         }
 

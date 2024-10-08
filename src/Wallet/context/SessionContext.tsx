@@ -1,6 +1,6 @@
 // src/contexts/SessionContext.tsx
 import { DAppConnector, DAppSigner, ExtensionData } from "@hashgraph/hedera-wallet-connect";
-import { useAuth } from "@store/hooks";
+import { useAuth, useStore } from "@store/hooks";
 import { SessionTypes, SignClientTypes } from "@walletconnect/types";
 import React, { createContext, Dispatch, ReactNode, useEffect, useReducer, useRef } from "react";
 import { useCookies } from "react-cookie";
@@ -100,6 +100,7 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
   const { authCheckPing } = useAuth();
   const dAppConnectorRef = useRef<DAppConnector | null>(null);
   const [cookies] = useCookies(["aSToken"]);
+  const store = useStore();
 
   const handdleSessionDelete = (arg: SignClientTypes.EventArguments["session_delete"]) => {
     const { topic } = arg;
@@ -117,9 +118,13 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, []);
 
   useEffect(() => {
+    // Auth checking ping
     const checkAuth = async () => {
       if (cookies.aSToken) {
+
         await authCheckPing();
+      } else {
+        store.dispatch({ type: "HIDE_SPLASH_SCREEN" });
       }
     };
     checkAuth();

@@ -4,11 +4,10 @@ import { CookiesProvider } from "react-cookie";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AxiosProvider from "./APIConfig/AxiosProvider";
-import "./index.css";
 import { StoreProvider } from "./Store/StoreProvider";
-import { NETWORK } from "./utils/helpers";
 import { ConnectorProvider } from "./Wallet/context/ConnectorContext";
 import { SessionProvider } from "./Wallet/context/SessionContext";
+import "./index.css";
 
 const theme = createTheme();
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { ProtectedRoute } from "./APIConfig/AuthGuard";
 import { Dashboard, Landing, PageNotfound } from "./Ver2Designs";
 import { AdminDashboard } from "./Ver2Designs/Admin";
 import AdminAuthGuard from "./Ver2Designs/Admin/AdminAuthGuard";
@@ -12,18 +11,23 @@ import StyledComponentTheme from "./theme/Theme";
 import SplashScreen from "@componentsV2/SplashScreen/SplashScreen";
 import { useCookies } from "react-cookie";
 import { useStore } from "@store/hooks";
+import { RedirectIfAuthenticated, RequiredAuth } from "@componentsV2/SecureRoutes";
 
 const router = createBrowserRouter([
   {
-    index: true,
-    element: <Landing />,
+    path: '/',
+    element: (
+      <RedirectIfAuthenticated>
+        <Landing />
+      </RedirectIfAuthenticated>
+    ),
   },
   {
     path: "/",
     element: (
-      <ProtectedRoute>
+      <RequiredAuth>
         <MainLayout />
-      </ProtectedRoute>
+      </RequiredAuth>
     ),
     children: [
       {
@@ -80,12 +84,12 @@ const AppRouter = () => {
   const initializeConnector = useWalletConnectService();
   const { projectId, name, description, url, icons } = useConnector();
   const [cookies] = useCookies(["aSToken", "refreshToken"]);
-  const { ping, auth } = useStore();
+  const { ping, auth, shouldShowSplashScreen } = useStore();
   const [showSplashScreen, setShowSplashScreen] = useState(true);
 
   // Static Data Loading
   useEffect(() => {
-    const savedState = loadState();
+    loadState();
   }, []);
 
   //Initialize Connector
@@ -109,18 +113,7 @@ const AppRouter = () => {
     });
   }, [projectId, name, description, url, icons]);
 
-
-  useEffect(() => {
-    // Check if user is authenticated and ping is successful make splash screen disappear
-    if (ping.status && ((auth?.auth) || cookies.aSToken)) {
-      setShowSplashScreen(false);
-    }
-    if (!cookies.aSToken || !ping.status) {
-      setShowSplashScreen(false);
-    }
-  }, [ping, auth, cookies.aSToken]);
-
-  if (showSplashScreen) {
+  if (shouldShowSplashScreen) {
     return <SplashScreen />
   }
 

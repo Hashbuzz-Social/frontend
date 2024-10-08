@@ -8,6 +8,7 @@ export type ContractInfo = {
 };
 
 export interface AppState {
+  shouldShowSplashScreen: boolean;
   ping: {
     status: boolean;
     hedera_wallet_id: string;
