@@ -1,7 +1,7 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
+import { useCookies } from "react-cookie";
 import { CurrentUser } from "../../types";
 import { useStore } from "./useStore";
-import { useCookies } from "react-cookie";
 
 export const useUser = () => {
   const { dispatch } = useStore();

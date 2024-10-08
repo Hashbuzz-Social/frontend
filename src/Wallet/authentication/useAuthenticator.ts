@@ -32,7 +32,7 @@ const useAuthenticator = () => {
       const payload = await createChallenge();
       const { signatureMap, acccountId } = await handleSignMessage(JSON.stringify(payload));
       const authResponse = await verifySignature(acccountId, payload!, signatureMap);
-      handleSuccess(authResponse!);
+      await handleSuccess(authResponse!);
     } catch (err) {
       handleError(err);
       console.log(err);

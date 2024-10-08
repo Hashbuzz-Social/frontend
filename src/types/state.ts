@@ -15,7 +15,7 @@ export interface AppState {
   checkRefresh: boolean;
   currentUser?: CurrentUser;
   campaigns?: Campaign[];
-  auth?: AuthCred;
+  auth: AuthCred;
   balances: EntityBalances[];
   contractInfo?: ContractInfo;
   toasts: { type: "error" | "info" | "success"; message: string }[];

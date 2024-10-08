@@ -21,7 +21,8 @@
       "@hooks/*": ["hooks/*"],
       "@svgr/*": ["SVGR/*"],
       "@wallet/*": ["Wallet/*"],
-      "@store/*": ["Store/*"]
+      "@store/*": ["Store/*"],
+      "@componentsV2/*": ["Ver2Designs/Components/*"]
     }
   },
   "include": ["src"]

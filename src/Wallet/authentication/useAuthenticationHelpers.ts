@@ -57,9 +57,7 @@ const useAuthenticationHelpers = () => {
 
   const handleSuccess = useCallback(
     async (authGenResponse: GnerateReseponse) => {
-      const { refreshToken, deviceId, ast, message } = authGenResponse;
-
-      localStorage.setItem("device_id", deviceId);
+      const { refreshToken, ast, message } = authGenResponse;
       setCookies("aSToken", ast, {
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
         sameSite: false,

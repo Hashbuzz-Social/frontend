@@ -1,19 +1,36 @@
 import { useStore } from "@store/hooks";
 import axios, { AxiosInstance } from "axios";
-import { ClientJS } from "clientjs";
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useCookies } from "react-cookie";
 import { toast } from "react-toastify";
 import { getErrorMessage } from "../utils/helpers";
 
-const getOrSetDeviceId = (deviceId?: string): string | null => {
-  if (deviceId !== undefined) {
-    localStorage.setItem("device_id", deviceId); // Set the device ID
-    return deviceId;
-  } else {
-    return localStorage.getItem("device_id"); // Get the device ID
+
+const generateUniqueId = () => {
+  // Simple random ID generator
+  return 'xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16 | 0,
+      v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+
+function getOrCreateUniqueID() {
+  // Check if the user already has an ID stored in localStorage
+  let userId = localStorage.getItem('device_id');
+
+  // If no ID exists, generate one and store it
+  if (!userId) {
+    userId = generateUniqueId(); // Use a unique ID generator function
+    localStorage.setItem('device_id', userId);
   }
-};
+
+  // Return the ID from localStorage
+  return userId;
+}
+
+
 
 const refreshTokenInterval = 2 * 60 * 1000; // Refresh token every 12 minutes
 const useRefreshToken = false; // Flag to enable/disable token refresh
@@ -22,10 +39,10 @@ const useRefreshToken = false; // Flag to enable/disable token refresh
 export const AxiosContext = createContext<AxiosInstance | null>(null);
 
 const AxiosProvider: React.FC = ({ children }) => {
-  const [cookies, setCookie] = useCookies(["aSToken", "refreshToken"]);
+  const [cookies, setCookie, removeCookie] = useCookies(["aSToken", "refreshToken"]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [deviceId, setDeviceId] = useState<string | null>(getOrSetDeviceId());
-  const { auth } = useStore();
+  const [deviceId, setDeviceId] = useState<string | null>(getOrCreateUniqueID());
+  const { auth, dispatch } = useStore();
 
   const axiosInstance = useRef<AxiosInstance>(
     axios.create({
@@ -56,6 +73,15 @@ const AxiosProvider: React.FC = ({ children }) => {
     }
   };
 
+
+  /** When 401  Error code found just invalidate and remove current tokens  */
+  const inValidateAuthentication = () => {
+    console.log("Unauthorized::Invalidating authentication and clearing cookies");
+    removeCookie("aSToken");
+    removeCookie("refreshToken");
+    dispatch({ type: "RESET_STATE" });
+  }
+
   useEffect(() => {
     if (useRefreshToken) {
       const intervalId = setInterval(() => {
@@ -70,9 +96,10 @@ const AxiosProvider: React.FC = ({ children }) => {
 
   // Manage device client id and set it in the header
   useEffect(() => {
+
+    // Ifd device id is not set or changed then set it
     if (!deviceId) {
-      const deviceClinet = new ClientJS();
-      setDeviceId(getOrSetDeviceId(deviceClinet.getFingerprint().toString()));
+      setDeviceId(getOrCreateUniqueID());
     }
   }, [deviceId]);
 
@@ -111,8 +138,8 @@ const AxiosProvider: React.FC = ({ children }) => {
 
           switch (status) {
             case 401:
-              toast.error("Unauthorized access. Please log in again.");
-              // handleLogout();
+              inValidateAuthentication();
+              toast.error("Unauthorized access OR Session expired. Authentication required.");
               break;
             case 500:
               toast.error("An internal server error occurred. Please try again later.");

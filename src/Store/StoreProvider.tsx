@@ -1,4 +1,4 @@
-import { createContext, Dispatch, ReactNode, useContext, useReducer } from "react";
+import { createContext, Dispatch, ReactNode, useReducer } from "react";
 import { AppState, ContractInfo, EntityBalances, CurrentUser, AuthCred, WalletConnectors } from "../types";
 
 interface StoreContextType extends AppState {
@@ -13,7 +13,14 @@ const INITIAL_STATE: AppState = {
   checkRefresh: false,
   balances: [],
   toasts: [],
-  walletConnector: WalletConnectors.HashPack,
+  walletConnector: WalletConnectors.WalletConnect,
+  auth: {
+    ast: "",
+    auth: false,
+    deviceId: "",
+    message: "",
+    refreshToken: "",
+  },
 };
 
 type Action = { type: "SET_PING"; payload: { status: boolean; hedera_wallet_id: string } } | { type: "UPDATE_STATE"; payload: Partial<AppState> } | { type: "SET_BALANCES"; payload: EntityBalances[] } | { type: "ADD_TOAST"; payload: { type: "success" | "error"; message: string } } | { type: "RESET_TOAST" } | { type: "RESET_STATE" } | { type: "SET_CONTRACT_INFO"; payload: ContractInfo } | { type: "UPDATE_CURRENT_USER"; payload: CurrentUser } | { type: "SET_AUTH_CRED", payload: AuthCred } | { type: "SET_WALLET_CONNECTOR", payload: WalletConnectors };

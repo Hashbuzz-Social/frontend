@@ -1,18 +1,20 @@
-import { useCallback, useEffect } from "react";
-import { useCookies } from "react-cookie";
+import debounce from "lodash/debounce";
+import { useCallback } from "react";
 import { useApiInstance } from "../../APIConfig/api";
 import { useStore } from "./useStore";
-import debounce from "lodash/debounce";
+import useSession from "@wallet/hooks/useSessions";
 
 export const useAuth = () => {
-  const [cookies] = useCookies(["aSToken"]);
   const { dispatch } = useStore();
-  const { Auth } = useApiInstance();
+  const { Auth, isLoading } = useApiInstance();
+  const { state } = useSession();
+
+  const connectedWalletId = state?.selectedSigner?.getAccountId().toString();
 
   const authCheckPing = useCallback(async () => {
     try {
       const data = await Auth.authPing();
-      if (data.wallet_id) {
+      if (data.wallet_id && data.wallet_id === connectedWalletId) {
         dispatch({ type: "SET_PING", payload: { status: true, hedera_wallet_id: data.wallet_id } });
       }
       return { ping: true };
@@ -20,21 +22,13 @@ export const useAuth = () => {
       dispatch({ type: "RESET_STATE" });
       return { ping: false };
     }
-  }, [Auth, dispatch]);
+  }, [Auth, dispatch, state]);
 
   const debouncedAuthCheckPing = useCallback(debounce(authCheckPing, 2000), [authCheckPing]);
 
-  useEffect(() => {
-    if (cookies.aSToken) debouncedAuthCheckPing();
-
-    // Clean up the debounce effect on unmount
-    return () => {
-      debouncedAuthCheckPing.cancel();
-    };
-  }, [cookies.aSToken]);
-
   return {
     authCheckPing: debouncedAuthCheckPing,
+    isLoading,
   };
 };
 

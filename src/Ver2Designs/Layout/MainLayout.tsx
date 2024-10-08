@@ -1,31 +1,39 @@
-import { Box, Container, useTheme } from "@mui/material";
+import { Container, useTheme } from "@mui/material";
+import { useStore } from "@store/hooks";
 import React from "react";
 import { Outlet } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../APIConfig/api";
 import { getErrorMessage } from "../../utils/helpers";
 import { DashboardHeader } from "../Components";
-import { useStore } from "@store/hooks";
-// import { DashboardHeader } from "../../Components";
+
+
+
+
 const MainLayout = () => {
   const theme = useTheme();
-  const store = useStore();
+  const { ping, dispatch } = useStore();
   const { User } = useApiInstance();
-  // const navigate = useNavigate();
 
+
+  /**
+   * Call for user data and config if any needed.
+   */
   const getUserData = React.useCallback(async () => {
     try {
       const currentUser = await User.getCurrentUser();
-      store.dispatch({ type: "UPDATE_CURRENT_USER", payload: currentUser });
+      dispatch({ type: "UPDATE_CURRENT_USER", payload: currentUser });
     } catch (error) {
       toast.error(getErrorMessage(error) ?? "Error while getting current user details.");
     }
-  }, [User, store]);
+  }, [User, dispatch]);
 
+  // Effect fot calling current user data
   React.useEffect(() => {
-    getUserData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (ping.status) {
+      getUserData();
+    }
+  }, [ping.status]);
 
   return (
     <Container

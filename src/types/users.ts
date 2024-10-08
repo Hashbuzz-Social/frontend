@@ -2,7 +2,7 @@ export interface AuthCred {
   ast: string;
   auth: boolean;
   deviceId: string;
-  message: string;
+  message?: string;
   refreshToken?: string;
 }
 export type user_roles = "SUPER_ADMIN" | "ADMIN" | "ANALYTICS" | "MARKETING" | "MANAGEMENT" | "USER" | "GUEST_USER";

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { ProtectedRoute } from "./APIConfig/AuthGuard";
 import { Dashboard, Landing, PageNotfound } from "./Ver2Designs";
@@ -9,6 +9,9 @@ import useConnector from "./Wallet/hooks/useConnector";
 import { loadState, saveState } from "./Wallet/services/localstorage";
 import useWalletConnectService from "./Wallet/services/walletConnectService";
 import StyledComponentTheme from "./theme/Theme";
+import SplashScreen from "@componentsV2/SplashScreen/SplashScreen";
+import { useCookies } from "react-cookie";
+import { useStore } from "@store/hooks";
 
 const router = createBrowserRouter([
   {
@@ -76,6 +79,9 @@ const router = createBrowserRouter([
 const AppRouter = () => {
   const initializeConnector = useWalletConnectService();
   const { projectId, name, description, url, icons } = useConnector();
+  const [cookies] = useCookies(["aSToken", "refreshToken"]);
+  const { ping, auth } = useStore();
+  const [showSplashScreen, setShowSplashScreen] = useState(true);
 
   // Static Data Loading
   useEffect(() => {
@@ -102,6 +108,21 @@ const AppRouter = () => {
       // Add other necessary state variables if needed
     });
   }, [projectId, name, description, url, icons]);
+
+
+  useEffect(() => {
+    // Check if user is authenticated and ping is successful make splash screen disappear
+    if (ping.status && ((auth?.auth) || cookies.aSToken)) {
+      setShowSplashScreen(false);
+    }
+    if (!cookies.aSToken || !ping.status) {
+      setShowSplashScreen(false);
+    }
+  }, [ping, auth, cookies.aSToken]);
+
+  if (showSplashScreen) {
+    return <SplashScreen />
+  }
 
   return (
     <StyledComponentTheme>

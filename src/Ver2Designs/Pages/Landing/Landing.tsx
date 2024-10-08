@@ -1,23 +1,21 @@
-import React, { useMemo } from "react";
 import { Box, Button, Container, Stack, Typography, useTheme } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
+import { useStore } from "@store/hooks";
 import HashbuzzIcon from "@svgr/HashbuzzIcon";
 import HashbuzzLogoMainTransparent from "@svgr/HashbuzzLogo";
 import { useConnectHandler, useSessions } from "@wallet/hooks";
+import useAsyncStatusWrapper from "@wallet/services/useAsyncStatusWrapper";
+import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { LandingPageContent } from "./Compoents";
+import AuthFlowCard from "./Compoents/AuthenticationFlowCard/AuthFlowCard";
 import MenuItemsList from "./Compoents/MenuItesmsList";
 import LandingPageSpeedDaial from "./Compoents/MenuItesmsList/SpeedDial";
 import * as SC from "./styled";
-import AuthFlowCard from "./Compoents/AuthenticationFlowCard/AuthFlowCard";
-import useAsyncStatusWrapper from "@wallet/services/useAsyncStatusWrapper";
-import { useCookies } from "react-cookie";
-import { useNavigate } from "react-router-dom";
-import { useStore } from "@store/hooks";
 
 const Landing = () => {
   const theme = useTheme();
   const { ping, auth } = useStore();
-  const [cookies] = useCookies(["aSToken"]);
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { state, dAppConnector, } = useSessions();
@@ -45,10 +43,10 @@ const Landing = () => {
 
 
   React.useEffect(() => {
-    if (cookies.aSToken && ping.status && (pairedAccount || auth?.auth)) {
+    if (ping.status && (pairedAccount || auth?.auth)) {
       navigate("/dashboard");
     }
-  }, [cookies.aSToken, ping.status, pairedAccount, auth?.auth]);
+  }, [ping.status, pairedAccount, auth?.auth]);
 
   return (
     <Box sx={SC.landingPageContainerCss(theme)}>

@@ -1,7 +1,9 @@
 // src/contexts/SessionContext.tsx
 import { DAppConnector, DAppSigner, ExtensionData } from "@hashgraph/hedera-wallet-connect";
+import { useAuth } from "@store/hooks";
 import { SessionTypes, SignClientTypes } from "@walletconnect/types";
 import React, { createContext, Dispatch, ReactNode, useEffect, useReducer, useRef } from "react";
+import { useCookies } from "react-cookie";
 import { Networks } from "types";
 import { getLastItem } from "utils/helpers";
 
@@ -95,7 +97,9 @@ export const SessionContext = createContext<SessionContextProps | undefined>(und
 // Provider component
 export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(sessionReducer, JSON.parse(JSON.stringify(initialState)));
+  const { authCheckPing } = useAuth();
   const dAppConnectorRef = useRef<DAppConnector | null>(null);
+  const [cookies] = useCookies(["aSToken"]);
 
   const handdleSessionDelete = (arg: SignClientTypes.EventArguments["session_delete"]) => {
     const { topic } = arg;
@@ -111,6 +115,19 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
       dAppConnectorRef.current?.walletConnectClient?.off("session_delete", handdleSessionDelete);
     };
   }, []);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (cookies.aSToken) {
+        await authCheckPing();
+      }
+    };
+    checkAuth();
+    // Clean up the debounce effect on unmount
+    return () => {
+      authCheckPing.cancel();
+    };
+  }, [cookies.aSToken]);
 
   return <SessionContext.Provider value={{ state, dispatch, dAppConnectorRef }}>{children}</SessionContext.Provider>;
 };
