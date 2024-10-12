@@ -5,32 +5,28 @@ import { useCookies } from "react-cookie";
 import { toast } from "react-toastify";
 import { getErrorMessage } from "../utils/helpers";
 
-
 const generateUniqueId = () => {
   // Simple random ID generator
-  return 'xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = Math.random() * 16 | 0,
-      v = c === 'x' ? r : (r & 0x3 | 0x8);
+  return "xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    var r = (Math.random() * 16) | 0,
+      v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
-}
-
+};
 
 function getOrCreateUniqueID() {
   // Check if the user already has an ID stored in localStorage
-  let userId = localStorage.getItem('device_id');
+  let userId = localStorage.getItem("device_id");
 
   // If no ID exists, generate one and store it
   if (!userId) {
     userId = generateUniqueId(); // Use a unique ID generator function
-    localStorage.setItem('device_id', userId);
+    localStorage.setItem("device_id", userId);
   }
 
   // Return the ID from localStorage
   return userId;
 }
-
-
 
 const refreshTokenInterval = 2 * 60 * 1000; // Refresh token every 12 minutes
 const useRefreshToken = false; // Flag to enable/disable token refresh
@@ -73,14 +69,13 @@ const AxiosProvider: React.FC = ({ children }) => {
     }
   };
 
-
   /** When 401  Error code found just invalidate and remove current tokens  */
   const inValidateAuthentication = () => {
     console.log("Unauthorized::Invalidating authentication and clearing cookies");
     removeCookie("aSToken");
     removeCookie("refreshToken");
     dispatch({ type: "RESET_STATE" });
-  }
+  };
 
   useEffect(() => {
     if (useRefreshToken) {
@@ -93,10 +88,8 @@ const AxiosProvider: React.FC = ({ children }) => {
     }
   }, [cookies.refreshToken]);
 
-
   // Manage device client id and set it in the header
   useEffect(() => {
-
     // Ifd device id is not set or changed then set it
     if (!deviceId) {
       setDeviceId(getOrCreateUniqueID());
@@ -141,6 +134,14 @@ const AxiosProvider: React.FC = ({ children }) => {
               break;
             case 500:
               toast.error("An internal server error occurred. Please try again later.");
+              break;
+            case 429:
+              toast.warn(
+                <div>
+                  <strong>Too many requests !</strong>
+                  <p>Too many requests. Please try again later.</p>
+                </div>
+              );
               break;
             default:
               toast.error(getErrorMessage(error));

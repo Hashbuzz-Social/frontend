@@ -1,6 +1,13 @@
+import { TemplatePage } from "@components/Pages/TemplatePage/TemplatePage";
+import { RedirectIfAuthenticated, RequiredAuth } from "@componentsV2/SecureRoutes";
+import SplashScreen from "@componentsV2/SplashScreen/SplashScreen";
+import { useStore } from "@store/hooks";
 import { useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { Dashboard, Landing, PageNotfound } from "./Ver2Designs";
+import { Invoice } from "screens/Invoice";
+import { OnBoarding } from "screens/OnBoarding";
+import { CreateCampaign, Dashboard, Landing, PageNotfound } from "./Ver2Designs";
 import { AdminDashboard } from "./Ver2Designs/Admin";
 import AdminAuthGuard from "./Ver2Designs/Admin/AdminAuthGuard";
 import MainLayout from "./Ver2Designs/Layout";
@@ -8,14 +15,10 @@ import useConnector from "./Wallet/hooks/useConnector";
 import { loadState, saveState } from "./Wallet/services/localstorage";
 import useWalletConnectService from "./Wallet/services/walletConnectService";
 import StyledComponentTheme from "./theme/Theme";
-import SplashScreen from "@componentsV2/SplashScreen/SplashScreen";
-import { useCookies } from "react-cookie";
-import { useStore } from "@store/hooks";
-import { RedirectIfAuthenticated, RequiredAuth } from "@componentsV2/SecureRoutes";
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: (
       <RedirectIfAuthenticated>
         <Landing />
@@ -38,26 +41,26 @@ const router = createBrowserRouter([
         path: "dashboard",
         element: <Dashboard />,
       },
-      // {
-      //   path: "campaign",
-      //   element: <Template />,
-      // },
-      // {
-      //   path: "create-campaign",
-      //   element: <CreateCampaign />,
-      // },
-      // {
-      //   path: "invoice",
-      //   element: <Invoice />,
-      // },
-      // {
-      //   path: "onboarding",
-      //   element: <OnBoarding />,
-      // },
-      // {
-      //   path: "settings",
-      //   element: "",
-      // },
+      {
+        path: "campaign",
+        element: <TemplatePage />,
+      },
+      {
+        path: "create-campaign",
+        element: <CreateCampaign />,
+      },
+      {
+        path: "invoice",
+        element: <Invoice />,
+      },
+      {
+        path: "onboarding",
+        element: <OnBoarding />,
+      },
+      {
+        path: "settings",
+        element: "",
+      },
       {
         path: "transactions",
         element: "",
@@ -114,7 +117,7 @@ const AppRouter = () => {
   }, [projectId, name, description, url, icons]);
 
   if (shouldShowSplashScreen) {
-    return <SplashScreen />
+    return <SplashScreen />;
   }
 
   return (

@@ -1,14 +1,18 @@
 import { useStore } from "@store/hooks";
-import { ADMIN_ADDRESS } from "../../../utils/helpers";
-
+import DashboardAdmin from "./DashboardAdmin";
+import DashboardUser from "./DashboardUser";
 
 const Dashboard = () => {
   const store = useStore();
   const currentUseAddress = store.currentUser?.hedera_wallet_id;
+  const currentRole = store.currentUser?.role;
 
-  const isAdmin = !!currentUseAddress && ADMIN_ADDRESS.includes(currentUseAddress);
+  const isAdmin = !!currentUseAddress && currentRole && ["ADMIN", "SUPER_ADMIN"].includes(currentRole);
 
-  return <div>{"To Dashboard"}</div>;
+  if (isAdmin) {
+    return <DashboardAdmin />;
+  }
+  return <DashboardUser />;
 };
 
 export default Dashboard;

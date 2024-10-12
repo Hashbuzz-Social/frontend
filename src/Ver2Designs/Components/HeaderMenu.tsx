@@ -16,7 +16,6 @@ import { toast } from "react-toastify";
 import HederaIcon from "../../SVGR/HederaIcon";
 import { useStore } from "@store/hooks";
 
-
 const HeaderMenu = () => {
   const store = useStore();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -97,7 +96,7 @@ const HeaderMenu = () => {
           @{store?.currentUser?.personal_twitter_handle}
         </MenuItem>
         <Divider />
-        {store?.currentUser?.role && ["ADMIN", "SUPER_ADMIN"].includes(store?.currentUser?.role) ? (
+        {store?.currentUser?.role && ["ADMIN", "SUPER_ADMIN"].includes(store.currentUser?.role) ? (
           <MenuItem onClick={() => navigate(pathname.includes("admin") ? "/" : "/admin")}>
             <ListItemIcon>
               <AdminPanelSettingsIcon fontSize="small" />
@@ -105,13 +104,6 @@ const HeaderMenu = () => {
             {pathname.includes("admin") ? "User Dashboard" : "Admin Dashboard"}
           </MenuItem>
         ) : null}
-        {/* <MenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <AccountBalanceWalletIcon fontSize="small" />
-            <Typography component={'span'} fontSize={"inherit"}>{"ℏ"}</Typography>
-          </ListItemIcon>
-          Top up account
-        </MenuItem> */}
         <MenuItem onClick={handleClose}>
           <ListItemIcon>
             <Settings fontSize="small" />

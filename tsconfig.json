@@ -22,7 +22,8 @@
       "@svgr/*": ["SVGR/*"],
       "@wallet/*": ["Wallet/*"],
       "@store/*": ["Store/*"],
-      "@componentsV2/*": ["Ver2Designs/Components/*"]
+      "@componentsV2/*": ["Ver2Designs/Components/*"],
+      "@pagesV2/*": ["Ver2Designs/Pages/*"]
     }
   },
   "include": ["src"]

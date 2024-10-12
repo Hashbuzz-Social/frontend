@@ -1,59 +1,36 @@
 import { Dialog } from "@mui/material";
+import { useStore } from "@store/hooks";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../APIConfig/api";
-import { useStore } from "../../Store/StoreProvider";
 import Typography from "../../Typography/Typography";
 import PrimaryButton from "../Buttons/PrimaryButton";
 import { Loader } from "../Loader/Loader";
 import ModalTable from "../Tables/ModalTable";
 import notify from "../Toaster/toaster";
-import {
-  BoxCont,
-  ButtonWrapPrimary,
-  CustomIframe,
-  CustomParagraph,
-  IconsWrap,
-  LeftSec,
-  RightSec,
-  TableSection,
-  TextWrap,
-  Wrapper,
-} from "./PreviewModal.styles";
-const PreviewModal = ({
-  type,
-  open,
-  setOpen,
-  Text,
-  reply,
-  selectedToken,
-  tokenId,
-  retweet,
-  like,
-  follow,
-  srcLink,
-  name,
-  displayMedia,
-  media,
-  videoTitle,
-  addMedia,
-  budget,
-  quote,
-}) => {
+import { BoxCont, ButtonWrapPrimary, CustomIframe, CustomParagraph, IconsWrap, LeftSec, RightSec, TableSection, TextWrap, Wrapper } from "./PreviewModal.styles";
+
+/**
+ *
+ * @param {*} param0
+ * @returns
+ */
+const PreviewModal = ({ type, open, setOpen, Text, reply, selectedToken, retweet, like, srcLink, name, displayMedia, media, videoTitle, addMedia, budget, quote }) => {
   let navigate = useNavigate();
 
   const [showLoading, setShowLoading] = useState(false);
-
   const store = useStore();
   const { Campaign } = useApiInstance();
   const handleClose = () => setOpen(false);
+
   const theme = {
     weight: 500,
     size: "36px",
     color: "#000000",
     sizeRes: "28px",
   };
+
   const body = {
     weight: 700,
     size: "16px",
@@ -72,18 +49,15 @@ const PreviewModal = ({
       like_reward: like,
       type: type,
       quote_reward: quote,
-      // "follow_reward": follow,
       campaign_budget: budget === "" ? 0 : budget,
       ...(addMedia && { media: media }),
     };
     try {
-      // const response = await APICall("/campaign/twitter-card/", "POST", {}, postData, false, cookies.token);
       const response = await Campaign.addCampaign(postData);
       if (response) {
         toast.success(response.message);
         setShowLoading(false);
         navigate("/dashboard");
-        // navigate("/onboarding");
       }
     } catch (err) {
       console.error("campaign/add-new/:", err);
@@ -162,13 +136,10 @@ const PreviewModal = ({
           </LeftSec>
           <RightSec>
             <TableSection>
-              <ModalTable currentToken={currentToken} reply={reply} retweet={retweet} like={like} quote={quote} type={type}/>
+              <ModalTable currentToken={currentToken} reply={reply} retweet={retweet} like={like} quote={quote} type={type} />
             </TableSection>
             <CustomParagraph>Campaign Budget: {budget}</CustomParagraph>
-            <CustomParagraph>
-              Warning: you will not be able to edit this tweet if you click submit as this feature is not available in Twitter yet, we recommend you
-              read your tweet information and reward table carefully before submitting your campaign.
-            </CustomParagraph>
+            <CustomParagraph>Warning: you will not be able to edit this tweet if you click submit as this feature is not available in Twitter yet, we recommend you read your tweet information and reward table carefully before submitting your campaign.</CustomParagraph>
             <ButtonWrapPrimary>
               <PrimaryButton text="Cancel & Edit" inverse={true} onclick={handleClose} colors="#EF5A22" border="1px solid #EF5A22" />
               <PrimaryButton text="Submit" onclick={handleSubmit} />

@@ -9,5 +9,6 @@ module.exports = override(
     "@wallet": path.resolve(__dirname, "src/Wallet"),
     "@store": path.resolve(__dirname, "src/Store"),
     "@componentsV2": path.resolve(__dirname, "src/Ver2Designs/Components"),
+    "@pagesV2": path.resolve(__dirname, "src/Ver2Designs/Pages"),
   })
 );

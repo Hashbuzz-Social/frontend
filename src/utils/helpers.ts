@@ -1,10 +1,6 @@
-import { EntityBalances, user_roles, Dimensions } from "../types";
+import { EntityBalances, user_roles } from "../types";
 export const NETWORK = process.env.REACT_APP_NETWORK ?? "testnet";
 export const dAppApiURL = process.env.REACT_APP_DAPP_API;
-export const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS;
-export const COLLECTOR_ACCOUNT = process.env.REACT_APP_COLLECTOR_ACCOUNT;
-export const ADMIN_ADDRESS = String(process.env.REACT_APP_ADMIN_ADDRESS).split(",");
-export const WalletConnectProject = process.env.REACT_APP_PROJECT_ID;
 
 export enum CampaignStatus {
   ApprovalPending = "ApprovalPending",
@@ -73,31 +69,30 @@ export const getCardStatusFromStatusText = (statusText: string): keyof typeof Ca
   return undefined;
 };
 
-type CalculateDimensionsProps = {
-  newWidth?: number;
-  newHeight?: number;
-  originalDimensions: Dimensions;
-};
+export const getSymbol = (entities: EntityBalances[], entityId: string) => {
+  const icon = entities.find((entity) => entity.entityId === entityId)?.entityIcon;
+  return icon;
+}
 
-export const calculateDimensions = ({ originalDimensions, newHeight, newWidth }: CalculateDimensionsProps): Dimensions => {
-  if (newWidth !== undefined) {
-    const height = (newWidth / originalDimensions.width) * originalDimensions.height;
-    return {
-      width: newWidth,
-      height: height,
-    };
-  } else if (newHeight !== undefined) {
-    const width = (newHeight / originalDimensions.height) * originalDimensions.width;
-    return {
-      width: width,
-      height: newHeight,
-    };
-  } else {
-    return originalDimensions;
-  }
-};
-
+/**
+ * Get the last item from an array
+ * @param array - The array from which to retrieve the last item
+ * @returns The last item in the array, or undefined if the array is empty
+ */
 export const getLastItem = <T>(array: T[]): T | undefined => {
   if (array.length === 0) return undefined;
   return array[array.length - 1];
+};
+
+export const calculateDimensions = ({ originalDimensions, newWidth, newHeight }: { originalDimensions: { width: number, height: number }; newWidth?: number; newHeight?: number }) => {
+  if (newWidth && newHeight) {
+    return { width: newWidth, height: newHeight };
+  }
+  if (newWidth) {
+    return { width: newWidth, height: (newWidth * originalDimensions.height) / originalDimensions.width };
+  }
+  if (newHeight) {
+    return { width: (newHeight * originalDimensions.width) / originalDimensions.height, height: newHeight };
+  }
+  return originalDimensions;
 };

@@ -2,16 +2,17 @@ import InfoIcon from "@mui/icons-material/Info";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { Box, Button, Card, Divider, Stack, Typography } from "@mui/material";
 import { DataGrid, GridColDef, GridRowsProp } from "@mui/x-data-grid";
+import { useStore } from "@store/hooks";
 import { uniqBy } from "lodash";
 import React, { useCallback, useEffect, useState } from "react";
 import Countdown from "react-countdown";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../../APIConfig/api";
-import { ADMIN_ADDRESS, CampaignStatus } from "../../../../utils/helpers";
 import { Loader } from "../../../../components/Loader/Loader";
 import DetailsModal from "../../../../components/PreviewModal/DetailsModal";
 import { CampaignCommands } from "../../../../types";
+import { CampaignStatus } from "../../../../utils/helpers";
 import AssociateModal from "../AssociateModal";
 import { cardStyle } from "../CardGenUtility";
 import AdminActionButtons from "./AdminActionButtons";
@@ -20,7 +21,6 @@ import { campaignListColumnsAdmin } from "./CampaignListColumnsAdmin";
 import { claimRewardCampaignColumns } from "./ClaimRewardCampaignList";
 import TabNavigation, { TabsLabel } from "./TabNavigationComponent";
 import { campaignListColumns } from "./campaignListCoulmns";
-import { useStore } from "@store/hooks";
 
 const isButtonDisabled = (campaignStats: CampaignStatus, approve: boolean) => {
   const disabledStatuses = new Set([CampaignStatus.RewardDistributionInProgress, CampaignStatus.CampaignDeclined, CampaignStatus.RewardsDistributed, CampaignStatus.CampaignRunning, CampaignStatus.ApprovalPending]);
@@ -66,7 +66,8 @@ const CampaignList = () => {
   const { User, Admin, Campaign } = useApiInstance();
   const store = useStore();
   const { currentUser, balances } = store;
-  const isAdmin = !!currentUser?.hedera_wallet_id && ADMIN_ADDRESS.includes(currentUser.hedera_wallet_id);
+  const userRole = currentUser?.role;
+  const isAdmin = userRole && ["ADMIN", "SUPER_ADMIN"].includes(userRole);
 
   const [openAssociateModal, setOpenAssociateModal] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
@@ -341,7 +342,7 @@ const CampaignList = () => {
             </Button>
             <AssociateModal open={openAssociateModal} onClose={() => setOpenAssociateModal(false)} />
           </Stack>
-          <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={isAdmin} handleCardsRefresh={handleCardsRefresh} />
+          <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={!!isAdmin} handleCardsRefresh={handleCardsRefresh} />
         </Box>
 
         <Divider sx={{ borderColor: cardStyle.borderColor }} />
