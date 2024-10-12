@@ -15,7 +15,7 @@ import { useCookies } from "react-cookie";
 import { toast } from "react-toastify";
 import { adminTableHeadRow } from "../../../Data/TwitterTable";
 import { Loader } from "../../Loader/Loader";
-import { CustomRowHead, CustomTable2, CustomTableBodyCell, CustomTableHeadCell } from "../../Tables/CreateTable.styles";
+import { CustomRowHead, CustomTable2, CustomTableBodyCell, CustomTableHeadCell } from "../../Tables/TemplateTable/styled";
 import { ImgWrap, TableSection, WrappeText } from "./TwitterCardList.styles";
 
 const ICONS_MAPPING = {
@@ -182,7 +182,7 @@ export const TwitterCardScreen = () => {
                     ? handleActionButon(item.card_status).map((element, index) => {
                         if (["Approve", "Reject", "Preview"].includes(element)) {
                           return (
-                            <IconButton  onclick={() => handleAction(element, item)}  size="sm" key={index} aria-label={`Campaign ${element.toLowerCase()}`} title={`Campaign ${element.toLowerCase()}`}>
+                            <IconButton onclick={() => handleAction(element, item)} size="sm" key={index} aria-label={`Campaign ${element.toLowerCase()}`} title={`Campaign ${element.toLowerCase()}`}>
                               {ICONS_MAPPING[element]}
                             </IconButton>
                           );

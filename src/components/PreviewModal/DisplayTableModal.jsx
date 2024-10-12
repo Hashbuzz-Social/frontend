@@ -5,7 +5,7 @@ import { useDappAPICall } from "../../APIConfig/dAppApiServices";
 import { displayTableHeadRow } from "../../Data/TwitterTable";
 import Typography from "../../Typography/Typography";
 import { TableSection } from "../Pages/CreateCard/CreateTwitterPage.styles";
-import { CustomRowHead, CustomTable2, CustomTableBodyCell, CustomTableHeadCell } from "../Tables/CreateTable.styles";
+import { CustomRowHead, CustomTable2, CustomTableBodyCell, CustomTableHeadCell } from "../Tables/TemplateTable/styled";
 import { BoxCont } from "./PreviewModal.styles";
 
 const DisplayTableModal = ({ open, setOpen, item }) => {

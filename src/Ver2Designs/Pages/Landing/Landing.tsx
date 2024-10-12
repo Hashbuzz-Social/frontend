@@ -18,7 +18,7 @@ const Landing = () => {
   const { ping, auth } = useStore();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const { state, dAppConnector, } = useSessions();
+  const { state, dAppConnector } = useSessions();
   const conenctToWallet = useConnectHandler();
   const { modalWrapper } = useAsyncStatusWrapper();
   const { isLoading, extensions, selectedSigner } = state || {};
@@ -41,7 +41,6 @@ const Landing = () => {
 
   const menuOpen = Boolean(anchorEl);
 
-
   React.useEffect(() => {
     if (ping.status && (pairedAccount || auth?.auth)) {
       navigate("/dashboard");
@@ -63,7 +62,7 @@ const Landing = () => {
 
         <Button
           startIcon={
-            <Avatar sx={{ width: 40, height: 40, background: "#1976d2" }}>
+            <Avatar sx={SC.LoginBtnCss}>
               <HashbuzzIcon size={40} color="#fff" />
             </Avatar>
           }

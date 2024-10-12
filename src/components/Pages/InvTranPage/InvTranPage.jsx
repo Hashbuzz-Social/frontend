@@ -4,7 +4,7 @@ import Typography from "../../../Typography/Typography";
 import { InvoiceBody } from "../../Tables/InvoiceBody";
 import { useState } from "react";
 import { TransactionBody } from "../../Tables/TransactionBody";
-import PrimaryButton from "../../Buttons/PrimaryButton";
+import { PrimaryButton } from "@components/Buttons";
 
 export const InvTranPage = () => {
   const theme = {
@@ -12,34 +12,18 @@ export const InvTranPage = () => {
     size: "31px",
     color: "#000000",
   };
-  
+
   const [isInvoice, setIsInvoice] = useState(true);
   return (
     <ContainerStyled align="center">
-        <ToggleButton>
-          <PrimaryButton
-            onclick={() => setIsInvoice(true)}
-            radius="30px"
-            inverse={!isInvoice}
-            colors={!isInvoice? "black": "#fff"}
-            text="Invoice"
-          />
-          <PrimaryButton
-            onclick={() => setIsInvoice(false)}
-            radius="30px"
-            colors={isInvoice? "black": "#fff"}
-            inverse={isInvoice}
-            text="Transactions"
-          />
-        </ToggleButton>
+      <ToggleButton>
+        <PrimaryButton onclick={() => setIsInvoice(true)} radius="30px" inverse={!isInvoice} colors={!isInvoice ? "black" : "#fff"} text="Invoice" />
+        <PrimaryButton onclick={() => setIsInvoice(false)} radius="30px" colors={isInvoice ? "black" : "#fff"} inverse={isInvoice} text="Transactions" />
+      </ToggleButton>
       <TitleWrap>
-        <Typography theme={theme}>
-          {isInvoice ? "Invoice" : "Transaction"}
-        </Typography>
+        <Typography theme={theme}>{isInvoice ? "Invoice" : "Transaction"}</Typography>
       </TitleWrap>
-      <TableSection>
-        {isInvoice ? <InvoiceBody /> : <TransactionBody />}
-      </TableSection>
+      <TableSection>{isInvoice ? <InvoiceBody /> : <TransactionBody />}</TableSection>
     </ContainerStyled>
   );
 };

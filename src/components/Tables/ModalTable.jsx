@@ -1,5 +1,5 @@
 import { TableBody, TableRow } from "@mui/material";
-import { BorderCellW, BorderCellG, CustomTable, CustomTableRowHead } from "./CreateTable.styles";
+import { BorderCellW, BorderCellG, CustomTable, CustomTableRowHead } from "./TemplateTable/styled";
 import { useState, useEffect } from "react";
 
 const ModalTable = ({ reply, retweet, like, quote, currentToken, type }) => {

@@ -1,7 +1,7 @@
 import { TableBody, TableHead } from "@mui/material";
 import { invoiceData, invoiceHeadRow } from "../../Data/InvoiceTransactions";
 import PdfSVG from "../../SVGR/Pdf";
-import { BorderlessCell, BorderlessHead, CustomTable, CustomTableRow, CustomTableRowHead } from "./CreateTable.styles";
+import { BorderlessCell, BorderlessHead, CustomTable, CustomTableRow, CustomTableRowHead } from "./TemplateTable/styled";
 
 export const InvoiceBody = () => {
   return (

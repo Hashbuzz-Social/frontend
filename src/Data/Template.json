@@ -1,0 +1,6 @@
+[
+  { "id": "like", "label": "Like", "width": 85, "align": "center" },
+  { "id": "retweet", "label": "Repost", "width": 85, "align": "center" },
+  { "id": "quote", "label": "Quote", "width": 85, "align": "center" },
+  { "id": "reply", "label": "Reply", "width": 60, "align": "center" }
+]

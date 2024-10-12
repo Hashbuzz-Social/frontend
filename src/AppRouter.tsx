@@ -1,4 +1,5 @@
-import { TemplatePage } from "@components/Pages/TemplatePage/TemplatePage";
+// import { TemplatePage } from "@components/Pages/TemplatePage/TemplatePage";
+import TemplatePage from "@components/Pages/TemplatePage/TemplatePage";
 import { RedirectIfAuthenticated, RequiredAuth } from "@componentsV2/SecureRoutes";
 import SplashScreen from "@componentsV2/SplashScreen/SplashScreen";
 import { useStore } from "@store/hooks";
@@ -6,7 +7,6 @@ import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { Invoice } from "screens/Invoice";
-import { OnBoarding } from "screens/OnBoarding";
 import { CreateCampaign, Dashboard, Landing, PageNotfound } from "./Ver2Designs";
 import { AdminDashboard } from "./Ver2Designs/Admin";
 import AdminAuthGuard from "./Ver2Designs/Admin/AdminAuthGuard";
@@ -52,10 +52,6 @@ const router = createBrowserRouter([
       {
         path: "invoice",
         element: <Invoice />,
-      },
-      {
-        path: "onboarding",
-        element: <OnBoarding />,
       },
       {
         path: "settings",

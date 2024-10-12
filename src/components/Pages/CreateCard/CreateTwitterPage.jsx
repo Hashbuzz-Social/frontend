@@ -17,7 +17,7 @@ import ConsentModal from "../../PreviewModal/ConsentPreviewModal";
 import DisplayTableModal from "../../PreviewModal/DisplayTableModal";
 import TopUpModal from "../../PreviewModal/TopUpModal";
 import StatusCard from "../../StatusCard/StatusCard";
-import { CustomRowHead, CustomTable2, CustomTableBodyCell, CustomTableHeadCell } from "../../Tables/CreateTable.styles";
+import { CustomRowHead, CustomTable2, CustomTableBodyCell, CustomTableHeadCell } from "../../Tables/TemplateTable/styled";
 import notify from "../../Toaster/toaster";
 import { CardSection, LinkContainer, StatusSection, TableSection } from "./CreateTwitterPage.styles";
 import { useConnectToExtension } from "../../../Wallet/hashpack/useConnectToExtension";

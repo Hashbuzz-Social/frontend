@@ -36,3 +36,9 @@ export const landingContentBoxCss = (theme: Theme): SxProps<Theme> => ({
   marginLeft: "auto",
   marginRight: "auto",
 });
+
+
+
+export const LoginBtnCss = ({
+  width: 40, height: 40, background: "#1976d2", zIndex: 2
+})

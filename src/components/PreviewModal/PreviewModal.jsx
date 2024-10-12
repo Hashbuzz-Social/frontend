@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../APIConfig/api";
 import Typography from "../../Typography/Typography";
-import PrimaryButton from "../Buttons/PrimaryButton";
 import { Loader } from "../Loader/Loader";
 import ModalTable from "../Tables/ModalTable";
 import notify from "../Toaster/toaster";
 import { BoxCont, ButtonWrapPrimary, CustomIframe, CustomParagraph, IconsWrap, LeftSec, RightSec, TableSection, TextWrap, Wrapper } from "./PreviewModal.styles";
+import { PrimaryButton } from "@components/Buttons";
 
 /**
  *
