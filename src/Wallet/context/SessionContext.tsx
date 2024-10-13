@@ -1,9 +1,8 @@
 // src/contexts/SessionContext.tsx
 import { DAppConnector, DAppSigner, ExtensionData } from "@hashgraph/hedera-wallet-connect";
-import { useAuth, useStore } from "@store/hooks";
+import useWalletConnectService from "@wallet/services/useWalletConnectService";
 import { SessionTypes, SignClientTypes } from "@walletconnect/types";
 import React, { createContext, Dispatch, ReactNode, useEffect, useReducer, useRef } from "react";
-import { useCookies } from "react-cookie";
 import { Networks } from "types";
 import { getLastItem } from "utils/helpers";
 
@@ -89,7 +88,7 @@ const sessionReducer = (state: SessionState, action: Action): SessionState => {
 interface SessionContextProps {
   state: SessionState;
   dispatch: Dispatch<Action>;
-  dAppConnectorRef: React.MutableRefObject<DAppConnector | null>;
+  dAppConnector: DAppConnector | null;
 }
 
 export const SessionContext = createContext<SessionContextProps | undefined>(undefined);
@@ -97,10 +96,8 @@ export const SessionContext = createContext<SessionContextProps | undefined>(und
 // Provider component
 export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(sessionReducer, JSON.parse(JSON.stringify(initialState)));
-  const { authCheckPing } = useAuth();
   const dAppConnectorRef = useRef<DAppConnector | null>(null);
-  const [cookies] = useCookies(["aSToken"]);
-  const store = useStore();
+  const { initializeConnector } = useWalletConnectService(dAppConnectorRef, dispatch);
 
   const handdleSessionDelete = (arg: SignClientTypes.EventArguments["session_delete"]) => {
     const { topic } = arg;
@@ -118,21 +115,15 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, []);
 
   useEffect(() => {
-    // Auth checking ping
-    const checkAuth = async () => {
-      if (cookies.aSToken) {
+    initializeConnector()
+      .catch((error) => {
+        dispatch({ type: "SET_ERROR", payload: error.message });
+        console.error("Error while initiating dAppConnector", error);
+      })
+      .finally(() => {
+        console.info("dAppConnector initialized successfully");
+      });
+  }, []);
 
-        await authCheckPing();
-      } else {
-        store.dispatch({ type: "HIDE_SPLASH_SCREEN" });
-      }
-    };
-    checkAuth();
-    // Clean up the debounce effect on unmount
-    return () => {
-      authCheckPing.cancel();
-    };
-  }, [cookies.aSToken]);
-
-  return <SessionContext.Provider value={{ state, dispatch, dAppConnectorRef }}>{children}</SessionContext.Provider>;
+  return <SessionContext.Provider value={{ state, dispatch, dAppConnector: dAppConnectorRef.current }}>{children}</SessionContext.Provider>;
 };

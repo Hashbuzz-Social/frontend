@@ -1,8 +1,7 @@
-// import { TemplatePage } from "@components/Pages/TemplatePage/TemplatePage";
 import TemplatePage from "@components/Pages/TemplatePage/TemplatePage";
 import { RedirectIfAuthenticated, RequiredAuth } from "@componentsV2/SecureRoutes";
 import SplashScreen from "@componentsV2/SplashScreen/SplashScreen";
-import { useStore } from "@store/hooks";
+import { useAuth, useStore } from "@store/hooks";
 import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
@@ -13,7 +12,6 @@ import AdminAuthGuard from "./Ver2Designs/Admin/AdminAuthGuard";
 import MainLayout from "./Ver2Designs/Layout";
 import useConnector from "./Wallet/hooks/useConnector";
 import { loadState, saveState } from "./Wallet/services/localstorage";
-import useWalletConnectService from "./Wallet/services/walletConnectService";
 import StyledComponentTheme from "./theme/Theme";
 
 const router = createBrowserRouter([
@@ -80,25 +78,15 @@ const router = createBrowserRouter([
 ]);
 
 const AppRouter = () => {
-  const initializeConnector = useWalletConnectService();
   const { projectId, name, description, url, icons } = useConnector();
-  const [cookies] = useCookies(["aSToken", "refreshToken"]);
-  const { ping, auth, shouldShowSplashScreen } = useStore();
-  const [showSplashScreen, setShowSplashScreen] = useState(true);
+  const { shouldShowSplashScreen, dispatch } = useStore();
+  const [cookies] = useCookies(["aSToken"]);
+  const { authCheckPing } = useAuth();
 
   // Static Data Loading
   useEffect(() => {
     loadState();
   }, []);
-
-  //Initialize Connector
-  useEffect(() => {
-    if (projectId && name && description && url && icons.length > 0) {
-      initializeConnector().catch((error) => {
-        console.error("Error initializing connector", error);
-      });
-    }
-  }, [projectId, name, description, url, icons]);
 
   //Persist state to localStorage
   useEffect(() => {
@@ -108,9 +96,24 @@ const AppRouter = () => {
       description,
       url,
       icons,
-      // Add other necessary state variables if needed
     });
   }, [projectId, name, description, url, icons]);
+
+  useEffect(() => {
+    // Auth checking ping
+    const checkAuth = async () => {
+      if (cookies.aSToken) {
+        await authCheckPing();
+      } else {
+        dispatch({ type: "HIDE_SPLASH_SCREEN" });
+      }
+    };
+    checkAuth();
+    // Clean up the debounce effect on unmount
+    return () => {
+      authCheckPing.cancel();
+    };
+  }, [cookies.aSToken]);
 
   if (shouldShowSplashScreen) {
     return <SplashScreen />;

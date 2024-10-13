@@ -1,4 +1,3 @@
-// src/contexts/ConnectorContext.tsx
 import React, { createContext, ReactNode } from "react";
 import connectorConfig from "../config/connectorConfig";
 

@@ -10,19 +10,27 @@ const useAuthenticator = () => {
 
   const handleSignMessage = useCallback(
     async (message: string) => {
-      console.log("handleSignMessage", message);
+      try {
+        console.log("handleSignMessage", message);
 
-      if (!selectedSigner) throw new Error("Selected signer is required");
+        if (!selectedSigner) throw new Error("Selected signer is required");
 
-      const acccountId = selectedSigner.getAccountId().toString();
-      /** Sign Message Params */
-      const params: SignMessageParams = {
-        signerAccountId: `hedera:${network ?? "testnet"}:${acccountId}`,
-        message,
-      };
-      // @ts-ignore
-      const { signatureMap } = await dAppConnector!.signMessage(params);
-      return { signatureMap, acccountId };
+        const acccountId = selectedSigner.getAccountId().toString();
+        /** Sign Message Params */
+        const params: SignMessageParams = {
+          signerAccountId: `hedera:${network ?? "testnet"}:${acccountId}`,
+          message,
+        };
+        const response = await dAppConnector!.signMessage(params);
+        console.log("response", response);
+        // const { signatureMap } = 
+        //@ts-ignore
+        const signatureMap = response.signatureMap;
+        return { signatureMap, acccountId };
+      } catch (err) {
+        //@ts-ignore
+        throw new Error(err);
+      }
     },
     [dAppConnector, network, selectedSigner]
   );

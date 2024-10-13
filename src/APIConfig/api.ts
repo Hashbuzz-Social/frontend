@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import * as React from "react";
 
-import { addCampaignBody, AdminLoginResponse, AdminUpdatePassword, AllTokensQuery, AuthCred, BalanceResponse, CampaignCards, Challenge, ContractInfo, CreateTransactionByteBody, CurrentUser, GenerateAstPayload, GnerateReseponse, LogoutResponse, reimburseAmountBody, SetTransactionBody, TokenBalances, TokenDataObj, TokenInfo, TopUpResponse, updateCampaignStatusBody, UpdatePasswordResponse, WCChallange, WCVerifyResponseBody } from "../types";
+import { addCampaignBody, AdminLoginResponse, AdminUpdatePassword, AllTokensQuery, APIResponse, AuthCred, BalanceResponse, CampaignCards, Challenge, ContractInfo, CreateTransactionByteBody, CurrentUser, GenerateAstPayload, GnerateReseponse, LogoutResponse, PingResponseData, reimburseAmountBody, SetTransactionBody, TokenBalances, TokenDataObj, TokenInfo, TopUpResponse, updateCampaignStatusBody, UpdatePasswordResponse, WCChallange, WCVerifyResponseBody } from "../types";
 import { useAxios } from "./AxiosProvider";
 import { AccountInfo } from "@hashgraph/sdk";
 
@@ -89,7 +89,7 @@ export const useApiInstance = () => {
     refreshToken: (refreshToken: string): Promise<AuthCred> => requests.post("/auth/refreshToken", { refreshToken }),
     doLogout: (): Promise<LogoutResponse> => requests.post("/auth/logout", {}),
     adminLogin: (data: { password: string }): Promise<AdminLoginResponse> => requests.post("/auth/admin-login", { ...data }),
-    authPing: (): Promise<{ wallet_id: string; status: string; device_id: string }> => requests.get("/auth/ping"),
+    authPing: (): Promise<APIResponse<PingResponseData>> => requests.get("/auth/ping"),
     hashconnect: {
       getHashconnectChallenge: (data: { url: string }): Promise<Challenge> => requests.get("/auth/hashconnect/create-challange", { ...data }),
       verifyHashconnectSign: (data: GenerateAstPayload): Promise<GnerateReseponse> => requests.post("/auth/hashconnect/verify-response", { ...data }),

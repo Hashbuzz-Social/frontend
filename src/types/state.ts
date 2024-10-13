@@ -21,6 +21,11 @@ export interface AppState {
   contractInfo?: ContractInfo;
   toasts: { type: "error" | "info" | "success"; message: string }[];
   walletConnector?: WalletConnectors;
+  asyncModalState?: {
+    status: "Info",
+    message: "",
+    isLoading: false,
+  };
 }
 
 export enum WalletConnectors {

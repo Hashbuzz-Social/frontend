@@ -31,7 +31,7 @@ const AuthFlowCard = () => {
 
   const handleOnchage = (event: SelectChangeEvent<string>) => {
     const selectedAcountId = AccountId.fromString(event.target.value);
-    dispatch({ type: "SET_SELECTED_SIGNER", payload: dAppConnector.getSigner(selectedAcountId) });
+    dispatch({ type: "SET_SELECTED_SIGNER", payload: dAppConnector?.getSigner(selectedAcountId) ?? null });
   };
 
   const handleAuthenticate = async (event: React.MouseEvent) => {

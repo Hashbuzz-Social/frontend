@@ -48,43 +48,45 @@ const Landing = () => {
   }, [ping.status, pairedAccount, auth?.auth]);
 
   return (
-    <Box sx={SC.landingPageContainerCss(theme)}>
-      <Container>
-        <Stack direction={"row"} justifyContent={"center"}>
-          <HashbuzzLogoMainTransparent
-            height={100}
-            colors={{
-              color1: "#fff",
-              color2: "#fff",
-            }}
-          />
-        </Stack>
+    <>
+      <Box sx={SC.landingPageContainerCss(theme)}>
+        <Container>
+          <Stack direction={"row"} justifyContent={"center"}>
+            <HashbuzzLogoMainTransparent
+              height={100}
+              colors={{
+                color1: "#fff",
+                color2: "#fff",
+              }}
+            />
+          </Stack>
 
-        <Button
-          startIcon={
-            <Avatar sx={SC.LoginBtnCss}>
-              <HashbuzzIcon size={40} color="#fff" />
-            </Avatar>
-          }
-          onClick={handleClick}
-          variant="outlined"
-          color="primary"
-          sx={{ ml: 2, position: "fixed", top: 20, right: 40 }}
-          aria-controls={menuOpen ? "wallet-connecter-menu" : undefined}
-          aria-haspopup="true"
-          aria-expanded={menuOpen ? "true" : undefined}
-          disabled={!dAppConnector || isLoading}
-        >
-          <Typography variant="subtitle1" component="span" color={"#fff"}>
-            Log In
-          </Typography>
-        </Button>
+          <Box sx={SC.landingContentBoxCss(theme)}>
+            {isReadyToAuthenticate && <AuthFlowCard />}
+            <LandingPageContent />
+          </Box>
+        </Container>
+      </Box>
+      <Button
+        startIcon={
+          <Avatar sx={SC.LoginBtnAvatarCss}>
+            <HashbuzzIcon size={40} color="#fff" />
+          </Avatar>
+        }
+        onClick={handleClick}
+        variant="outlined"
+        color="primary"
+        sx={SC.LoginBtnCss}
+        aria-controls={menuOpen ? "wallet-connecter-menu" : undefined}
+        aria-haspopup="true"
+        aria-expanded={menuOpen ? "true" : undefined}
+        disabled={!dAppConnector || isLoading}
+      >
+        <Typography variant="subtitle1" component="span" color={"#fff"}>
+          Log In
+        </Typography>
+      </Button>
 
-        <Box sx={SC.landingContentBoxCss(theme)}>
-          {isReadyToAuthenticate && <AuthFlowCard />}
-          <LandingPageContent />
-        </Box>
-      </Container>
       <MenuItemsList
         anchorEl={anchorEl}
         menuOpen={menuOpen}
@@ -94,7 +96,7 @@ const Landing = () => {
         handleClick={handeWalletConnect}
       />
       <LandingPageSpeedDaial extensions={extensions} handleClick={handeWalletConnect} />
-    </Box>
+    </>
   );
 };
 

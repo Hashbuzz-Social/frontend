@@ -1,6 +1,5 @@
-import { SessionContext } from "@wallet/context/SessionContext";
 import debounce from "lodash/debounce";
-import { useCallback, useContext } from "react";
+import { useCallback } from "react";
 import { useApiInstance } from "../../APIConfig/api";
 import { useStore } from "./useStore";
 
@@ -10,12 +9,14 @@ export const useAuth = () => {
 
   const authCheckPing = useCallback(async () => {
     try {
-      const data = await Auth.authPing();
+      const pingResponse = await Auth.authPing();
+      const data = pingResponse.data;
+      const status = pingResponse.status;
 
-      if (data.wallet_id) {
+      if (data && status === "success" && data.hedera_wallet_id) {
         const currentUser = await User.getCurrentUser();
         dispatch({ type: "UPDATE_CURRENT_USER", payload: currentUser });
-        dispatch({ type: "SET_PING", payload: { status: true, hedera_wallet_id: data.wallet_id } });
+        dispatch({ type: "SET_PING", payload: { status: true, hedera_wallet_id: data.hedera_wallet_id } });
       }
       return { ping: true };
     } catch (err) {

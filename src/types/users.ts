@@ -43,3 +43,11 @@ export type TokenBalances = {
   entity_decimal: number;
   decimals?: number;
 };
+
+
+// Define the interface for the API response
+export interface APIResponse<T> {
+  status: "success" | "error";
+  message: string;
+  data?: T;
+}

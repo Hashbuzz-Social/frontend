@@ -39,6 +39,9 @@ export const landingContentBoxCss = (theme: Theme): SxProps<Theme> => ({
 
 
 
-export const LoginBtnCss = ({
-  width: 40, height: 40, background: "#1976d2", zIndex: 2
+export const LoginBtnAvatarCss: SxProps<Theme> = ({
+  width: 40, height: 40, background: "#1976d2"
 })
+export const LoginBtnCss: SxProps<Theme> = (
+  { ml: 2, position: "fixed", top: 20, right: 40, zIndex: 3 }
+)

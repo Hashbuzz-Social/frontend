@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { ModalState } from "types";
 
 const useAsyncStatusWrapper = () => {
@@ -8,15 +8,29 @@ const useAsyncStatusWrapper = () => {
     isLoading: false,
   });
 
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   const modalWrapper = useCallback(async <T>(fn: () => Promise<T>): Promise<T | undefined> => {
     try {
-      setModalState({ status: "Info", message: "Processing request", isLoading: true });
+      if (isMounted.current) {
+        setModalState({ status: "Info", message: "Processing request", isLoading: true });
+      }
       const result = await fn();
-      setModalState({ status: "Success", message: "The request has been executed successfully", isLoading: false, data: result });
+      if (isMounted.current) {
+        setModalState({ status: "Success", message: "The request has been executed successfully", isLoading: false, data: result });
+      }
       return result;
     } catch (error: any) {
       console.error("Error signing message: ", error);
-      setModalState({ status: "Error", message: error?.message || "An error occurred", isLoading: false });
+      if (isMounted.current) {
+        setModalState({ status: "Error", message: error?.message || "An error occurred", isLoading: false });
+      }
       return undefined;
     }
   }, []);
