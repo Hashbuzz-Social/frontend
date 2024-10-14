@@ -2,7 +2,7 @@ import TemplatePage from "@components/Pages/TemplatePage/TemplatePage";
 import { RedirectIfAuthenticated, RequiredAuth } from "@componentsV2/SecureRoutes";
 import SplashScreen from "@componentsV2/SplashScreen/SplashScreen";
 import { useAuth, useStore } from "@store/hooks";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { Invoice } from "screens/Invoice";

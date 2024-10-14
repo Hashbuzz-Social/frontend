@@ -3,12 +3,13 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { Box, Button, Card, Divider, Stack, Typography } from "@mui/material";
 import { DataGrid, GridColDef, GridRowsProp } from "@mui/x-data-grid";
 import { useStore } from "@store/hooks";
+import { useApiInstance } from "APIConfig/api";
 import { uniqBy } from "lodash";
 import React, { useCallback, useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 import Countdown from "react-countdown";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useApiInstance } from "../../../../APIConfig/api";
 import { Loader } from "../../../../components/Loader/Loader";
 import DetailsModal from "../../../../components/PreviewModal/DetailsModal";
 import { CampaignCommands } from "../../../../types";
@@ -68,7 +69,7 @@ const CampaignList = () => {
   const { currentUser, balances } = store;
   const userRole = currentUser?.role;
   const isAdmin = userRole && ["ADMIN", "SUPER_ADMIN"].includes(userRole);
-
+  const [cookies] = useCookies(["aSToken", "refreshToken"]);
   const [openAssociateModal, setOpenAssociateModal] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [modalData, setModalData] = useState<Object>({});
@@ -92,13 +93,11 @@ const CampaignList = () => {
     } catch (err) {
       console.log(err);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const getClaimAllRewards = useCallback(async () => {
     try {
       const response = await User.getClaimRewards();
-      //@ts-ignore;
-      // setClaimPendingRewards((prev) => uniqBy([...prev, ...response.rewardDetails], "id"));
     } catch (error) {
       console.log(error);
     }
@@ -108,7 +107,6 @@ const CampaignList = () => {
     if (isAdmin) {
       getAllPendingCampaigns();
     }
-    // getClaimAllRewards();
   }, [getAllPendingCampaigns, currentUser?.hedera_wallet_id, getClaimAllRewards]);
 
   const handleCard = async (id: number) => {
@@ -145,17 +143,25 @@ const CampaignList = () => {
     }
   };
 
-  const getAllCampaigns = async () => {
+  const getAllCampaigns = useCallback(async () => {
     try {
+      setLoading(true); // Start loading
+      console.log("Fetching all campaigns...");
+
       const allCampaigns = await Campaign.getCampaigns();
 
       if (!allCampaigns || allCampaigns.length === 0) {
-        setRows([]);
+        setRows([]); // Clear rows if no campaigns found
+        setRunningCampaigns(false); // Reset running campaigns
         return;
       }
 
-      const isCampaignRunningOrPending = (status: CampaignStatus) => new Set([CampaignStatus.CampaignRunning, CampaignStatus.ApprovalPending, CampaignStatus.CampaignDeclined]).has(status);
+      const runningOrPendingStatuses = new Set([CampaignStatus.CampaignRunning, CampaignStatus.ApprovalPending, CampaignStatus.CampaignDeclined]);
 
+      // Function to check if the campaign is running or pending
+      const isCampaignRunningOrPending = (status: CampaignStatus) => runningOrPendingStatuses.has(status);
+
+      // Map campaign data into the required format
       const campaignData = allCampaigns.map((item) => ({
         id: item.id,
         name: item.name,
@@ -170,17 +176,21 @@ const CampaignList = () => {
         approve: item.approve,
       }));
 
+      // Check if there are any running or pending campaigns
       const hasRunningCampaigns = allCampaigns.some((item: any) => isCampaignRunningOrPending(item.card_status));
+
+      // Set the fetched data
       setRunningCampaigns(hasRunningCampaigns);
       setRows(campaignData);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
-  React.useEffect(() => {
-    getAllCampaigns();
-  }, []);
+      toast.success("Campaigns fetched successfully!");
+    } catch (error) {
+      console.error("Error fetching campaigns:", error);
+      toast.error("Failed to fetch campaigns. Please try again later.");
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  }, [Campaign.getCampaigns]); // Ensure the dependency is correctly memoized
 
   const handleCardsRefresh = () => {
     getAllCampaigns();

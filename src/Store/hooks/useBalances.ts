@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../APIConfig/api";
 import { EntityBalances } from "../../types";
@@ -17,6 +17,7 @@ export const useBalances = () => {
   const { dispatch, currentUser } = useStore();
   const { User } = useApiInstance();
   const [balanceQueryTimer, setBalanceQueryTimer] = useState<NodeJS.Timeout | null>(null);
+
 
   const checkAndUpdateEntityBalances = useCallback(
     async (topup?: boolean) => {
@@ -53,20 +54,13 @@ export const useBalances = () => {
         toast.error(getErrorMessage(err));
       }
     },
-    [User, currentUser, dispatch]
+    [User.getTokenBalances, dispatch, currentUser]
   );
 
   const startBalanceQueryTimer = useCallback(() => {
-    console.log("I have been called");
     if (balanceQueryTimer) clearTimeout(balanceQueryTimer);
     setBalanceQueryTimer(setTimeout(() => checkAndUpdateEntityBalances(true), 35000));
   }, [balanceQueryTimer, checkAndUpdateEntityBalances]);
-
-  useEffect(() => {
-    if (currentUser?.hedera_wallet_id) {
-      checkAndUpdateEntityBalances();
-    }
-  }, [currentUser?.hedera_wallet_id]);
 
   return {
     checkAndUpdateEntityBalances,

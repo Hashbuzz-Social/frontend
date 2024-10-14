@@ -1,12 +1,25 @@
 import { SignMessageParams } from "@hashgraph/hedera-wallet-connect";
+import useDisconnectHandler from "@wallet/hooks/useDisconnectHandler";
 import useSession from "@wallet/hooks/useSessions";
+import useAsyncStatusWrapper from "@wallet/services/useAsyncStatusWrapper";
+import { useApiInstance } from "APIConfig/api";
 import { useCallback } from "react";
+import { useCookies } from "react-cookie";
 import useAuthenticationHelpers from "./useAuthenticationHelpers";
 
 const useAuthenticator = () => {
+  // Session context to get the selected signer and network
   const { state, dAppConnector } = useSession();
   const { selectedSigner, network } = state || {};
+  const [a, _, removeCookies] = useCookies(["aSToken", "refreshToken"]);
+  const { disconnect } = useDisconnectHandler();
+  const { modalWrapper } = useAsyncStatusWrapper();
+
+  // helpers hooks menthods  to mannager authentication
   const { createChallenge, handleError, delay, verifySignature, handleSuccess } = useAuthenticationHelpers();
+
+  // APIS calls 
+  const { Auth } = useApiInstance();
 
   const handleSignMessage = useCallback(
     async (message: string) => {
@@ -47,7 +60,34 @@ const useAuthenticator = () => {
     }
   }, [createChallenge, delay, handleSignMessage, handleError]);
 
-  return { initSignAndAutheticate };
+  const handleDisconnectAndLogout = useCallback(async () => {
+    try {
+
+      // Perform logout call
+      const response = await Auth.doLogout();
+      console.log('Logout response:', response);
+
+      // Disconnect from walletConnect
+      if (selectedSigner?.topic) {
+        await modalWrapper(() => disconnect(selectedSigner.topic));
+        console.log('Disconnected from walletConnect');
+      } else {
+        throw new Error('Selected signer topic is required');
+      }
+
+      // remove cookies
+      removeCookies("aSToken");
+      removeCookies("refreshToken");
+
+      // Return boolean
+      return true;
+    } catch (error) {
+      console.error('Error during disconnect and logout:', error);
+      return false;
+    }
+
+  }, [dAppConnector, selectedSigner]);
+  return { initSignAndAutheticate, handleDisconnectAndLogout };
 };
 
 export default useAuthenticator;
