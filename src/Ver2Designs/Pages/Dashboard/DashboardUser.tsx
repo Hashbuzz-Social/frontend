@@ -2,7 +2,7 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import BusinessIcon from "@mui/icons-material/Business";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import { Button, Typography } from "@mui/material";
-import { useStore } from "@store/hooks";
+import { useBalances, useStore } from "@store/hooks";
 import React from "react";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
@@ -11,11 +11,14 @@ import Balances from "./Balances";
 import CampaignList from "./CampaignList";
 import { CardGenUtility } from "./CardGenUtility";
 import * as SC from "./styled";
+import { useCookies } from "react-cookie";
 
 const Dashboard = () => {
+  const [cookies] = useCookies(["aSToken", "refreshToken"]);
   const store = useStore();
   const { Integrations } = useApiInstance();
   const { currentUser, dispatch } = store;
+  const { checkAndUpdateEntityBalances } = useBalances();
 
   const personalHandleIntegration = async (event: React.MouseEvent<HTMLButtonElement>) => {
     try {
@@ -40,7 +43,13 @@ const Dashboard = () => {
     const toastsMessage = store.toasts;
     toastsMessage.map((t) => toast(t.message, { type: t.type }));
     dispatch({ type: "RESET_TOAST" });
-  }, [dispatch]);
+  }, [store.toasts]);
+
+  React.useEffect(() => {
+    if (cookies.aSToken) {
+      checkAndUpdateEntityBalances();
+    }
+  }, [cookies.aSToken]);
 
   return (
     <React.Fragment>

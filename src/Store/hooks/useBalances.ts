@@ -18,6 +18,7 @@ export const useBalances = () => {
   const { User } = useApiInstance();
   const [balanceQueryTimer, setBalanceQueryTimer] = useState<NodeJS.Timeout | null>(null);
 
+
   const checkAndUpdateEntityBalances = useCallback(
     async (topup?: boolean) => {
       try {
@@ -53,20 +54,14 @@ export const useBalances = () => {
         toast.error(getErrorMessage(err));
       }
     },
-    [User, currentUser, dispatch]
+    [User.getTokenBalances, dispatch, currentUser]
   );
 
   const startBalanceQueryTimer = useCallback(() => {
-    console.log("I have been called");
+    console.info("startBalanceQueryTimer");
     if (balanceQueryTimer) clearTimeout(balanceQueryTimer);
     setBalanceQueryTimer(setTimeout(() => checkAndUpdateEntityBalances(true), 35000));
   }, [balanceQueryTimer, checkAndUpdateEntityBalances]);
-
-  useEffect(() => {
-    if (currentUser?.hedera_wallet_id) {
-      checkAndUpdateEntityBalances();
-    }
-  }, [currentUser?.hedera_wallet_id]);
 
   return {
     checkAndUpdateEntityBalances,

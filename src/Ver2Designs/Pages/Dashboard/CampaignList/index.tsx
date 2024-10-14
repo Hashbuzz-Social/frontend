@@ -8,7 +8,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import Countdown from "react-countdown";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useApiInstance } from "../../../../APIConfig/api";
 import { Loader } from "../../../../components/Loader/Loader";
 import DetailsModal from "../../../../components/PreviewModal/DetailsModal";
 import { CampaignCommands } from "../../../../types";
@@ -21,6 +20,8 @@ import { campaignListColumnsAdmin } from "./CampaignListColumnsAdmin";
 import { claimRewardCampaignColumns } from "./ClaimRewardCampaignList";
 import TabNavigation, { TabsLabel } from "./TabNavigationComponent";
 import { campaignListColumns } from "./campaignListCoulmns";
+import { useApiInstance } from "APIConfig/api";
+import { useCookies } from "react-cookie";
 
 const isButtonDisabled = (campaignStats: CampaignStatus, approve: boolean) => {
   const disabledStatuses = new Set([CampaignStatus.RewardDistributionInProgress, CampaignStatus.CampaignDeclined, CampaignStatus.RewardsDistributed, CampaignStatus.CampaignRunning, CampaignStatus.ApprovalPending]);
@@ -68,7 +69,7 @@ const CampaignList = () => {
   const { currentUser, balances } = store;
   const userRole = currentUser?.role;
   const isAdmin = userRole && ["ADMIN", "SUPER_ADMIN"].includes(userRole);
-
+  const [cookies] = useCookies(["aSToken", "refreshToken"]);
   const [openAssociateModal, setOpenAssociateModal] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [modalData, setModalData] = useState<Object>({});
@@ -145,7 +146,7 @@ const CampaignList = () => {
     }
   };
 
-  const getAllCampaigns = async () => {
+  const getAllCampaigns = useCallback(async () => {
     try {
       const allCampaigns = await Campaign.getCampaigns();
 
@@ -176,11 +177,13 @@ const CampaignList = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [Campaign.getCampaigns]);
 
   React.useEffect(() => {
-    getAllCampaigns();
-  }, []);
+    if (cookies.aSToken) {
+      getAllCampaigns();
+    }
+  }, [cookies.aSToken]);
 
   const handleCardsRefresh = () => {
     getAllCampaigns();

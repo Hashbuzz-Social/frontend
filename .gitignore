@@ -23,8 +23,8 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
+build/
 .env
 Dockerfile
 .vscode
-.keys
+.keys15

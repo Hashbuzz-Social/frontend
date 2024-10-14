@@ -3,7 +3,7 @@ import { DAppConnector, HederaChainId, HederaJsonRpcMethod, HederaSessionEvent }
 import { LedgerId } from "@hashgraph/sdk";
 import { SessionContext, Action } from "@wallet/context/SessionContext";
 import { SignClientTypes } from "@walletconnect/types";
-import React, { useContext } from "react";
+import React, { useCallback, useContext } from "react";
 import { Networks } from "../../types";
 import useConnector from "../hooks/useConnector";
 import { getLastItem } from "utils/helpers";
@@ -37,7 +37,7 @@ export const useWalletConnectService = (dAppConnectorRef: React.MutableRefObject
     };
   };
 
-  const initializeConnector = async () => {
+  const initializeConnector = useCallback(async () => {
     try {
       if (!dispatch || !dAppConnectorRef) {
         throw new Error("dispatch or dAppConnectorRef is not provided");
@@ -87,7 +87,7 @@ export const useWalletConnectService = (dAppConnectorRef: React.MutableRefObject
       dispatch && dispatch({ type: "SET_ERROR", payload: error.message });
       console.log(error);
     }
-  };
+  }, [dispatch, dAppConnectorRef, metadata, projectNetWork, projectId]);
 
   return { initializeConnector };
 };

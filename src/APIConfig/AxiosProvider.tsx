@@ -1,12 +1,11 @@
 import { useStore } from "@store/hooks";
 import axios, { AxiosInstance } from "axios";
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useCookies } from "react-cookie";
 import { toast } from "react-toastify";
 import { getErrorMessage } from "../utils/helpers";
 
 const generateUniqueId = () => {
-  // Simple random ID generator
   return "xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     var r = (Math.random() * 16) | 0,
       v = c === "x" ? r : (r & 0x3) | 0x8;
@@ -15,23 +14,17 @@ const generateUniqueId = () => {
 };
 
 function getOrCreateUniqueID() {
-  // Check if the user already has an ID stored in localStorage
   let userId = localStorage.getItem("device_id");
-
-  // If no ID exists, generate one and store it
   if (!userId) {
-    userId = generateUniqueId(); // Use a unique ID generator function
+    userId = generateUniqueId();
     localStorage.setItem("device_id", userId);
   }
-
-  // Return the ID from localStorage
   return userId;
 }
 
-const refreshTokenInterval = 2 * 60 * 1000; // Refresh token every 12 minutes
-const useRefreshToken = false; // Flag to enable/disable token refresh
+const refreshTokenInterval = 2 * 60 * 1000;
+const useRefreshToken = false;
 
-// Create a context
 export const AxiosContext = createContext<AxiosInstance | null>(null);
 
 const AxiosProvider: React.FC = ({ children }) => {
@@ -40,22 +33,23 @@ const AxiosProvider: React.FC = ({ children }) => {
   const [deviceId, setDeviceId] = useState<string | null>(getOrCreateUniqueID());
   const { auth, dispatch } = useStore();
 
-  const axiosInstance = useRef<AxiosInstance>(
-    axios.create({
+  // Memoized axios instance
+  const axiosInstance = useMemo(() => {
+    return axios.create({
       baseURL: process.env.REACT_APP_DAPP_API,
       timeout: 15000,
       headers: {
         "Content-type": "application/json",
       },
-    })
-  );
+    });
+  }, []);
 
-  const refreshAccessToken = async () => {
+  // Memoized function to refresh access token
+  const refreshAccessToken = useCallback(async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
     try {
-      // Your logic to refresh the token
-      const response = await axiosInstance.current.post<{ ast: string; message: string }>("/auth/refresh-token", {
+      const response = await axiosInstance.post<{ ast: string; message: string }>("/auth/refresh-token", {
         refreshToken: cookies.refreshToken,
       });
       const newToken = response.data.ast;
@@ -63,19 +57,19 @@ const AxiosProvider: React.FC = ({ children }) => {
       toast.success("Token refreshed successfully.");
     } catch (error) {
       toast.error("Failed to refresh token. Please log in again.");
-      // handleLogout(); // Uncomment and define this function if you need to handle logout
+      // Optionally handle logout
     } finally {
       setIsRefreshing(false);
     }
-  };
+  }, [cookies.refreshToken, isRefreshing, setCookie, axiosInstance]);
 
-  /** When 401  Error code found just invalidate and remove current tokens  */
-  const inValidateAuthentication = () => {
+  // Memoized function to invalidate authentication
+  const inValidateAuthentication = useCallback(() => {
     console.log("Unauthorized::Invalidating authentication and clearing cookies");
     removeCookie("aSToken");
     removeCookie("refreshToken");
     dispatch({ type: "RESET_STATE" });
-  };
+  }, [removeCookie, dispatch]);
 
   useEffect(() => {
     if (useRefreshToken) {
@@ -83,50 +77,41 @@ const AxiosProvider: React.FC = ({ children }) => {
         refreshAccessToken();
       }, refreshTokenInterval);
 
-      // Cleanup interval on component unmount
       return () => clearInterval(intervalId);
     }
-  }, [cookies.refreshToken]);
+  }, [refreshAccessToken]);
 
-  // Manage device client id and set it in the header
   useEffect(() => {
-    // Ifd device id is not set or changed then set it
     if (!deviceId) {
       setDeviceId(getOrCreateUniqueID());
     }
   }, [deviceId]);
 
   useEffect(() => {
-    const instance = axiosInstance.current;
-
-    const requestInterceptor = instance.interceptors.request.use(
+    const requestInterceptor = axiosInstance.interceptors.request.use(
       (config) => {
         if (config.headers && deviceId) {
           config.headers["X-Device-ID"] = deviceId;
         }
         const token = cookies.aSToken;
         if (token && config.headers) {
-          config.headers["Authorization"] = `BareerToken ${token}`;
+          config.headers["Authorization"] = `Bearer ${token}`;
         } else if (!token && config.headers && auth?.ast) {
-          config.headers["Authorization"] = `BareerToken ${auth.ast}`;
+          config.headers["Authorization"] = `Bearer ${auth.ast}`;
         }
-
+        console.log(`Request config::${config.url}`, config.headers);
         return config;
       },
       (error) => Promise.reject(error)
     );
 
-    const responseInterceptor = instance.interceptors.response.use(
+    const responseInterceptor = axiosInstance.interceptors.response.use(
       (response) => response,
       (error) => {
-        console.log("error from instance", error);
-
         if (!error.response) {
-          console.error("Network error or server is offline:", error.message);
           toast.error("Unable to connect to the server. Please check your network connection or try again later.");
         } else {
           const status = error.response.status;
-
           switch (status) {
             case 401:
               inValidateAuthentication();
@@ -138,8 +123,8 @@ const AxiosProvider: React.FC = ({ children }) => {
             case 429:
               toast.warn(
                 <div>
-                  <strong>Too many requests !</strong>
-                  <p>Too many requests. Please try again later.</p>
+                  <strong>Too many requests!</strong>
+                  <p>Please try again later.</p>
                 </div>
               );
               break;
@@ -147,19 +132,17 @@ const AxiosProvider: React.FC = ({ children }) => {
               toast.error(getErrorMessage(error));
           }
         }
-
         return Promise.reject(error);
       }
     );
 
-    // Cleanup interceptors on component unmount
     return () => {
-      instance.interceptors.request.eject(requestInterceptor);
-      instance.interceptors.response.eject(responseInterceptor);
+      axiosInstance.interceptors.request.eject(requestInterceptor);
+      axiosInstance.interceptors.response.eject(responseInterceptor);
     };
-  }, [cookies.aSToken, auth?.ast, deviceId]);
+  }, [cookies.aSToken, auth?.ast, deviceId, inValidateAuthentication, axiosInstance]);
 
-  return <AxiosContext.Provider value={axiosInstance.current}>{children}</AxiosContext.Provider>;
+  return <AxiosContext.Provider value={axiosInstance}>{children}</AxiosContext.Provider>;
 };
 
 export const useAxios = () => {
