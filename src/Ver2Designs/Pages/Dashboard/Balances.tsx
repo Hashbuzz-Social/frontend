@@ -5,7 +5,7 @@ import ClickAwayListener from "@mui/material/ClickAwayListener";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Popper from "@mui/material/Popper";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { unstable_batchedUpdates } from "react-dom";
 import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
@@ -15,7 +15,7 @@ import { BalOperation, EntityBalances } from "../../../types";
 
 import { cardStyle } from "./CardGenUtility";
 import TopupModal from "./TopupModal";
-import { useStore } from "@store/hooks";
+import { useBalances, useStore } from "@store/hooks";
 import useSession from "@wallet/hooks/useSessions";
 import { isAllowedToCmapigner, isAnyBalancesIsAvailable } from "utils/helpers";
 
@@ -40,6 +40,7 @@ const Balances = () => {
   const [topupModalData, setTopupModalData] = useState<EntityBalances | null>(null);
 
   const { MirrorNodeRestAPI, User } = useApiInstance();
+  const { checkAndUpdateEntityBalances } = useBalances();
   const [balanceList, setBalanceList] = React.useState<{ operation: BalOperation }>({ operation: "topup" });
   const topUpButtonsListRef = React.useRef<HTMLDivElement>(null);
   const [entityListEl, setEntityEl] = React.useState<HTMLElement | null>(null);
@@ -98,11 +99,14 @@ const Balances = () => {
     }
   };
 
-  const handleTopupOrReimClick = (operation: BalOperation, event?: React.MouseEvent) => {
+  const handleTopupOrReimClick = async (operation: BalOperation, event?: React.MouseEvent) => {
     event?.preventDefault();
     if (!selectedSigner) {
       toast.warning("Connect wallet first then retry topup.");
     } else {
+      if (balances?.length === 0) {
+        await checkAndUpdateEntityBalances();
+      }
       unstable_batchedUpdates(() => {
         setBalanceList({
           operation,
@@ -125,10 +129,10 @@ const Balances = () => {
   // };
 
   //update balance on the first mount
-  // useEffect(()=> {
-  //   console.log("i am calld")
-  //   // checkAndUpdateEntityBalances();
-  // },[])
+  useEffect(() => {
+    console.log("i am calld");
+    checkAndUpdateEntityBalances();
+  }, []);
 
   const topUpButtons = [<Button key="reimburse" startIcon={<RemoveCircle />} disabled={!isAllowedToCmapigner(store?.currentUser?.role)} title="Reimburse from hashbuzz contract to your wallet" onClick={() => handleTopupOrReimClick("reimburse")} />, <Button key="top-up" disabled={!isAllowedToCmapigner(store?.currentUser?.role)} startIcon={<AddCircle />} onClick={() => handleTopupOrReimClick("topup")} title="Topup your hashbuzz account for the campaign" />];
 
@@ -196,7 +200,7 @@ const Balances = () => {
                     endIcon={<KeyboardArrowDownIcon />}
                     onClick={(event) => handleTopupOrReimClick("topup", event)}
                   >
-                    Topup
+                    Topup Test
                   </Button>
                 </Stack>
               )}

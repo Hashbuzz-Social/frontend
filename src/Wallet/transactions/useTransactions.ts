@@ -1,5 +1,6 @@
 import React from "react"
 import useSession from '@wallet/hooks/useSessions';
+import { Buffer } from 'buffer'
 import { ExecuteTransactionParams } from "@hashgraph/hedera-wallet-connect";
 
 export const useSendTransaction = () => {
