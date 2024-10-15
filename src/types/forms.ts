@@ -37,7 +37,6 @@ type TopupAmounts = {
 export type CreateTransactionEntity = {
   entityType: string;
   entityId?: string;
-  senderId: string;
   amount: TopupAmounts;
   decimals?: number
 };
@@ -50,7 +49,7 @@ export type CreateTransactionByteBody = {
 export type SetTransactionBody = {
   entity: CreateTransactionEntity;
   transactionId?: string;
-  response?:string
+  response?: string
 };
 
 export type TopUpResponse = {

@@ -6,11 +6,13 @@ import { useApiInstance } from "APIConfig/api";
 import { useCallback } from "react";
 import { useCookies } from "react-cookie";
 import useAuthenticationHelpers from "./useAuthenticationHelpers";
+import { useStore } from "@store/hooks";
 
 const useAuthenticator = () => {
   // Session context to get the selected signer and network
   const { state, dAppConnector } = useSession();
   const { selectedSigner, network } = state || {};
+  const { dispatch } = useStore();
   const [a, _, removeCookies] = useCookies(["aSToken", "refreshToken"]);
   const { disconnect } = useDisconnectHandler();
   const { modalWrapper } = useAsyncStatusWrapper();
@@ -78,6 +80,8 @@ const useAuthenticator = () => {
       // remove cookies
       removeCookies("aSToken");
       removeCookies("refreshToken");
+
+      dispatch({ type: "RESET_STATE" });
 
       // Return boolean
       return true;

@@ -6,14 +6,18 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Popper from "@mui/material/Popper";
 import React, { useState } from "react";
+import { unstable_batchedUpdates } from "react-dom";
+import { toast } from "react-toastify";
 import { useApiInstance } from "../../../APIConfig/api";
 
 import HederaIcon from "../../../SVGR/HederaIcon";
 import { BalOperation, EntityBalances } from "../../../types";
-import { isAllowedToCmapigner, isAnyBalancesIsAvailable } from "../../../utils/helpers";
+
 import { cardStyle } from "./CardGenUtility";
 import TopupModal from "./TopupModal";
 import { useStore } from "@store/hooks";
+import useSession from "@wallet/hooks/useSessions";
+import { isAllowedToCmapigner, isAnyBalancesIsAvailable } from "utils/helpers";
 
 const formatBalance = (balObj: EntityBalances): string => {
   if (balObj) {
@@ -26,14 +30,14 @@ const formatBalance = (balObj: EntityBalances): string => {
 const Balances = () => {
   const theme = useTheme();
   const aboveXs = useMediaQuery(theme.breakpoints.up("sm"));
+
   const store = useStore();
+  const { state: wcState } = useSession();
   const balances = store.balances;
+  const { selectedSigner } = wcState;
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [topupModalData, setTopupModalData] = useState<EntityBalances | null>(null);
-
-  // const { pairingData } = useHashconnectService();
-  // const connectToExtension = useConnectToExtension();
 
   const { MirrorNodeRestAPI, User } = useApiInstance();
   const [balanceList, setBalanceList] = React.useState<{ operation: BalOperation }>({ operation: "topup" });
@@ -61,54 +65,53 @@ const Balances = () => {
     setEntityEl(null);
   };
 
-  // const handleMenuItemClick = async (event: React.MouseEvent<HTMLLIElement, MouseEvent>, index: number) => {
-  //   event.preventDefault();
-  //   const entity = balances![index];
-  //   if (balanceList.operation === "topup") {
-  //     //Start Operation for the top up
-  //     // const accountId = pairingData?.accountIds[0];
-  //     if (accountId) {
-  //       // Request for the balances for the account id
-  //       const accountBalReq = await MirrorNodeRestAPI.getBalancesForAccountId(accountId);
-  //       const accountBal = accountBalReq.data.balances.find((b) => b.account === accountId);
+  const handleMenuItemClick = async (event: React.MouseEvent<HTMLLIElement, MouseEvent>, index: number) => {
+    event.preventDefault();
+    const entity = balances![index];
+    if (balanceList.operation === "topup") {
+      //Start Operation for the top up
+      const accountId = selectedSigner?.getAccountId().toString();
+      if (accountId) {
+        // Request for the balances for the account id
+        const accountBalReq = await MirrorNodeRestAPI.getBalancesForAccountId(accountId);
+        const accountBal = accountBalReq.data.balances.find((b) => b.account === accountId);
 
-  //       // User is asking for the topup of fiet hbar
-  //       if (entity.entityType === "HBAR") {
-  //         console.log("listed for the hbar", accountBal?.balance);
-  //         if (accountBal?.balance) setTopupModalData(entity);
-  //         else {
-  //           alert("Insufficient balance");
-  //           toast.warning("Insufficient fund to the account.");
-  //         }
-  //       } else {
-  //         const tokenBalance = accountBal?.tokens.find((t) => t.token_id === entity.entityId);
-  //         tokenBalance && tokenBalance.balance > 0 ? setTopupModalData(entity) : toast.warning(`Paired account have insufficient token balance for the token ${entity?.entityIcon}.`);
-  //       }
-  //     }
-  //     setBalanceList((_d) => ({ ..._d, open: false }));
-  //   } else {
-  //     unstable_batchedUpdates(() => {
-  //       setTopupModalData(entity);
-  //       setBalanceList((_d) => ({ ..._d, open: false }));
-  //     });
-  //   }
-  // };
+        // User is asking for the topup of fiet hbar
+        if (entity.entityType === "HBAR") {
+          console.log("listed for the hbar", accountBal?.balance);
+          if (accountBal?.balance) setTopupModalData(entity);
+          else {
+            alert("Insufficient balance");
+            toast.warning("Insufficient fund to the account.");
+          }
+        } else {
+          const tokenBalance = accountBal?.tokens.find((t) => t.token_id === entity.entityId);
+          tokenBalance && tokenBalance.balance > 0 ? setTopupModalData(entity) : toast.warning(`Paired account have insufficient token balance for the token ${entity?.entityIcon}.`);
+        }
+      }
+      setBalanceList((_d) => ({ ..._d, open: false }));
+    } else {
+      unstable_batchedUpdates(() => {
+        setTopupModalData(entity);
+        setBalanceList((_d) => ({ ..._d, open: false }));
+      });
+    }
+  };
 
-  // const handleTopupOrReimClick = (operation: BalOperation, event?: React.MouseEvent) => {
-  //   event?.preventDefault();
-  //   if (!pairingData) {
-  //     toast.warning("Connect wallet first then retry topup.");
-  //     connectToExtension();
-  //   } else {
-  //     unstable_batchedUpdates(() => {
-  //       setBalanceList({
-  //         operation,
-  //       });
-  //       //@ts-ignore
-  //       setEntityEl(event ? event?.target : topUpButtonsListRef.current);
-  //     });
-  //   }
-  // };
+  const handleTopupOrReimClick = (operation: BalOperation, event?: React.MouseEvent) => {
+    event?.preventDefault();
+    if (!selectedSigner) {
+      toast.warning("Connect wallet first then retry topup.");
+    } else {
+      unstable_batchedUpdates(() => {
+        setBalanceList({
+          operation,
+        });
+        //@ts-ignore
+        setEntityEl(event ? event?.target : topUpButtonsListRef.current);
+      });
+    }
+  };
 
   // const syncBalance = async (evennt: React.MouseEvent) => {
   //   const tokenId = balances![activeIndex].entityId;
@@ -127,22 +130,7 @@ const Balances = () => {
   //   // checkAndUpdateEntityBalances();
   // },[])
 
-  const topUpButtons = [
-    <Button
-      key="reimburse"
-      startIcon={<RemoveCircle />}
-      disabled={!isAllowedToCmapigner(store?.currentUser?.role)}
-      title="Reimburse from hashbuzz contract to your wallet"
-    //  onClick={() => handleTopupOrReimClick("reimburse")}
-    />,
-    <Button
-      key="top-up"
-      disabled={!isAllowedToCmapigner(store?.currentUser?.role)}
-      startIcon={<AddCircle />}
-      // onClick={() => handleTopupOrReimClick("topup")}
-      title="Topup your hashbuzz account for the campaign"
-    />,
-  ];
+  const topUpButtons = [<Button key="reimburse" startIcon={<RemoveCircle />} disabled={!isAllowedToCmapigner(store?.currentUser?.role)} title="Reimburse from hashbuzz contract to your wallet" onClick={() => handleTopupOrReimClick("reimburse")} />, <Button key="top-up" disabled={!isAllowedToCmapigner(store?.currentUser?.role)} startIcon={<AddCircle />} onClick={() => handleTopupOrReimClick("topup")} title="Topup your hashbuzz account for the campaign" />];
 
   return (
     <React.Fragment>
@@ -206,7 +194,7 @@ const Balances = () => {
                     startIcon={"ℏ"}
                     disabled={!isAllowedToCmapigner(store?.currentUser?.role)}
                     endIcon={<KeyboardArrowDownIcon />}
-                  // onClick={(event) => handleTopupOrReimClick("topup", event)}
+                    onClick={(event) => handleTopupOrReimClick("topup", event)}
                   >
                     Topup
                   </Button>
@@ -235,10 +223,7 @@ const Balances = () => {
                   <ClickAwayListener onClickAway={handleCloseEntityList}>
                     <MenuList id="entityList-for-topup" autoFocusItem>
                       {balances!.map((bal, index) => (
-                        <MenuItem
-                          disabled={!isAllowedToCmapigner(store?.currentUser?.role)}
-                        // onClick={(event) => handleMenuItemClick(event, index)}
-                        >
+                        <MenuItem disabled={!isAllowedToCmapigner(store?.currentUser?.role)} onClick={(event) => handleMenuItemClick(event, index)}>
                           <ListItemAvatar>{bal?.entityIcon}</ListItemAvatar>
                           <ListItemText>
                             {formatBalance(bal)} {bal.entitySymbol + " "}
