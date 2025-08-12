@@ -37,7 +37,7 @@ const getButtonLabel = (campaignStats: CampaignStatus, campaignStartTime: number
     case CampaignStatus.CampaignApproved:
       return "Start";
     case CampaignStatus.CampaignRunning:
-      const campaignDuration = config?.campaignDuration ?? process.env.REACT_APP_CAMPAIGN_DURATION ?? 1440;
+      const campaignDuration = config?.campaignDuration ?? import.meta.env.VITE_CAMPAIGN_DURATION ?? 1440;
       return <Countdown date={Number(new Date(campaignStartTime).getTime()) + Number(campaignDuration) * 60 * 1000} />;
     default:
       return "Update";
@@ -155,7 +155,7 @@ const CampaignList = () => {
         return;
       }
 
-      const isCampaignRunningOrPending = (status: CampaignStatus) => new Set([CampaignStatus.CampaignRunning, CampaignStatus.ApprovalPending, CampaignStatus.CampaignDeclined]).has(status);
+      const isCampaignRunningOrPending = (status: CampaignStatus) => new Set([CampaignStatus.CampaignRunning, CampaignStatus.ApprovalPending]).has(status);
 
       const campaignData = allCampaigns.map((item) => ({
         id: item.id,
