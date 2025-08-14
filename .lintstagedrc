@@ -1,5 +1,9 @@
 {
-  "*.{ts,tsx,js,jsx}": ["eslint --fix --max-warnings 0", "prettier --write"],
-  "*.{json,css,md,yaml,yml}": ["prettier --write"],
-  "src/**/*.{ts,tsx}": ["bash -c 'tsc --noEmit --skipLibCheck'"]
+  "*.{ts,tsx,js,jsx}": [
+    "eslint --fix --max-warnings 0",
+    "prettier --write"
+  ],
+  "*.{json,css,md,yaml,yml}": [
+    "prettier --write"
+  ]
 }

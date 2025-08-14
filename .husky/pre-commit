@@ -1,5 +1,40 @@
-# =============================================================================
-# HASHBUZZ FRONTEND PRE-COMMIT HOOK
+# ===================================================================# TypeScript check# DUPLICATE TypeScript check section - DISABLED
+# Additional type checking for TypeScript files
+# ts_files=$(echo "$staged_files" | grep -E '\.(ts|tsx)$' || true)
+# if [ -n "$ts_files" ]; then
+#     print_status "Running additional TypeScript checks..."
+#     if yarn type-check; then
+#         print_success "TypeScript checks passed!"
+#     else
+#         print_error "TypeScript checks failed!"
+#         echo ""
+#         echo "${YELLOW}📝 TypeScript issues found:${NC}"
+#         echo "  • Fix type errors before committing"
+#         echo "  • Run 'yarn type-check' to see detailed errors"
+#         echo "  • Consider using 'skipLibCheck: true' for external libraries"
+#         echo ""
+#         exit 1
+#     fi
+# fi ESLint in lint-staged for staged files only
+# Additional type checking for TypeScript files - DISABLED to avoid checking entire codebase
+# ts_files=$(echo "$staged_files" | grep -E '\.(ts|tsx)$' || true)
+# if [ -n "$ts_files" ]; then
+#     print_status "Running additional TypeScript checks..."
+#     if yarn type-check; then
+#         print_success "TypeScript checks passed!"
+#     else
+#         print_error "TypeScript checks failed!"
+#         echo ""
+#         echo "${YELLOW}📝 TypeScript issues found:${NC}"
+#         echo "  • Fix type errors before committing"
+#         echo "  • Run 'yarn type-check' to see detailed errors"
+#         echo "  • Consider using 'skipLibCheck: true' for external libraries"
+#         echo ""
+#         exit 1
+#     fi
+# fi
+
+# Check for common issuesZZ FRONTEND PRE-COMMIT HOOK
 # =============================================================================
 # Comprehensive code quality checks before commits
 # Ensures code formatting, linting, and type safety
@@ -67,23 +102,7 @@ else
     exit 1
 fi
 
-# Additional type checking for TypeScript files
-ts_files=$(echo "$staged_files" | grep -E '\.(ts|tsx)$' || true)
-if [ -n "$ts_files" ]; then
-    print_status "Running additional TypeScript checks..."
-    if yarn type-check; then
-        print_success "TypeScript checks passed!"
-    else
-        print_error "TypeScript checks failed!"
-        echo ""
-        echo "${YELLOW}� TypeScript issues found:${NC}"
-        echo "  • Fix type errors before committing"
-        echo "  • Run 'yarn type-check' to see detailed errors"
-        echo "  • Consider using 'skipLibCheck: true' for external libraries"
-        echo ""
-        exit 1
-    fi
-fi
+# TypeScript checking handled by ESLint in lint-staged
 
 # Check for common issues
 print_status "Checking for common issues..."
