@@ -1,26 +1,40 @@
 import InfoIcon from "@mui/icons-material/Info";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { Box, Button, Card, Divider, Stack, Typography } from "@mui/material";
-import { DataGrid, GridColDef, GridRowsProp } from "@mui/x-data-grid";
+import { Box, Button, Card, Divider, Stack, Typography, CircularProgress } from "@mui/material";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { uniqBy } from "lodash";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 import Countdown from "react-countdown";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useApiInstance } from "../../../../APIConfig/api";
-import { useStore } from "../../../../Store/StoreProvider";
 import { CampaignStatus } from "../../../../Utilities/helpers";
-import { Loader } from "../../../../components/Loader/Loader";
 import DetailsModal from "../../../../components/PreviewModal/DetailsModal";
 import { CampaignCommands, UserConfig } from "../../../../types";
 import AssociateModal from "../AssociateModal";
-import { cardStyle } from "../CardGenUtility";
 import AdminActionButtons from "./AdminActionButtons";
 import CampaignCardDetailModal from "./CampaignCardDetailModal";
 import { campaignListColumnsAdmin } from "./CampaignListColumnsAdmin";
 import { claimRewardCampaignColumns } from "./ClaimRewardCampaignList";
 import TabNavigation, { TabsLabel } from "./TabNavigationComponent";
 import { campaignListColumns } from "./campaignListCoulmns";
+import { useAppSelector, useAppDispatch } from "@/Store/store";
+import { 
+  setActiveTab, 
+  setOpen, 
+  setOpenAssociateModal,
+  setPreviewCard,
+  setButtonDisabled
+} from "@/Store/campaignListSlice";
+import { 
+  useGetCampaignsQuery,
+  useUpdateCampaignStatusMutation,
+  useGetRewardDetailsQuery,
+  useClaimRewardsMutation
+} from "@/API/campaign";
+import {
+  useGetPendingCampaignsQuery,
+  useUpdateCampaignStatusMutation as useUpdateAdminStatusMutation
+} from "@/Ver2Designs/Admin/api/admin";
 
 const isButtonDisabled = (campaignStats: CampaignStatus, approve: boolean) => {
   const disabledStatuses = new Set([CampaignStatus.RewardDistributionInProgress, CampaignStatus.CampaignDeclined, CampaignStatus.RewardsDistributed, CampaignStatus.CampaignRunning, CampaignStatus.ApprovalPending]);
@@ -37,14 +51,14 @@ const getButtonLabel = (campaignStats: CampaignStatus, campaignStartTime: number
     case CampaignStatus.CampaignApproved:
       return "Start";
     case CampaignStatus.CampaignRunning:
-      const campaignDuration = config?.campaignDuration ?? import.meta.env.VITE_CAMPAIGN_DURATION ?? 1440;
+      const campaignDuration = config?.campaignDuration ?? 1440;
       return <Countdown date={Number(new Date(campaignStartTime).getTime()) + Number(campaignDuration) * 60 * 1000} />;
     default:
       return "Update";
   }
 };
 
-const getCmapignCommand = (status: CampaignStatus): CampaignCommands => {
+const getCampaignCommand = (status: CampaignStatus): CampaignCommands => {
   switch (status) {
     case CampaignStatus.CampaignApproved:
       return CampaignCommands.StartCampaign;
@@ -64,238 +78,218 @@ const getCmapignCommand = (status: CampaignStatus): CampaignCommands => {
 
 const CampaignList = () => {
   const navigate = useNavigate();
-  const { User, Admin, Campaign } = useApiInstance();
-  const store = useStore();
-  const { currentUser, balances } = store;
+  const dispatch = useAppDispatch();
+  
+  // Redux state
+  const { currentUser, balances } = useAppSelector(s => s.app);
+  const {
+    activeTab,
+    modalData,
+    open,
+    openAssociateModal,
+    previewCard,
+    buttonDisabled
+  } = useAppSelector(s => s.campaignList);
+  
   const userRole = currentUser?.role;
   const isAdmin = userRole && ["ADMIN", "SUPER_ADMIN"].includes(userRole);
 
-  const [openAssociateModal, setOpenAssociateModal] = useState<boolean>(false);
-  const [open, setOpen] = useState<boolean>(false);
-  const [modalData, setModalData] = useState<Object>({});
-  const [adminPendingCards, setAdminPendingCards] = useState([]);
-  const [claimPendingRewards, setClaimPendingRewards] = useState([]);
-  const [activeTab, setActiveTab] = useState<TabsLabel>("all");
-  const [buttonDisabled, setButtonDisabled] = useState(false);
-  const [runningCampaigns, setRunningCampaigns] = useState(false);
-  const [rows, setRows] = React.useState<GridRowsProp>([]);
-  const [loading, setLoading] = React.useState(false);
-  const [previewCard, setPreviewCard] = useState<any>(null);
+  // RTK Query hooks
+  const { data: campaigns = [], isLoading: campaignsLoading, refetch: refetchCampaigns } = useGetCampaignsQuery();
+  const { data: pendingCampaigns = [], isLoading: pendingLoading, refetch: refetchPending } = useGetPendingCampaignsQuery(undefined, {
+    skip: !isAdmin
+  });
+  const { data: claimRewards = [], isLoading: claimLoading, refetch: refetchClaims } = useGetRewardDetailsQuery();
+  
+  const [updateCampaignStatus] = useUpdateCampaignStatusMutation();
+  const [updateAdminStatus] = useUpdateAdminStatusMutation();
+  const [claimRewardsMutation] = useClaimRewardsMutation();
+
+  const handleTabChange = useCallback((tab: TabsLabel) => {
+    dispatch(setActiveTab(tab));
+  }, [dispatch]);
 
   const handleTemplate = () => {
-    navigate("/campaign");
+    navigate("/app/create-campaign");
   };
 
-  const getAllPendingCampaigns = useCallback(async () => {
+  const handleCard = async (_id: number) => {
     try {
-      const response = await Admin.getPendingCards();
-      setAdminPendingCards(response);
-    } catch (err) {
-      console.log(err);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const getClaimAllRewards = useCallback(async () => {
-    try {
-      const response = await User.getClaimRewards();
-      //@ts-ignore;
-      // setClaimPendingRewards((prev) => uniqBy([...prev, ...response.rewardDetails], "id"));
+      // TODO: Implement card engagement query
+      dispatch(setOpen(true));
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
-  }, []);
-
-  useEffect(() => {
-    if (isAdmin) {
-      getAllPendingCampaigns();
-    }
-    // getClaimAllRewards();
-  }, [getAllPendingCampaigns, currentUser?.hedera_wallet_id, getClaimAllRewards]);
-
-  const handleCard = async (id: number) => {
-    const res = await User.getCardEngagement({ id: id });
-    setModalData(res.data);
-    setOpen(true);
   };
 
   const handleClick = async (values: any) => {
     try {
-      setLoading(true);
-
-      const campaign_command = getCmapignCommand(values?.card_status as CampaignStatus);
+      const campaign_command = getCampaignCommand(values?.card_status as CampaignStatus);
 
       if (campaign_command === CampaignCommands.UserNotAvalidCommand) {
-        return toast.warning("Not a valid action for this capaign");
+        toast.warning("Not a valid action for this campaign");
+        return;
       }
 
       const data = {
         card_id: values.id,
         campaign_command,
       };
-      const response = await Campaign.updateCampaignStatus(data);
+      
+      const response = await updateCampaignStatus(data).unwrap();
       if (response) {
-        getAllCampaigns();
+        refetchCampaigns();
         toast.success(response.message);
-        setLoading(false);
       }
     } catch (err: any) {
-      console.log(err);
-      toast.error(err?.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getAllCampaigns = async () => {
-    try {
-      const allCampaigns = await Campaign.getCampaigns();
-
-      if (!allCampaigns || allCampaigns.length === 0) {
-        setRows([]);
-        return;
-      }
-
-      const isCampaignRunningOrPending = (status: CampaignStatus) => new Set([CampaignStatus.CampaignRunning, CampaignStatus.ApprovalPending]).has(status);
-
-      const campaignData = allCampaigns.map((item) => ({
-        id: item.id,
-        name: item.name,
-        card_status: item.card_status,
-        campaign_budget: item.campaign_budget,
-        amount_spent: item.amount_spent,
-        amount_claimed: item.amount_claimed,
-        fungible_token_id: item.fungible_token_id,
-        type: item.type,
-        campaign_start_time: item.campaign_start_time,
-        decimals: item.decimals,
-        approve: item.approve,
-      }));
-
-      const hasRunningCampaigns = allCampaigns.some((item: any) => isCampaignRunningOrPending(item.card_status));
-      setRunningCampaigns(hasRunningCampaigns);
-      setRows(campaignData);
-    } catch (err) {
       console.error(err);
+      toast.error(err?.message || 'Failed to update campaign status');
     }
   };
 
-  React.useEffect(() => {
-    getAllCampaigns();
-  }, []);
-
-  const handleCardsRefresh = () => {
-    getAllCampaigns();
-  };
-
-  const handleAdminAction = async (command: CampaignCommands.AdminRejectedCampaign | CampaignCommands.AdminApprovedCampaign, cellValues: any) => {
+  const handleAdminAction = async (
+    command: CampaignCommands.AdminRejectedCampaign | CampaignCommands.AdminApprovedCampaign, 
+    cellValues: any
+  ) => {
     try {
       const data = {
         approve: Boolean(command === CampaignCommands.AdminApprovedCampaign),
         id: cellValues?.row?.id,
       };
 
-      const response = await Admin.updateStatus(data);
-      getAllPendingCampaigns();
-      getAllCampaigns();
-      toast(response?.message);
+      const response = await updateAdminStatus(data).unwrap();
+      refetchPending();
+      refetchCampaigns();
+      toast.success(response?.message);
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      toast.error('Failed to update admin status');
     }
   };
 
-  const handleCreateCampaignDisablity = React.useCallback(() => {
+  const handleCreateCampaignDisability = useCallback(() => {
     const entityBal = Boolean(balances.find((b) => +b.entityBalance > 0));
-    const isDisabled = Boolean(!entityBal || runningCampaigns || !currentUser?.business_twitter_handle);
-    return isDisabled;
-  }, [currentUser, runningCampaigns, balances]);
+    const runningCampaigns = campaigns.some((campaign: any) => 
+      [CampaignStatus.CampaignRunning, CampaignStatus.ApprovalPending].includes(campaign.card_status)
+    );
+    return !entityBal || runningCampaigns || !currentUser?.business_twitter_handle;
+  }, [currentUser, campaigns, balances]);
 
-  /**
-   * columns list for claim reward tab
-   */
-  const CLAIMREWARDS: GridColDef[] = [
+  const handleCardsRefresh = () => {
+    refetchCampaigns();
+    refetchPending();
+    refetchClaims();
+  };
+
+  // Transform campaigns data for DataGrid
+  const campaignRows = useMemo(() => {
+    if (!campaigns || campaigns.length === 0) return [];
+    
+    return campaigns.map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      card_status: item.card_status,
+      campaign_budget: item.campaign_budget,
+      amount_spent: item.amount_spent,
+      amount_claimed: item.amount_claimed,
+      fungible_token_id: item.fungible_token_id,
+      type: item.type,
+      campaign_start_time: item.campaign_start_time,
+      decimals: item.decimals,
+      approve: item.approve,
+    }));
+  }, [campaigns]);
+
+  // Column definitions with actions
+  const CLAIMREWARDS: GridColDef[] = useMemo(() => [
     ...claimRewardCampaignColumns,
     {
       field: "action",
       headerName: "Actions",
       width: 200,
-      renderCell: (cellValues) => {
-        console.log(cellValues, "cellValues");
-        return (
-          <>
-            <Button
-              variant="contained"
-              color="primary"
-              disabled={buttonDisabled}
-              onClick={async () => {
-                const data = {
-                  contract_id: cellValues?.row?.contract_id,
-                  card_id: cellValues?.row?.id,
-                };
-                try {
-                  setButtonDisabled(true);
-                  const response = await User.buttonClaimRewards(data);
-                  getClaimAllRewards();
-                  getAllCampaigns();
-                  toast(response?.message);
-                  setButtonDisabled(false);
-                } catch (err) {
-                  console.log(err);
-                  setButtonDisabled(false);
-                }
-              }}
-            >
-              {cellValues?.row?.card_status === CampaignStatus.RewardsDistributed ? "Campaign Expired" : "Claim Rewards"}
-            </Button>
-          </>
-        );
-      },
+      renderCell: (cellValues) => (
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={buttonDisabled}
+          onClick={async () => {
+            const data = {
+              contract_id: cellValues?.row?.contract_id,
+              card_id: cellValues?.row?.id,
+            };
+            try {
+              dispatch(setButtonDisabled(true));
+              const response = await claimRewardsMutation(data).unwrap();
+              refetchClaims();
+              refetchCampaigns();
+              toast.success(response?.message);
+            } catch (err) {
+              console.error(err);
+              toast.error('Failed to claim rewards');
+            } finally {
+              dispatch(setButtonDisabled(false));
+            }
+          }}
+        >
+          {cellValues?.row?.card_status === CampaignStatus.RewardsDistributed ? "Campaign Expired" : "Claim Rewards"}
+        </Button>
+      ),
     },
-  ];
+  ], [buttonDisabled, claimRewardsMutation, refetchClaims, refetchCampaigns, dispatch]);
 
-  /** Column Def List for the user all campaign  list */
-  const columns: GridColDef[] = [
+  const columns: GridColDef[] = useMemo(() => [
     ...campaignListColumns,
     {
       field: "action",
       headerName: "Actions",
       width: 200,
-      renderCell: (cellValues) => {
-        return (
-          <>
-            <Button variant="contained" color="primary" disabled={isButtonDisabled(cellValues.row.card_status, cellValues.row.approve)} onClick={() => handleClick(cellValues.row)}>
-              {getButtonLabel(cellValues.row.card_status, cellValues.row.campaign_start_time, currentUser?.config)}
-            </Button>
-            <div className="info-icon" onClick={() => handleCard(cellValues.row.id)}>
-              <InfoIcon />
-            </div>
-          </>
-        );
-      },
+      renderCell: (cellValues) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            disabled={isButtonDisabled(cellValues.row.card_status, cellValues.row.approve)} 
+            onClick={() => handleClick(cellValues.row)}
+          >
+            {getButtonLabel(cellValues.row.card_status, cellValues.row.campaign_start_time, currentUser?.config)}
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => handleCard(cellValues.row.id)}
+          >
+            <InfoIcon />
+          </Button>
+        </Box>
+      ),
     },
-  ];
+  ], [currentUser?.config]);
 
-  /**
-   * Coumns for addin table comuns
-   */
-  const ADMINCOLUMNS: GridColDef[] = [
+  const ADMINCOLUMNS: GridColDef[] = useMemo(() => [
     ...campaignListColumnsAdmin,
     {
       field: "action",
       headerName: "Actions",
       width: 200,
-      renderCell: (cellValues) => <AdminActionButtons cellValues={cellValues} handleAdminAction={handleAdminAction} setPreviewCard={setPreviewCard} />,
+      renderCell: (cellValues) => (
+        <AdminActionButtons 
+          cellValues={cellValues} 
+          handleAdminAction={handleAdminAction} 
+          setPreviewCard={(card) => dispatch(setPreviewCard(card))} 
+        />
+      ),
     },
-  ];
+  ], [handleAdminAction, dispatch]);
 
   const getRows = useCallback(() => {
     if (activeTab === "pending" && isAdmin) {
-      return adminPendingCards;
+      return uniqBy(pendingCampaigns, "id");
     }
     if (activeTab === "claimRewards") {
-      return uniqBy(claimPendingRewards, "id");
+      return uniqBy(claimRewards, "id");
     }
-    return uniqBy(rows, "id");
-  }, [activeTab, isAdmin, adminPendingCards, claimPendingRewards, rows]);
+    return uniqBy(campaignRows, "id");
+  }, [activeTab, isAdmin, pendingCampaigns, claimRewards, campaignRows]);
 
   const getColumns = useCallback(() => {
     if (activeTab === "pending" && isAdmin) {
@@ -307,21 +301,28 @@ const CampaignList = () => {
     return columns;
   }, [activeTab, isAdmin, ADMINCOLUMNS, CLAIMREWARDS, columns]);
 
+  const isLoading = campaignsLoading || pendingLoading || claimLoading;
+
   return (
     <Box>
       <Box
         sx={{
           marginTop: 4,
           marginBottom: 2,
-          backgroundColor: cardStyle.backgroundColor,
+          backgroundColor: 'white',
           border: 1,
-          borderColor: cardStyle.borderColor,
+          borderColor: 'rgba(224, 224, 224, 1)',
         }}
         elevation={0}
         component={Card}
       >
         <Box sx={{ p: 2 }}>
-          <Stack direction={{ xs: "column", sm: "column", md: "row" }} spacing={{ xs: 2, sm: 2 }} justifyContent="space-between" alignItems={{ xs: "left", sm: "left", md: "center" }}>
+          <Stack 
+            direction={{ xs: "column", sm: "column", md: "row" }} 
+            spacing={{ xs: 2, sm: 2 }} 
+            justifyContent="space-between" 
+            alignItems={{ xs: "left", sm: "left", md: "center" }}
+          >
             <Stack direction={"row"}>
               <Box sx={{ marginRight: 1 }}>
                 <InfoOutlinedIcon />
@@ -331,29 +332,102 @@ const CampaignList = () => {
               </Typography>
             </Stack>
             {isAdmin && (
-              <Button size="large" variant="contained" disableElevation onClick={() => setOpenAssociateModal(true)}>
+              <Button 
+                size="large" 
+                variant="contained" 
+                disableElevation 
+                onClick={() => dispatch(setOpenAssociateModal(true))}
+              >
                 Associate
               </Button>
             )}
-            <a style={{ textDecoration: "none", fontSize: "16px", color: "white", backgroundColor: "#10A37F", borderRadius: "4px", padding: "10px", textAlign: "center" }} href="https://chat.openai.com/g/g-cGD9GbBPY-hashbuzz" target="_blank" rel="noreferrer">
+            <Button
+              component="a"
+              href="https://chat.openai.com/g/g-cGD9GbBPY-hashbuzz"
+              target="_blank"
+              rel="noreferrer"
+              sx={{
+                textDecoration: "none",
+                fontSize: "16px",
+                color: "white",
+                backgroundColor: "#10A37F",
+                borderRadius: "4px",
+                padding: "10px",
+                textAlign: "center",
+                '&:hover': {
+                  backgroundColor: "#0e8c6b"
+                }
+              }}
+            >
               CONNECT WITH CHATGPT
-            </a>
-            <Button size="large" variant="contained" disableElevation disabled={handleCreateCampaignDisablity()} onClick={handleTemplate}>
+            </Button>
+            <Button 
+              size="large" 
+              variant="contained" 
+              disableElevation 
+              disabled={handleCreateCampaignDisability()} 
+              onClick={handleTemplate}
+            >
               Create Campaign
             </Button>
-            <AssociateModal open={openAssociateModal} onClose={() => setOpenAssociateModal(false)} />
           </Stack>
-          <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={!!isAdmin} handleCardsRefresh={handleCardsRefresh} />
+          <TabNavigation 
+            activeTab={activeTab} 
+            setActiveTab={handleTabChange} 
+            isAdmin={!!isAdmin} 
+            handleCardsRefresh={handleCardsRefresh} 
+          />
         </Box>
 
-        <Divider sx={{ borderColor: cardStyle.borderColor }} />
-        <Box sx={{ height: "calc(100vh - 436px)" }}>
-          <DataGrid rows={getRows()} columns={getColumns()} paginationMode="server" rowsPerPageOptions={[20]} />
+        <Divider sx={{ borderColor: 'rgba(224, 224, 224, 1)' }} />
+        <Box sx={{ height: "calc(100vh - 436px)", position: 'relative' }}>
+          {isLoading ? (
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              height: '100%' 
+            }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <DataGrid 
+              rows={getRows()} 
+              columns={getColumns()} 
+              pageSizeOptions={[20]}
+              loading={isLoading}
+              sx={{
+                '& .MuiDataGrid-cell': {
+                  borderColor: 'rgba(224, 224, 224, 1)',
+                },
+                '& .MuiDataGrid-columnHeaders': {
+                  borderColor: 'rgba(224, 224, 224, 1)',
+                },
+                '& .MuiDataGrid-footerContainer': {
+                  borderColor: 'rgba(224, 224, 224, 1)',
+                }
+              }}
+            />
+          )}
         </Box>
       </Box>
-      <DetailsModal open={open} setOpen={setOpen} data={modalData} />
-      <CampaignCardDetailModal open={Boolean(previewCard)} data={previewCard} onClose={() => setPreviewCard(null)} />
-      <Loader open={loading} />
+      
+      <DetailsModal 
+        open={open} 
+        setOpen={(isOpen: boolean) => dispatch(setOpen(isOpen))} 
+        data={modalData} 
+      />
+      
+      <CampaignCardDetailModal 
+        open={Boolean(previewCard)} 
+        data={previewCard} 
+        onClose={() => dispatch(setPreviewCard(null))} 
+      />
+      
+      <AssociateModal 
+        open={openAssociateModal} 
+        onClose={() => dispatch(setOpenAssociateModal(false))} 
+      />
     </Box>
   );
 };

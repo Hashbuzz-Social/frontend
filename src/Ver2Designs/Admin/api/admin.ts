@@ -87,6 +87,10 @@ export const adminApi = apiBase.injectEndpoints({
       query: () => '/api/admin/campaigns/all',
     }),
 
+    getPendingCampaigns: builder.query<CampaignCards[], void>({
+      query: () => '/api/admin/twitter-pending-cards',
+    }),
+
     updateCampaignStatus: builder.mutation<any, { approve: boolean; id: number }>({
       query: body => ({
         url: '/api/admin/update-status',
@@ -298,6 +302,8 @@ export const {
   // Campaign management hooks
   useGetAllCampaignsQuery,
   useLazyGetAllCampaignsQuery,
+  useGetPendingCampaignsQuery,
+  useLazyGetPendingCampaignsQuery,
   useUpdateCampaignStatusMutation,
   useGetCampaignLogsQuery,
   useFlagCampaignMutation,
