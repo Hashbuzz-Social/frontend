@@ -47,7 +47,23 @@
     "build": "vite build",
     "preview": "vite preview",
     "serve": "serve -s build -l 3000",
-    "start:prod": "serve -s build -l 3000"
+    "start:prod": "serve -s build -l 3000",
+    "start": "vite",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
+    "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,md}'",
+    "format:check": "prettier --check 'src/**/*.{ts,tsx,js,jsx,json,css,md}'",
+    "test": "echo \"Tests not configured yet\" && exit 0",
+    "test:watch": "echo \"Tests not configured yet\" && exit 0",
+    "test:coverage": "echo \"Tests not configured yet\" && exit 0",
+    "clean": "rm -rf dist node_modules/.vite",
+    "clean:all": "rm -rf dist node_modules yarn.lock && yarn install",
+    "build:analyze": "vite build --mode analyze",
+    "build:staging": "vite build --mode staging",
+    "build:production": "vite build --mode production",
+    "validate": "yarn type-check && yarn lint && yarn format:check",
+    "prepare": "yarn validate"
   },
   "browserslist": {
     "production": [
