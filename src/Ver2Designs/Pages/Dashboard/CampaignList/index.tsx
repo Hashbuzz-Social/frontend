@@ -12,7 +12,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@/Store/store';
 import {
   useGetPendingCampaignsQuery,
-  useUpdateCampaignStatusMutation as useUpdateAdminStatusMutation,
+  useUpdateCampaignStatusMutation as useUpdateCampaignStatusByAdminMutation,
 } from '@/Ver2Designs/Admin/api/admin';
 import InfoIcon from '@mui/icons-material/Info';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -145,7 +145,7 @@ const CampaignList = () => {
   } = useGetRewardDetailsQuery();
 
   const [updateCampaignStatus] = useUpdateCampaignStatusMutation();
-  const [updateAdminStatus] = useUpdateAdminStatusMutation();
+  const [updateAdminStatus] = useUpdateCampaignStatusByAdminMutation();
 
   const handleTabChange = useCallback(
     (tab: TabsLabel) => {
@@ -221,7 +221,6 @@ const CampaignList = () => {
           approve: Boolean(command === CampaignCommands.AdminApprovedCampaign),
           id: cellValues?.row?.id,
         };
-
         const response = await updateAdminStatus(data).unwrap();
         refetchPending();
         refetchCampaigns();
