@@ -1,6 +1,6 @@
 {
   "name": "hashbuzz",
-  "version": "0.1.12",
+  "version": "2.0.0",
   "private": true,
   "dependencies": {
     "@buidlerlabs/hashgraph-react-wallets": "^2.5.0",
@@ -40,7 +40,6 @@
     "react-router-dom": "^6.14.1",
     "react-toastify": "^11.0.5",
     "styled-components": "^5.3.3",
-    "typescript": "^5.2.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -48,7 +47,41 @@
     "build": "vite build",
     "preview": "vite preview",
     "serve": "serve -s build -l 3000",
-    "start:prod": "serve -s build -l 3000"
+    "start:prod": "serve -s build -l 3000",
+    "start": "vite",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
+    "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,md}'",
+    "format:check": "prettier --check 'src/**/*.{ts,tsx,js,jsx,json,css,md}'",
+    "test": "echo \"Tests not configured yet\" && exit 0",
+    "test:watch": "echo \"Tests not configured yet\" && exit 0",
+    "test:coverage": "echo \"Tests not configured yet\" && exit 0",
+    "clean": "rm -rf dist node_modules/.vite",
+    "clean:all": "rm -rf dist node_modules yarn.lock && yarn install",
+    "build:analyze": "vite build --mode analyze",
+    "build:staging": "vite build --mode staging",
+    "build:production": "vite build --mode production",
+    "validate": "yarn type-check && yarn lint && yarn format:check",
+    "prepare": "husky install || true",
+    "pre-commit": "lint-staged",
+    "commit": "git-cz",
+    "fix-all": "yarn lint:fix && yarn format && echo 'All fixable issues resolved!'",
+    "check-all": "yarn type-check && yarn lint && yarn format:check && echo 'All checks passed!'",
+    "husky:install": "husky install",
+    "husky:uninstall": "husky uninstall"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ],
+    "*.{ts,tsx}": [
+      "tsc --noEmit --skipLibCheck"
+    ]
   },
   "browserslist": {
     "production": [
@@ -80,6 +113,8 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
     "prettier": "^3.5.3",
     "serve": "^14.2.4",
     "typescript": "^5.8.2",
