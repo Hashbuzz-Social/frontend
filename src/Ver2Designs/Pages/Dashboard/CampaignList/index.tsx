@@ -11,8 +11,8 @@ import {
 } from '@/Store/campaignListSlice';
 import { useAppDispatch, useAppSelector } from '@/Store/store';
 import {
+  useApproveCampaignMutation,
   useGetPendingCampaignsQuery,
-  useUpdateCampaignStatusMutation as useUpdateCampaignStatusByAdminMutation,
 } from '@/Ver2Designs/Admin/api/admin';
 import InfoIcon from '@mui/icons-material/Info';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -145,7 +145,7 @@ const CampaignList = () => {
   } = useGetRewardDetailsQuery();
 
   const [updateCampaignStatus] = useUpdateCampaignStatusMutation();
-  const [updateAdminStatus] = useUpdateCampaignStatusByAdminMutation();
+  const [updateAdminStatus] = useApproveCampaignMutation();
 
   const handleTabChange = useCallback(
     (tab: TabsLabel) => {

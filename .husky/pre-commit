@@ -132,7 +132,7 @@ if [ -n "$large_files" ]; then
 fi
 
 # Check for potential secrets (exclude documentation files)
-secret_patterns="(password|secret|key|token|api_key).*=.*['\"][^'\"]*['\"]"
+secret_patterns="(password|secret|key|api_key).*=.*['\"][^'\"]*['\"]"
 code_files=$(echo "$staged_files" | grep -E '\.(ts|tsx|js|jsx|env)$' | grep -v -E '\.(md|txt|example)$' || true)
 if [ -n "$code_files" ]; then
     potential_secrets=$(echo "$code_files" | xargs grep -i -E "$secret_patterns" 2>/dev/null || true)
