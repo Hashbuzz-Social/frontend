@@ -4,8 +4,8 @@ import {
   EmojiEmotions as EmojiIcon,
   Image as ImageIcon,
   Preview as PreviewIcon,
-  YouTube as YouTubeIcon
-} from "@mui/icons-material";
+  YouTube as YouTubeIcon,
+} from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -20,6 +20,7 @@ import {
   LinearProgress,
   MenuItem,
   Select,
+  SelectChangeEvent,
   Stack,
   Table,
   TableBody,
@@ -28,15 +29,15 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Typography
-} from "@mui/material";
-import Picker from "emoji-picker-react";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+  Typography,
+} from '@mui/material';
+import Picker, { EmojiClickData } from 'emoji-picker-react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 // RTK Query hooks
-import { useGetTokenBalancesQuery } from "@/API/user";
+import { useGetTokenBalancesQuery } from '@/API/user';
 
 // Redux slice actions
 import {
@@ -52,15 +53,13 @@ import {
   toggleEmojis,
   toggleYoutube,
   updateFormField,
-  validateBudget
-} from "@/Store/campaignSlice";
+  validateBudget,
+} from '@/Store/campaignSlice';
 
 // Types
-import { RootState } from "@/Store/store";
-import { TokenBalances } from "@/types";
-import { CreatedCampaignPreviewModal } from "./components";
-
-
+import { RootState } from '@/Store/store';
+import { TokenBalances } from '@/types';
+import { CreatedCampaignPreviewModal } from './components';
 
 const CreateCampaign: React.FC = () => {
   const navigate = useNavigate();
@@ -68,9 +67,10 @@ const CreateCampaign: React.FC = () => {
 
   // Redux state
   const campaignState = useSelector((state: RootState) => state.campaign);
-  
+
   // RTK Query hooks
-  const { data: tokenBalances, isLoading: isLoadingTokens } = useGetTokenBalancesQuery();
+  const { data: tokenBalances, isLoading: isLoadingTokens } =
+    useGetTokenBalancesQuery();
 
   // Local state for file inputs
   const [fileInputKey, setFileInputKey] = useState(0);
@@ -89,42 +89,48 @@ const CreateCampaign: React.FC = () => {
 
   // Handlers
   const handleBack = () => {
-    navigate("/dashboard");
+    navigate('/app/dashboard');
   };
 
-  const handleFormFieldChange = (field: keyof typeof campaignState.formData) => (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  const handleFormFieldChange =
+    (field: keyof typeof campaignState.formData) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      dispatch(updateFormField({ field, value: event.target.value }));
+    };
+
+  const handleSelectChange =
+    (field: keyof typeof campaignState.formData) =>
+    (event: SelectChangeEvent) => {
+      dispatch(updateFormField({ field, value: event.target.value }));
+    };
+
+  const handleImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    dispatch(updateFormField({ field, value: event.target.value }));
-  };
-
-  const handleSelectChange = (field: keyof typeof campaignState.formData) => (
-    event: any
-  ) => {
-    dispatch(updateFormField({ field, value: event.target.value }));
-  };
-
-  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const url = URL.createObjectURL(file);
     const fileType = file.type;
 
-    dispatch(addMediaFile({
-      file,
-      type: fileType,
-      url,
-    }));
+    dispatch(
+      addMediaFile({
+        file,
+        type: fileType,
+        url,
+      })
+    );
 
     // Reset file input to allow selecting the same file again
     setFileInputKey(prev => prev + 1);
   };
 
-  const handleYouTubeUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleYouTubeUrlChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const url = event.target.value;
     dispatch(setYouTubeUrl(url));
-    
+
     // Fetch YouTube title
     if (url.includes('youtube') || url.includes('youtu.be')) {
       let videoId = '';
@@ -139,8 +145,8 @@ const CreateCampaign: React.FC = () => {
       if (videoId) {
         const vidurl = `https://www.youtube.com/watch?v=${videoId}`;
         fetch(`https://noembed.com/embed?dataType=json&url=${vidurl}`)
-          .then((res) => res.json())
-          .then((data) => dispatch(setVideoTitle(data.title)))
+          .then(res => res.json())
+          .then(data => dispatch(setVideoTitle(data.title)))
           .catch(console.error);
       }
     }
@@ -154,7 +160,7 @@ const CreateCampaign: React.FC = () => {
     dispatch(validateBudget({ budget, userBalance }));
   };
 
-  const handleEmojiClick = (emojiData: any) => {
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
     if (270 - campaignState.formData.tweet_text.length >= 2) {
       dispatch(addEmoji(emojiData.emoji));
     }
@@ -180,11 +186,11 @@ const CreateCampaign: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       {/* Header */}
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
-        <IconButton onClick={handleBack} size="large">
+      <Stack direction='row' alignItems='center' spacing={2} sx={{ mb: 3 }}>
+        <IconButton onClick={handleBack} size='large'>
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h4" component="h1">
+        <Typography variant='h4' component='h1'>
           Create Campaign
         </Typography>
       </Stack>
@@ -195,7 +201,7 @@ const CreateCampaign: React.FC = () => {
           <Stack spacing={3}>
             {/* Campaign Title */}
             <TextField
-              label="Campaign Title"
+              label='Campaign Title'
               fullWidth
               value={campaignState.formData.name}
               onChange={handleFormFieldChange('name')}
@@ -209,11 +215,11 @@ const CreateCampaign: React.FC = () => {
               <InputLabel>Token Type</InputLabel>
               <Select
                 value={campaignState.formData.type}
-                label="Token Type"
+                label='Token Type'
                 onChange={handleSelectChange('type')}
               >
-                <MenuItem value="HBAR">HBAR</MenuItem>
-                <MenuItem value="FUNGIBLE">Fungible Token</MenuItem>
+                <MenuItem value='HBAR'>HBAR</MenuItem>
+                <MenuItem value='FUNGIBLE'>Fungible Token</MenuItem>
               </Select>
             </FormControl>
 
@@ -223,11 +229,11 @@ const CreateCampaign: React.FC = () => {
                 <InputLabel>Select Token</InputLabel>
                 <Select
                   value={campaignState.selectedToken}
-                  label="Select Token"
-                  onChange={(e) => dispatch(setSelectedToken(e.target.value))}
+                  label='Select Token'
+                  onChange={e => dispatch(setSelectedToken(e.target.value))}
                   disabled={isLoadingTokens}
                 >
-                  {campaignState.allTokens.map((token) => (
+                  {campaignState.allTokens.map(token => (
                     <MenuItem
                       key={token.value}
                       value={token.value}
@@ -243,7 +249,7 @@ const CreateCampaign: React.FC = () => {
 
             {/* Tweet Text */}
             <TextField
-              label="Tweet Text"
+              label='Tweet Text'
               multiline
               rows={4}
               fullWidth
@@ -256,16 +262,21 @@ const CreateCampaign: React.FC = () => {
             />
 
             {/* Character count and emoji button */}
-            <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Stack
+              direction='row'
+              alignItems='center'
+              justifyContent='space-between'
+            >
               <Button
                 startIcon={<EmojiIcon />}
                 onClick={() => dispatch(toggleEmojis())}
-                size="small"
+                size='small'
               >
                 Emoji
               </Button>
-              <Typography variant="caption" color="text.secondary">
-                {270 - campaignState.formData.tweet_text.length} characters remaining
+              <Typography variant='caption' color='text.secondary'>
+                {270 - campaignState.formData.tweet_text.length} characters
+                remaining
               </Typography>
             </Stack>
 
@@ -278,14 +289,14 @@ const CreateCampaign: React.FC = () => {
 
             {/* Hashtag Chips */}
             {campaignState.buttonTags.length > 0 && (
-              <Stack direction="row" spacing={1} flexWrap="wrap">
+              <Stack direction='row' spacing={1} flexWrap='wrap'>
                 {campaignState.buttonTags.map((tag, index) => (
                   <Chip
                     key={index}
                     label={tag.replace('#', '')}
-                    size="small"
-                    color="primary"
-                    variant="outlined"
+                    size='small'
+                    color='primary'
+                    variant='outlined'
                   />
                 ))}
               </Stack>
@@ -294,24 +305,24 @@ const CreateCampaign: React.FC = () => {
             {/* Rewards Table */}
             <Card>
               <CardContent>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant='h6' gutterBottom>
                   Reward Settings
                 </Typography>
                 <TableContainer>
-                  <Table size="small">
+                  <Table size='small'>
                     <TableHead>
                       <TableRow>
                         <TableCell>Action</TableCell>
-                        <TableCell align="right">Reward Amount</TableCell>
+                        <TableCell align='right'>Reward Amount</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       <TableRow>
                         <TableCell>Comment</TableCell>
-                        <TableCell align="right">
+                        <TableCell align='right'>
                           <TextField
-                            type="number"
-                            size="small"
+                            type='number'
+                            size='small'
                             value={campaignState.formData.comment_reward}
                             onChange={handleFormFieldChange('comment_reward')}
                             inputProps={{ min: 0, step: 0.1 }}
@@ -320,10 +331,10 @@ const CreateCampaign: React.FC = () => {
                       </TableRow>
                       <TableRow>
                         <TableCell>Like</TableCell>
-                        <TableCell align="right">
+                        <TableCell align='right'>
                           <TextField
-                            type="number"
-                            size="small"
+                            type='number'
+                            size='small'
                             value={campaignState.formData.like_reward}
                             onChange={handleFormFieldChange('like_reward')}
                             inputProps={{ min: 0, step: 0.1 }}
@@ -332,10 +343,10 @@ const CreateCampaign: React.FC = () => {
                       </TableRow>
                       <TableRow>
                         <TableCell>Retweet</TableCell>
-                        <TableCell align="right">
+                        <TableCell align='right'>
                           <TextField
-                            type="number"
-                            size="small"
+                            type='number'
+                            size='small'
                             value={campaignState.formData.retweet_reward}
                             onChange={handleFormFieldChange('retweet_reward')}
                             inputProps={{ min: 0, step: 0.1 }}
@@ -344,10 +355,10 @@ const CreateCampaign: React.FC = () => {
                       </TableRow>
                       <TableRow>
                         <TableCell>Quote Tweet</TableCell>
-                        <TableCell align="right">
+                        <TableCell align='right'>
                           <TextField
-                            type="number"
-                            size="small"
+                            type='number'
+                            size='small'
                             value={campaignState.formData.quote_reward}
                             onChange={handleFormFieldChange('quote_reward')}
                             inputProps={{ min: 0, step: 0.1 }}
@@ -367,8 +378,8 @@ const CreateCampaign: React.FC = () => {
           <Stack spacing={3}>
             {/* Budget Input */}
             <TextField
-              label="Campaign Budget"
-              type="number"
+              label='Campaign Budget'
+              type='number'
               fullWidth
               value={campaignState.formData.campaign_budget}
               onChange={handleBudgetChange}
@@ -386,38 +397,38 @@ const CreateCampaign: React.FC = () => {
                   onChange={() => dispatch(toggleAddMedia())}
                 />
               }
-              label="Add media to campaign"
+              label='Add media to campaign'
             />
 
             {/* Media Upload Section */}
             {campaignState.addMedia && (
               <Card>
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
+                  <Typography variant='h6' gutterBottom>
                     Media Upload
                   </Typography>
-                  
-                  <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+
+                  <Stack direction='row' spacing={2} sx={{ mb: 2 }}>
                     <input
-                      accept="image/png, image/gif, image/jpeg, image/jpg"
+                      accept='image/png, image/gif, image/jpeg, image/jpg'
                       style={{ display: 'none' }}
-                      id="file-upload"
-                      type="file"
+                      id='file-upload'
+                      type='file'
                       key={fileInputKey}
                       onChange={handleImageChange}
                     />
-                    <label htmlFor="file-upload">
+                    <label htmlFor='file-upload'>
                       <Button
-                        variant="outlined"
-                        component="span"
+                        variant='outlined'
+                        component='span'
                         startIcon={<ImageIcon />}
                       >
                         Upload Image
                       </Button>
                     </label>
-                    
+
                     <Button
-                      variant="outlined"
+                      variant='outlined'
                       startIcon={<YouTubeIcon />}
                       onClick={() => dispatch(toggleYoutube())}
                     >
@@ -428,9 +439,9 @@ const CreateCampaign: React.FC = () => {
                   {/* YouTube URL Input */}
                   {campaignState.isYoutube && (
                     <TextField
-                      label="YouTube URL"
+                      label='YouTube URL'
                       fullWidth
-                      placeholder="https://www.youtube.com/watch?v=..."
+                      placeholder='https://www.youtube.com/watch?v=...'
                       onChange={handleYouTubeUrlChange}
                       sx={{ mb: 2 }}
                     />
@@ -440,8 +451,14 @@ const CreateCampaign: React.FC = () => {
                   {campaignState.displayMedia.length > 0 && (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                       {campaignState.displayMedia.map((src, index) => (
-                        <Box key={index} sx={{ width: 'calc(50% - 4px)', position: 'relative' }}>
-                          <Box position="relative">
+                        <Box
+                          key={index}
+                          sx={{
+                            width: 'calc(50% - 4px)',
+                            position: 'relative',
+                          }}
+                        >
+                          <Box position='relative'>
                             <img
                               src={src}
                               alt={`upload-${index}`}
@@ -452,7 +469,7 @@ const CreateCampaign: React.FC = () => {
                               }}
                             />
                             <IconButton
-                              size="small"
+                              size='small'
                               onClick={() => handleRemoveMedia(index)}
                               sx={{
                                 position: 'absolute',
@@ -465,7 +482,7 @@ const CreateCampaign: React.FC = () => {
                                 },
                               }}
                             >
-                              <CloseIcon fontSize="small" />
+                              <CloseIcon fontSize='small' />
                             </IconButton>
                           </Box>
                         </Box>
@@ -474,24 +491,26 @@ const CreateCampaign: React.FC = () => {
                   )}
 
                   {/* YouTube Embed Preview */}
-                  {campaignState.isYoutube && campaignState.srcLink && !campaignState.displayMedia.length && (
-                    <Box>
-                      {campaignState.videoTitle && (
-                        <Typography variant="subtitle2" gutterBottom>
-                          {campaignState.videoTitle}
-                        </Typography>
-                      )}
-                      <iframe
-                        src={campaignState.srcLink}
-                        width="100%"
-                        height="315"
-                        frameBorder="0"
-                        allow="autoplay; encrypted-media"
-                        title="video preview"
-                        style={{ borderRadius: 8 }}
-                      />
-                    </Box>
-                  )}
+                  {campaignState.isYoutube &&
+                    campaignState.srcLink &&
+                    !campaignState.displayMedia.length && (
+                      <Box>
+                        {campaignState.videoTitle && (
+                          <Typography variant='subtitle2' gutterBottom>
+                            {campaignState.videoTitle}
+                          </Typography>
+                        )}
+                        <iframe
+                          src={campaignState.srcLink}
+                          width='100%'
+                          height='315'
+                          frameBorder='0'
+                          allow='autoplay; encrypted-media'
+                          title='video preview'
+                          style={{ borderRadius: 8 }}
+                        />
+                      </Box>
+                    )}
                 </CardContent>
               </Card>
             )}
@@ -499,29 +518,34 @@ const CreateCampaign: React.FC = () => {
             {/* Preview Card */}
             <Card>
               <CardContent>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant='h6' gutterBottom>
                   Tweet Preview
                 </Typography>
-                
+
                 {campaignState.formData.name && (
-                  <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                  <Typography
+                    variant='subtitle1'
+                    fontWeight='bold'
+                    gutterBottom
+                  >
                     {campaignState.formData.name}
                   </Typography>
                 )}
-                
-                <Typography variant="body1" paragraph>
-                  {campaignState.formData.tweet_text || "Start typing your tweet campaign..."}
-                  {campaignState.formData.tweet_text && " #hashbuzz"}
+
+                <Typography variant='body1' paragraph>
+                  {campaignState.formData.tweet_text ||
+                    'Start typing your tweet campaign...'}
+                  {campaignState.formData.tweet_text && ' #hashbuzz'}
                 </Typography>
 
                 {campaignState.buttonTags.length > 0 && (
-                  <Stack direction="row" spacing={1} flexWrap="wrap">
+                  <Stack direction='row' spacing={1} flexWrap='wrap'>
                     {campaignState.buttonTags.map((tag, index) => (
                       <Chip
                         key={index}
                         label={tag.replace('#', '')}
-                        size="small"
-                        color="primary"
+                        size='small'
+                        color='primary'
                       />
                     ))}
                   </Stack>
@@ -531,8 +555,8 @@ const CreateCampaign: React.FC = () => {
 
             {/* Action Buttons */}
             <Button
-              variant="contained"
-              size="large"
+              variant='contained'
+              size='large'
               startIcon={<PreviewIcon />}
               onClick={handlePreview}
               disabled={!isFormValid()}
