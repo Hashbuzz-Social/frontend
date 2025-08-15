@@ -1,14 +1,14 @@
-import { apiBase } from '@/API/apiBase'
-import type { 
-  CurrentUser, 
-  AllTokensQuery, 
-  ContractInfo, 
-  TrailSetters,
-  CampaignCards,
+import { apiBase } from '@/API/apiBase';
+import type {
   AdminLoginResponse,
   AdminUpdatePassword,
-  UpdatePasswordResponse
-} from '@/types'
+  AllTokensQuery,
+  CampaignCards,
+  ContractInfo,
+  CurrentUser,
+  TrailSetters,
+  UpdatePasswordResponse,
+} from '@/types';
 
 /**
  * Admin API endpoints for administrative operations.
@@ -16,7 +16,6 @@ import type {
  */
 export const adminApi = apiBase.injectEndpoints({
   endpoints: builder => ({
-    
     // Authentication endpoints
     adminLogin: builder.mutation<AdminLoginResponse, { password: string }>({
       query: body => ({
@@ -26,7 +25,10 @@ export const adminApi = apiBase.injectEndpoints({
       }),
     }),
 
-    adminUpdatePassword: builder.mutation<UpdatePasswordResponse, AdminUpdatePassword>({
+    adminUpdatePassword: builder.mutation<
+      UpdatePasswordResponse,
+      AdminUpdatePassword
+    >({
       query: body => ({
         url: '/auth/admin/update-password',
         method: 'PATCH',
@@ -35,7 +37,10 @@ export const adminApi = apiBase.injectEndpoints({
     }),
 
     // User management endpoints
-    getAllUsers: builder.query<{ users: CurrentUser[]; count: number }, { limit?: number; offset?: number }>({
+    getAllUsers: builder.query<
+      { users: CurrentUser[]; count: number },
+      { limit?: number; offset?: number }
+    >({
       query: ({ limit = 10, offset = 0 } = {}) => ({
         url: '/api/admin/user/all',
         method: 'POST',
@@ -43,7 +48,10 @@ export const adminApi = apiBase.injectEndpoints({
       }),
     }),
 
-    allowUserAsCampaigner: builder.mutation<{ user: CurrentUser; success: boolean }, number>({
+    allowUserAsCampaigner: builder.mutation<
+      { user: CurrentUser; success: boolean },
+      number
+    >({
       query: id => ({
         url: '/api/admin/user/allowCampaigner',
         method: 'PATCH',
@@ -51,7 +59,10 @@ export const adminApi = apiBase.injectEndpoints({
       }),
     }),
 
-    removePersonalHandle: builder.mutation<{ data: CurrentUser; message: string }, number>({
+    removePersonalHandle: builder.mutation<
+      { data: CurrentUser; message: string },
+      number
+    >({
       query: userId => ({
         url: '/api/admin/personal-handle',
         method: 'PATCH',
@@ -59,7 +70,10 @@ export const adminApi = apiBase.injectEndpoints({
       }),
     }),
 
-    removeBizHandle: builder.mutation<{ data: CurrentUser; message: string }, number>({
+    removeBizHandle: builder.mutation<
+      { data: CurrentUser; message: string },
+      number
+    >({
       query: userId => ({
         url: '/api/admin/biz-handle',
         method: 'PATCH',
@@ -68,7 +82,10 @@ export const adminApi = apiBase.injectEndpoints({
     }),
 
     // Token management endpoints
-    listToken: builder.mutation<any, { token_id: string; tokendata: string; token_type: string }>({
+    listToken: builder.mutation<
+      Record<string, unknown>,
+      { token_id: string; tokendata: string; token_type: string }
+    >({
       query: body => ({
         url: '/api/admin/list-token',
         method: 'POST',
@@ -77,8 +94,9 @@ export const adminApi = apiBase.injectEndpoints({
     }),
 
     getListedTokens: builder.query<AllTokensQuery, string | void>({
-      query: (tokenId) => ({
-        url: `/api/admin/listed-tokens${tokenId ? `?tokenId=${tokenId}` : ''}`,
+      query: fungibleToken => ({
+        // pragma: allowlist secret
+        url: `/api/admin/listed-tokens${fungibleToken ? `?tokenId=${fungibleToken}` : ''}`,
       }),
     }),
 
@@ -87,7 +105,14 @@ export const adminApi = apiBase.injectEndpoints({
       query: () => '/api/admin/campaigns/all',
     }),
 
-    updateCampaignStatus: builder.mutation<any, { approve: boolean; id: number }>({
+    getPendingCampaigns: builder.query<CampaignCards[], void>({
+      query: () => '/api/admin/twitter-pending-cards',
+    }),
+
+    approveCampaign: builder.mutation<
+      { success: boolean; message: string },
+      { approve: boolean; id: number }
+    >({
       query: body => ({
         url: '/api/admin/update-status',
         method: 'PUT',
@@ -95,8 +120,8 @@ export const adminApi = apiBase.injectEndpoints({
       }),
     }),
 
-    getCampaignLogs: builder.query<any, string | number>({
-      query: (id) => `/api/admin/campaign-logs/${id}`,
+    getCampaignLogs: builder.query<Record<string, unknown>, string | number>({
+      query: id => `/api/admin/campaign-logs/${id}`,
     }),
 
     // TrailSetters management endpoints
@@ -104,7 +129,10 @@ export const adminApi = apiBase.injectEndpoints({
       query: () => '/api/admin/trailsetters',
     }),
 
-    updateTrailSetters: builder.mutation<{ data: TrailSetters[]; message: string }, { accounts: string[] }>({
+    updateTrailSetters: builder.mutation<
+      { data: TrailSetters[]; message: string },
+      { accounts: string[] }
+    >({
       query: body => ({
         url: '/api/admin/trailsetters',
         method: 'PUT',
@@ -118,20 +146,23 @@ export const adminApi = apiBase.injectEndpoints({
     }),
 
     // Analytics and monitoring endpoints
-    getSystemStats: builder.query<any, void>({
+    getSystemStats: builder.query<Record<string, unknown>, void>({
       query: () => '/api/admin/system-stats',
     }),
 
-    getUserStats: builder.query<any, void>({
+    getUserStats: builder.query<Record<string, unknown>, void>({
       query: () => '/api/admin/user-stats',
     }),
 
-    getCampaignStats: builder.query<any, void>({
+    getCampaignStats: builder.query<Record<string, unknown>, void>({
       query: () => '/api/admin/campaign-stats',
     }),
 
     // Bulk operations
-    bulkUpdateUsers: builder.mutation<any, { userIds: number[]; updates: Partial<CurrentUser> }>({
+    bulkUpdateUsers: builder.mutation<
+      { success: boolean; updated: number },
+      { userIds: number[]; updates: Partial<CurrentUser> }
+    >({
       query: body => ({
         url: '/api/admin/users/bulk-update',
         method: 'PATCH',
@@ -139,7 +170,10 @@ export const adminApi = apiBase.injectEndpoints({
       }),
     }),
 
-    bulkDeleteCampaigns: builder.mutation<any, { campaignIds: number[] }>({
+    bulkDeleteCampaigns: builder.mutation<
+      { success: boolean; deleted: number },
+      { campaignIds: number[] }
+    >({
       query: body => ({
         url: '/api/admin/campaigns/bulk-delete',
         method: 'DELETE',
@@ -148,14 +182,20 @@ export const adminApi = apiBase.injectEndpoints({
     }),
 
     // Advanced user management
-    getUserActivity: builder.query<any, { userId: number; startDate?: string; endDate?: string }>({
+    getUserActivity: builder.query<
+      Record<string, unknown>,
+      { userId: number; startDate?: string; endDate?: string }
+    >({
       query: ({ userId, startDate, endDate }) => ({
         url: `/api/admin/user/${userId}/activity`,
         params: { startDate, endDate },
       }),
     }),
 
-    suspendUser: builder.mutation<{ user: CurrentUser; message: string }, { userId: number; reason?: string }>({
+    suspendUser: builder.mutation<
+      { user: CurrentUser; message: string },
+      { userId: number; reason?: string }
+    >({
       query: body => ({
         url: '/api/admin/user/suspend',
         method: 'PATCH',
@@ -163,7 +203,10 @@ export const adminApi = apiBase.injectEndpoints({
       }),
     }),
 
-    unsuspendUser: builder.mutation<{ user: CurrentUser; message: string }, number>({
+    unsuspendUser: builder.mutation<
+      { user: CurrentUser; message: string },
+      number
+    >({
       query: userId => ({
         url: '/api/admin/user/unsuspend',
         method: 'PATCH',
@@ -172,11 +215,14 @@ export const adminApi = apiBase.injectEndpoints({
     }),
 
     // Configuration management
-    getAppConfig: builder.query<any, void>({
+    getAppConfig: builder.query<Record<string, unknown>, void>({
       query: () => '/api/admin/config',
     }),
 
-    updateAppConfig: builder.mutation<any, Record<string, any>>({
+    updateAppConfig: builder.mutation<
+      Record<string, unknown>,
+      Record<string, unknown>
+    >({
       query: body => ({
         url: '/api/admin/config',
         method: 'PUT',
@@ -185,7 +231,10 @@ export const adminApi = apiBase.injectEndpoints({
     }),
 
     // Audit and logging
-    getAuditLogs: builder.query<any, { page?: number; limit?: number; action?: string; userId?: number }>({
+    getAuditLogs: builder.query<
+      Record<string, unknown>,
+      { page?: number; limit?: number; action?: string; userId?: number }
+    >({
       query: ({ page = 1, limit = 20, action, userId } = {}) => ({
         url: '/api/admin/audit-logs',
         params: { page, limit, action, userId },
@@ -193,26 +242,39 @@ export const adminApi = apiBase.injectEndpoints({
     }),
 
     // Export functionality
-    exportUsers: builder.mutation<Blob, { format: 'csv' | 'xlsx'; filters?: any }>({
+    exportUsers: builder.mutation<
+      Blob,
+      { format: 'csv' | 'xlsx'; filters?: Record<string, string> }
+    >({
       query: body => ({
         url: '/api/admin/export/users',
         method: 'POST',
         body,
-        responseHandler: (response) => response.blob(),
+        responseHandler: response => response.blob(),
       }),
     }),
 
-    exportCampaigns: builder.mutation<Blob, { format: 'csv' | 'xlsx'; filters?: any }>({
+    exportCampaigns: builder.mutation<
+      Blob,
+      { format: 'csv' | 'xlsx'; filters?: Record<string, string> }
+    >({
       query: body => ({
         url: '/api/admin/export/campaigns',
         method: 'POST',
         body,
-        responseHandler: (response) => response.blob(),
+        responseHandler: response => response.blob(),
       }),
     }),
 
     // Notification management
-    sendNotification: builder.mutation<any, { userIds?: number[]; message: string; type: 'info' | 'warning' | 'success' | 'error' }>({
+    sendNotification: builder.mutation<
+      { success: boolean; message: string },
+      {
+        userIds?: number[];
+        message: string;
+        type: 'info' | 'warning' | 'success' | 'error';
+      }
+    >({
       query: body => ({
         url: '/api/admin/notifications/send',
         method: 'POST',
@@ -220,7 +282,10 @@ export const adminApi = apiBase.injectEndpoints({
       }),
     }),
 
-    getNotificationHistory: builder.query<any, { page?: number; limit?: number }>({
+    getNotificationHistory: builder.query<
+      Record<string, unknown>,
+      { page?: number; limit?: number }
+    >({
       query: ({ page = 1, limit = 20 } = {}) => ({
         url: '/api/admin/notifications/history',
         params: { page, limit },
@@ -228,7 +293,10 @@ export const adminApi = apiBase.injectEndpoints({
     }),
 
     // Token analytics
-    getTokenUsageStats: builder.query<any, { tokenId?: string; startDate?: string; endDate?: string }>({
+    getTokenUsageStats: builder.query<
+      Record<string, unknown>,
+      { tokenId?: string; startDate?: string; endDate?: string }
+    >({
       query: ({ tokenId, startDate, endDate } = {}) => ({
         url: '/api/admin/tokens/usage-stats',
         params: { tokenId, startDate, endDate },
@@ -236,7 +304,10 @@ export const adminApi = apiBase.injectEndpoints({
     }),
 
     // Campaign moderation
-    flagCampaign: builder.mutation<any, { campaignId: number; reason: string }>({
+    flagCampaign: builder.mutation<
+      { success: boolean; message: string },
+      { campaignId: number; reason: string }
+    >({
       query: body => ({
         url: '/api/admin/campaigns/flag',
         method: 'POST',
@@ -244,7 +315,10 @@ export const adminApi = apiBase.injectEndpoints({
       }),
     }),
 
-    unflagCampaign: builder.mutation<any, number>({
+    unflagCampaign: builder.mutation<
+      { success: boolean; message: string },
+      number
+    >({
       query: campaignId => ({
         url: `/api/admin/campaigns/${campaignId}/unflag`,
         method: 'POST',
@@ -252,32 +326,34 @@ export const adminApi = apiBase.injectEndpoints({
     }),
 
     // System health and monitoring
-    getSystemHealth: builder.query<any, void>({
+    getSystemHealth: builder.query<Record<string, unknown>, void>({
       query: () => '/api/admin/system/health',
     }),
 
-    getDatabaseStats: builder.query<any, void>({
+    getDatabaseStats: builder.query<Record<string, unknown>, void>({
       query: () => '/api/admin/system/database-stats',
     }),
 
     // Performance metrics
-    getPerformanceMetrics: builder.query<any, { timeframe: 'hour' | 'day' | 'week' | 'month' }>({
+    getPerformanceMetrics: builder.query<
+      Record<string, unknown>,
+      { timeframe: 'hour' | 'day' | 'week' | 'month' }
+    >({
       query: ({ timeframe = 'day' }) => ({
         url: '/api/admin/performance/metrics',
         params: { timeframe },
       }),
     }),
-
   }),
   overrideExisting: false,
-})
+});
 
 // Export hooks for usage in React components
 export const {
   // Authentication hooks
   useAdminLoginMutation,
   useAdminUpdatePasswordMutation,
-  
+
   // User management hooks
   useGetAllUsersQuery,
   useLazyGetAllUsersQuery,
@@ -288,26 +364,28 @@ export const {
   useSuspendUserMutation,
   useUnsuspendUserMutation,
   useBulkUpdateUsersMutation,
-  
+
   // Token management hooks
   useListTokenMutation,
   useGetListedTokensQuery,
   useLazyGetListedTokensQuery,
   useGetTokenUsageStatsQuery,
-  
+
   // Campaign management hooks
   useGetAllCampaignsQuery,
   useLazyGetAllCampaignsQuery,
-  useUpdateCampaignStatusMutation,
+  useGetPendingCampaignsQuery,
+  useLazyGetPendingCampaignsQuery,
+  useApproveCampaignMutation,
   useGetCampaignLogsQuery,
   useFlagCampaignMutation,
   useUnflagCampaignMutation,
   useBulkDeleteCampaignsMutation,
-  
+
   // TrailSetters hooks
   useGetTrailSettersQuery,
   useUpdateTrailSettersMutation,
-  
+
   // System hooks
   useGetActiveContractInfoQuery,
   useGetSystemStatsQuery,
@@ -316,22 +394,21 @@ export const {
   useGetSystemHealthQuery,
   useGetDatabaseStatsQuery,
   useGetPerformanceMetricsQuery,
-  
+
   // Configuration hooks
   useGetAppConfigQuery,
   useUpdateAppConfigMutation,
-  
+
   // Audit and logging hooks
   useGetAuditLogsQuery,
-  
+
   // Export hooks
   useExportUsersMutation,
   useExportCampaignsMutation,
-  
+
   // Notification hooks
   useSendNotificationMutation,
   useGetNotificationHistoryQuery,
-  
-} = adminApi
+} = adminApi;
 
-export default adminApi
+export default adminApi;
