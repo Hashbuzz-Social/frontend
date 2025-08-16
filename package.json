@@ -51,7 +51,6 @@
     "build:dev": "vite build --mode remotedev",
     "preview": "vite preview",
     "serve": "serve -s build -l 3000",
-    "start:prod": "serve -s build -l 3000",
     "start": "vite",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
