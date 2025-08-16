@@ -43,11 +43,14 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --mode localdev",
+    "dev:local": "vite --mode localdev",
+    "dev:remote": "vite --mode remotedev",
+    "build": "vite build --mode localdev",
+    "build:local": "vite build --mode localdev",
+    "build:dev": "vite build --mode remotedev",
     "preview": "vite preview",
     "serve": "serve -s build -l 3000",
-    "start:prod": "serve -s build -l 3000",
     "start": "vite",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
