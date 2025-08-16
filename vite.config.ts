@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
     envFile = '.env';
   }
 
-  console.log(`🚀 Running in ${mode} mode, using ${envFile}`);
+  console.warn(`🚀 Running in ${mode} mode, using ${envFile}`);
 
   return {
     plugins: [react(), svgr()],
@@ -27,25 +27,14 @@ export default defineConfig(({ mode }) => {
     },
     publicDir: 'public',
     build: {
-      outDir: 'build', // 👈 output build files to 'build' folder instead of 'dist'
-      emptyOutDir: true, // 👈 empty the output directory before building
-      sourcemap: false, // 👈 disable source maps for production builds (optional)
-      // Memory optimization settings
+      outDir: 'build',
+      emptyOutDir: true,
+      sourcemap: false,
       chunkSizeWarningLimit: 1000,
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true,
-          drop_debugger: true,
-        },
-        mangle: {
-          safari10: true,
-        },
-      },
+      // ✅ Use esbuild instead of terser
+      minify: 'esbuild',
       rollupOptions: {
-        // Memory optimization: split vendor chunks
         output: {
-          // Optional: customize chunk file names
           chunkFileNames: 'assets/js/[name]-[hash].js',
           entryFileNames: 'assets/js/[name]-[hash].js',
           assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
@@ -55,14 +44,12 @@ export default defineConfig(({ mode }) => {
             ui: ['@mui/material', '@mui/icons-material'],
           },
         },
-        // Reduce memory usage during build
         maxParallelFileOps: 2,
       },
     },
     server: {
-      // open the browser at project root
       open: true,
-      port: 3000, // 👈 set default port to 3000
+      port: 3000,
     },
     resolve: {
       alias: {
@@ -73,10 +60,6 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       include: ['buffer'],
     },
-
-    // esbuild configuration removed; Vite handles JSX automatically with the React plugin.
-    // https://vitejs.dev/config/
-    // Use project root index.html and serve static assets from public/
     root: process.cwd(),
   };
 });
