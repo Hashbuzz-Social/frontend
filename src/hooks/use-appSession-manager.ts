@@ -22,7 +22,8 @@
  */
 
 import { useAppDispatch, useAppSelector } from '@/Store/store';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { logDebug, logInfo } from '../comman/utils';
 import { setAuthStatus } from '../Store/appStatusSlice';
 import { SESSION_DEFAULTS } from './session-manager/constants';
 import type {
@@ -34,7 +35,6 @@ import { useSessionValidator } from './session-manager/useSessionValidator';
 import { useTokenAssociationSync } from './session-manager/useTokenAssociationSync';
 import { useTokenManager } from './session-manager/useTokenManager';
 import { useWalletSync } from './session-manager/useWalletSync';
-import { logDebug, logInfo } from './session-manager/utils';
 export const useAppSessionManager = ({
   refreshEndpoint = SESSION_DEFAULTS.REFRESH_ENDPOINT,
   bufferSeconds = SESSION_DEFAULTS.BUFFER_SECONDS,
@@ -88,39 +88,20 @@ export const useAppSessionManager = ({
     adjustedBufferSeconds
   );
 
-  // ✅ Function to check expiry and refresh if needed - stable callback
-  const checkAndRefreshToken = useCallback(() => {
-    if (!isUserAuthenticated) return;
-    const expiry = tokenManager.getTokenExpiry();
-    if (!expiry) return;
-
-    const timeLeft = expiry - Date.now();
-    if (timeLeft <= adjustedBufferSeconds * 1000) {
-      logInfo(
-        'Token needs refresh, executing...',
-        { timeLeft: `${Math.round(timeLeft / 1000)}s` },
-        '[SESSION MANAGER]'
-      );
-      tokenManager.refreshToken();
-    } else {
-      logDebug(
-        'Token valid, starting timer...',
-        { timeLeft: `${Math.round(timeLeft / 1000)}s` },
-        '[SESSION MANAGER]'
-      );
-      tokenManager.startTokenRefreshTimer();
-    }
-  }, [isUserAuthenticated, adjustedBufferSeconds, tokenManager]);
+  // Removed checkAndRefreshToken to prevent dependency issues
 
   // ✅ ALWAYS fire session validation on mount - regardless of wallet state
   useEffect(() => {
-    logInfo(
-      'Component mounted - validating session',
-      undefined,
-      '[SESSION MANAGER]'
-    );
-    sessionValidator.validateSession();
-  }, [sessionValidator]);
+    if (!hasInitializedRef.current) {
+      logInfo(
+        'Component mounted - validating session',
+        undefined,
+        '[SESSION MANAGER]'
+      );
+      sessionValidator.validateSession();
+      hasInitializedRef.current = true;
+    }
+  }, []); // Only run on mount - sessionValidator.validateSession is stable
 
   // ✅ Handle auth state changes - for token management only
   useEffect(() => {
@@ -136,11 +117,37 @@ export const useAppSessionManager = ({
     }
 
     if (isUserAuthenticated && authChanged) {
-      checkAndRefreshToken();
+      // Inline token check and refresh logic to prevent dependency issues
+      const expiry = tokenManager.getTokenExpiry();
+      if (expiry) {
+        const timeLeft = expiry - Date.now();
+        if (timeLeft <= adjustedBufferSeconds * 1000) {
+          logInfo(
+            'Token needs refresh, executing...',
+            { timeLeft: `${Math.round(timeLeft / 1000)}s` },
+            '[SESSION MANAGER]'
+          );
+          tokenManager.refreshToken();
+        } else {
+          logDebug(
+            'Token valid, starting timer...',
+            { timeLeft: `${Math.round(timeLeft / 1000)}s` },
+            '[SESSION MANAGER]'
+          );
+          tokenManager.startTokenRefreshTimer();
+        }
+      }
     } else if (!isUserAuthenticated) {
       tokenManager.clearTokenExpiry();
     }
-  }, [isUserAuthenticated, checkAndRefreshToken, tokenManager]);
+  }, [
+    isUserAuthenticated,
+    adjustedBufferSeconds,
+    tokenManager.refreshToken,
+    tokenManager.startTokenRefreshTimer,
+    tokenManager.getTokenExpiry,
+    tokenManager.clearTokenExpiry,
+  ]); // Use stable methods
 
   // ✅ Sync token associations when authenticated - with loop prevention
   useEffect(() => {
@@ -148,7 +155,11 @@ export const useAppSessionManager = ({
       logDebug('Syncing token associations', undefined, '[SESSION MANAGER]');
       tokenAssociationSync.syncTokenAssociations();
     }
-  }, [isUserAuthenticated, sessionValidator, tokenAssociationSync]);
+  }, [
+    isUserAuthenticated,
+    sessionValidator.hasInitialized,
+    tokenAssociationSync.syncTokenAssociations,
+  ]); // Use stable method
 
   // ✅ Handle tab visibility change - like backup implementation
   useEffect(() => {
@@ -204,11 +215,15 @@ export const useAppSessionManager = ({
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [
-    tokenManager,
     isUserAuthenticated,
-    sessionValidator,
+    sessionValidator.hasInitialized,
     adjustedBufferSeconds,
-  ]);
+    tokenManager.refreshToken,
+    tokenManager.startTokenRefreshTimer,
+    tokenManager.getTokenExpiry,
+    tokenManager.clearTokenExpiry,
+    tokenManager.stopTokenRefreshTimer,
+  ]); // Use stable methods instead of entire object
 
   // ✅ Cleanup timers on unmount - stable dependencies
   useEffect(() => {
@@ -219,7 +234,7 @@ export const useAppSessionManager = ({
       hasInitializedRef.current = false;
       lastAuthStateRef.current = false;
     };
-  }, [tokenManager, sessionValidator]);
+  }, [tokenManager.cleanup, sessionValidator.cleanup]); // Use stable cleanup methods
 
   const isLoading =
     sessionValidator.isInitializing || tokenManager.isRefreshing;

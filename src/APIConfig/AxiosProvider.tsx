@@ -1,23 +1,30 @@
-import axios, { AxiosInstance } from "axios";
-import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
-import { useCookies } from "react-cookie";
-import { toast } from "react-toastify";
-import { useStore } from "../Store/StoreProvider";
-import { getCookieByName, getErrorMessage } from "../Utilities/helpers";
+import axios, { AxiosInstance } from 'axios';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { useCookies } from 'react-cookie';
+import { toast } from 'react-toastify';
+import { useStore } from '../Store/StoreProvider';
+import { getCookieByName, getErrorMessage } from '../comman/helpers';
 
 const generateUniqueId = () => {
-  return "xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+  return 'xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     var r = (Math.random() * 16) | 0,
-      v = c === "x" ? r : (r & 0x3) | 0x8;
+      v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 };
 
 function getOrCreateUniqueID() {
-  let userId = localStorage.getItem("device_id");
+  let userId = localStorage.getItem('device_id');
   if (!userId) {
     userId = generateUniqueId();
-    localStorage.setItem("device_id", userId);
+    localStorage.setItem('device_id', userId);
   }
   return userId;
 }
@@ -28,10 +35,18 @@ const useRefreshToken = false; // Flag to enable/disable token refresh
 export const AxiosContext = createContext<AxiosInstance | null>(null);
 
 const AxiosProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
-  const [cookies, setCookie, removeCookie] = useCookies(["aSToken", "refreshToken", "XSRF-TOKEN"]);
+  const [cookies, setCookie, removeCookie] = useCookies([
+    'aSToken',
+    'refreshToken',
+    'XSRF-TOKEN',
+  ]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [deviceId, setDeviceId] = useState<string | null>(getOrCreateUniqueID());
-  const [astToken, setAstToken] = useState<string | null>(cookies.aSToken ?? getCookieByName("aSToken"));
+  const [deviceId, setDeviceId] = useState<string | null>(
+    getOrCreateUniqueID()
+  );
+  const [astToken, setAstToken] = useState<string | null>(
+    cookies.aSToken ?? getCookieByName('aSToken')
+  );
   const { auth, dispatch } = useStore();
 
   const axiosInstance = useRef<AxiosInstance>(
@@ -39,8 +54,8 @@ const AxiosProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
       baseURL: import.meta.env.VITE_DAPP_API,
       timeout: 15000,
       headers: {
-        "Content-type": "application/json",
-        "csrf-token": getCookieByName("XSRF-TOKEN") || "",
+        'Content-type': 'application/json',
+        'csrf-token': getCookieByName('XSRF-TOKEN') || '',
       },
       withCredentials: true, // Ensure cookies are sent
     })
@@ -50,15 +65,18 @@ const AxiosProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     if (isRefreshing) return;
     setIsRefreshing(true);
     try {
-      const response = await axiosInstance.current.post<{ ast: string; message: string }>("/auth/refresh-token", {
+      const response = await axiosInstance.current.post<{
+        ast: string;
+        message: string;
+      }>('/auth/refresh-token', {
         refreshToken: cookies.refreshToken,
       });
       const newToken = response.data.ast;
-      setCookie("aSToken", newToken, { path: "/" });
+      setCookie('aSToken', newToken, { path: '/' });
       setAstToken(newToken);
-      toast.success("Token refreshed successfully.");
+      toast.success('Token refreshed successfully.');
     } catch (error) {
-      toast.error("Failed to refresh token. Please log in again.");
+      toast.error('Failed to refresh token. Please log in again.');
       // handleLogout(); // Uncomment and define this function if you need to handle logout
     } finally {
       setIsRefreshing(false);
@@ -66,17 +84,19 @@ const AxiosProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   }, [cookies.refreshToken, isRefreshing, setCookie]);
 
   const inValidateAuthentication = useCallback(() => {
-    console.log("Unauthorized::Invalidating authentication and clearing cookies");
+    console.log(
+      'Unauthorized::Invalidating authentication and clearing cookies'
+    );
 
     // Remove authentication cookies
-    removeCookie("aSToken");
-    removeCookie("refreshToken");
+    removeCookie('aSToken');
+    removeCookie('refreshToken');
 
     // Remove CSRF token
-    removeCookie("XSRF-TOKEN");
+    removeCookie('XSRF-TOKEN');
 
     // Reset application state
-    dispatch({ type: "RESET_STATE" });
+    dispatch({ type: 'RESET_STATE' });
   }, [dispatch, removeCookie]);
 
   useEffect(() => {
@@ -95,75 +115,87 @@ const AxiosProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   useEffect(() => {
     const fetchCsrfToken = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_DAPP_API}/auth/csrf-token`, {
-          withCredentials: true, // Ensure cookies are sent
-        });
+        const response = await axios.get(
+          `${import.meta.env.VITE_DAPP_API}/auth/csrf-token`,
+          {
+            withCredentials: true, // Ensure cookies are sent
+          }
+        );
 
         if (response.data.csrfToken) {
-          setCookie("XSRF-TOKEN", response.data.csrfToken, { path: "/" });
-          console.log("Fetched new CSRF Token:", response.data.csrfToken);
+          setCookie('XSRF-TOKEN', response.data.csrfToken, { path: '/' });
+          console.log('Fetched new CSRF Token:', response.data.csrfToken);
         }
       } catch (error) {
-        console.error("Failed to fetch CSRF token:", error);
+        console.error('Failed to fetch CSRF token:', error);
       }
     };
 
-    if (!cookies["XSRF-TOKEN"]) {
+    if (!cookies['XSRF-TOKEN']) {
       fetchCsrfToken();
     }
   }, []);
 
   useEffect(() => {
-    setAstToken(cookies.aSToken ?? (auth?.ast ? getCookieByName("aSToken") : undefined));
+    setAstToken(
+      cookies.aSToken ?? (auth?.ast ? getCookieByName('aSToken') : undefined)
+    );
   }, [cookies.aSToken, auth]);
 
   useEffect(() => {
     const instance = axiosInstance.current;
 
     const requestInterceptor = instance.interceptors.request.use(
-      (config) => {
+      config => {
         if (config.headers && deviceId) {
-          config.headers["X-Device-ID"] = deviceId;
+          config.headers['X-Device-ID'] = deviceId;
         }
         if (astToken && config.headers) {
-          config.headers["Authorization"] = `Bearer ${astToken}`;
+          config.headers['Authorization'] = `Bearer ${astToken}`;
         }
 
         // Ensure CSRF token is included in all requests
-        const csrfToken = cookies["XSRF-TOKEN"] ?? getCookieByName("XSRF-TOKEN");
+        const csrfToken =
+          cookies['XSRF-TOKEN'] ?? getCookieByName('XSRF-TOKEN');
         if (csrfToken && config.headers) {
-          config.headers["X-XSRF-TOKEN"] = csrfToken;
-          console.log("Adding CSRF Token:", csrfToken);
+          config.headers['X-XSRF-TOKEN'] = csrfToken;
+          console.log('Adding CSRF Token:', csrfToken);
         } else {
-          console.warn("CSRF Token missing from cookies!");
+          console.warn('CSRF Token missing from cookies!');
         }
 
         // Add CSRF token to request body if it exists and the request has a body
-        if (csrfToken && config.data && typeof config.data === "object") {
+        if (csrfToken && config.data && typeof config.data === 'object') {
           config.data._csrf = csrfToken;
         }
 
         return config;
       },
-      (error) => Promise.reject(error)
+      error => Promise.reject(error)
     );
 
     const responseInterceptor = instance.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        console.log("error from instance", error);
+      response => response,
+      error => {
+        console.log('error from instance', error);
         if (!error.response) {
-          console.error("Network error or server is offline:", error.message);
-          toast.error("Unable to connect to the server. Please check your network connection or try again later.");
+          console.error('Network error or server is offline:', error.message);
+          toast.error(
+            'Unable to connect to the server. Please check your network connection or try again later.'
+          );
         } else {
           const status = error.response.status;
           switch (status) {
             case 401:
               inValidateAuthentication();
-              toast.error("Unauthorized access OR Session expired. Authentication required.");
+              toast.error(
+                'Unauthorized access OR Session expired. Authentication required.'
+              );
               break;
             case 500:
-              toast.error("An internal server error occurred. Please try again later.");
+              toast.error(
+                'An internal server error occurred. Please try again later.'
+              );
               break;
             case 429:
               toast.warn(
@@ -174,14 +206,16 @@ const AxiosProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
               );
               break;
             case 403: // CSRF Token Mismatch
-              console.error("CSRF token mismatch. Resetting session.");
+              console.error('CSRF token mismatch. Resetting session.');
 
               // Clear cookies
-              removeCookie("aSToken", { path: "/" });
-              removeCookie("refreshToken", { path: "/" });
-              removeCookie("XSRF-TOKEN", { path: "/" });
+              removeCookie('aSToken', { path: '/' });
+              removeCookie('refreshToken', { path: '/' });
+              removeCookie('XSRF-TOKEN', { path: '/' });
 
-              toast.error("Session expired due to security reasons. Refreshing...");
+              toast.error(
+                'Session expired due to security reasons. Refreshing...'
+              );
 
               // Restart the application after a short delay
               setTimeout(() => {
@@ -203,13 +237,17 @@ const AxiosProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     };
   }, [astToken, deviceId, inValidateAuthentication, cookies]);
 
-  return <AxiosContext.Provider value={axiosInstance.current}>{children}</AxiosContext.Provider>;
+  return (
+    <AxiosContext.Provider value={axiosInstance.current}>
+      {children}
+    </AxiosContext.Provider>
+  );
 };
 
 export const useAxios = () => {
   const context = useContext(AxiosContext);
   if (!context) {
-    throw new Error("useAxios must be used within an AxiosProvider");
+    throw new Error('useAxios must be used within an AxiosProvider');
   }
   return context;
 };

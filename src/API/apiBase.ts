@@ -1,26 +1,31 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
-import { getCookieByName } from '../Utilities/helpers'
-import { AuthError } from '../types/auth'
+import {
+  createApi,
+  fetchBaseQuery,
+  type BaseQueryFn,
+  type FetchArgs,
+  type FetchBaseQueryError,
+} from '@reduxjs/toolkit/query/react';
+import { getCookieByName } from '../comman/helpers';
+import { AuthError } from '../types/auth';
 
 // Generate or retrieve a persistent device ID using crypto API for better randomness
 function getOrCreateDeviceId(): string {
-  let deviceId = localStorage.getItem('device_id')
+  let deviceId = localStorage.getItem('device_id');
   if (!deviceId) {
     // Use crypto API for UUID v4 generation
     if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-      deviceId = crypto.randomUUID()
+      deviceId = crypto.randomUUID();
     } else {
       // Fallback to manual UUID v4 generation
       deviceId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-        const r = (Math.random() * 16) | 0
-        const v = c === 'x' ? r : (r & 0x3) | 0x8
-        return v.toString(16)
-      })
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
     }
-    localStorage.setItem('device_id', deviceId)
+    localStorage.setItem('device_id', deviceId);
   }
-  return deviceId
+  return deviceId;
 }
 
 // Enhanced base query with refresh token handling and auth error processing
@@ -30,70 +35,78 @@ const baseQueryWithReauth: BaseQueryFn<
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
   const baseQuery = fetchBaseQuery({
-    baseUrl: (import.meta as any).env.VITE_API_BASE_URL || '/',
+    baseUrl:
+      (import.meta as unknown as { env: Record<string, string> }).env
+        .VITE_API_BASE_URL || '/',
     credentials: 'include', // Important for cookie-based auth
-    prepareHeaders: (headers) => {
+    prepareHeaders: headers => {
       // Device ID header
-      const deviceId = getOrCreateDeviceId()
-      headers.set('X-Device-ID', deviceId)
+      const deviceId = getOrCreateDeviceId();
+      headers.set('X-Device-ID', deviceId);
 
       // CSRF token header
-      const csrf = getCookieByName('XSRF-TOKEN')
-      if (csrf) headers.set('X-XSRF-TOKEN', csrf)
+      const csrf = getCookieByName('XSRF-TOKEN');
+      if (csrf) headers.set('X-XSRF-TOKEN', csrf);
 
-      return headers
+      return headers;
     },
-  })
+  });
 
   // Execute the initial request
-  let result = await baseQuery(args, api, extraOptions)
+  let result = await baseQuery(args, api, extraOptions);
 
   // Check for auth errors in the response and log them appropriately
   if (result.error) {
-    const errorData = result.error.data as any
-    
+    const errorData = result.error.data as
+      | { error?: { description?: string } }
+      | undefined;
+
     // Handle server auth errors - just log and return, let TokenRefreshProvider handle refresh
     if (errorData?.error?.description) {
-      const authErrorCode = errorData.error.description as string
-      
+      const authErrorCode = errorData.error.description as string;
+
       switch (authErrorCode) {
         case AuthError.AUTH_TOKEN_INVALID:
-          console.log('Auth error: Access token invalid - TokenRefreshProvider will handle refresh')
-          break
-          
+          console.warn(
+            'Auth error: Access token invalid - TokenRefreshProvider will handle refresh'
+          );
+          break;
+
         case AuthError.AUTH_TOKEN_NOT_PRESENT:
-          console.log('Auth error: No token present - user needs to authenticate')
-          break
-          
+          console.warn(
+            'Auth error: No token present - user needs to authenticate'
+          );
+          break;
+
         case AuthError.DEVICE_ID_REQUIRED:
-          console.error('Auth error: Device ID required but not provided')
-          break
-          
+          console.error('Auth error: Device ID required but not provided');
+          break;
+
         case AuthError.ACCESS_DENIED:
-          console.error('Auth error: Access denied for this resource')
-          break
-          
+          console.error('Auth error: Access denied for this resource');
+          break;
+
         case AuthError.SIGNATURE_NOT_VERIFIED:
         case AuthError.INVALID_SIGNATURE_TOKEN:
         case AuthError.SIGNING_MESSAGE_EXPIRED:
-          console.error('Auth error: Signature verification failed')
+          console.error('Auth error: Signature verification failed');
           // Only clear auth state for signature failures, don't redirect
-          localStorage.removeItem('user')
-          break
-          
+          localStorage.removeItem('user');
+          break;
+
         default:
-          console.error('Auth error: Unknown error code -', authErrorCode)
+          console.error('Auth error: Unknown error code -', authErrorCode);
       }
     }
-    
+
     // Handle rate limiting specifically
     if (result.error.status === 429) {
-      console.warn('Rate limited - too many requests')
+      console.warn('Rate limited - too many requests');
     }
   }
 
-  return result
-}
+  return result;
+};
 
 /**
  * Base API slice for RTK Query.
@@ -103,9 +116,15 @@ const baseQueryWithReauth: BaseQueryFn<
 export const apiBase = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: [],
+  tagTypes: [
+    'CurrentUser',
+    'UserData',
+    'Campaign',
+    'TokenBalance',
+    'Transaction',
+  ],
   endpoints: () => ({}),
-})
+});
 
 // Export hooks for usage in functional components, which are auto-generated
-export const {} = apiBase
+// Note: Specific API hooks are exported from their respective API files

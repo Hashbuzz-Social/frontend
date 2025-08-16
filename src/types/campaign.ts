@@ -1,4 +1,4 @@
-import { CampaignStatus } from '../Utilities/helpers';
+import { CampaignStatus } from '../comman/helpers';
 
 export interface Campaign {
   id: string;

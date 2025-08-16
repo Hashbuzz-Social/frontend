@@ -36,7 +36,7 @@ import { useCallback, useMemo, useState } from 'react';
 import Countdown from 'react-countdown';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { CampaignStatus } from '../../../../Utilities/helpers';
+import { CampaignStatus } from '../../../../comman/helpers';
 import DetailsModal from '../../../../components/PreviewModal/DetailsModal';
 import { CampaignCards, CampaignCommands, UserConfig } from '../../../../types';
 import AssociateModal from '../AssociateModal';
@@ -285,6 +285,7 @@ const CampaignList = () => {
             <Button
               variant='contained'
               color='primary'
+              size='small'
               disabled={isButtonDisabled(
                 cellValues.row.card_status,
                 cellValues.row.approve

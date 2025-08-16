@@ -1,6 +1,6 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import svgr from "vite-plugin-svgr";
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import svgr from 'vite-plugin-svgr';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -23,9 +23,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), svgr()],
     define: {
-        global: "globalThis", // 👈 fixes "global is not defined"
+      global: 'globalThis', // 👈 fixes "global is not defined"
     },
-    publicDir: "public",
+    publicDir: 'public',
     build: {
       outDir: 'build', // 👈 output build files to 'build' folder instead of 'dist'
       emptyOutDir: true, // 👈 empty the output directory before building
@@ -60,22 +60,23 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
-        // open the browser at project root
-        open: true,
-        port: 3000, // 👈 set default port to 3000
+      // open the browser at project root
+      open: true,
+      port: 3000, // 👈 set default port to 3000
     },
     resolve: {
-        alias: {
-            "@": "/src",
-            buffer: "buffer",
-        },
+      alias: {
+        '@': '/src',
+        buffer: 'buffer',
+      },
     },
     optimizeDeps: {
-        include: ["buffer"],
+      include: ['buffer'],
     },
 
     // esbuild configuration removed; Vite handles JSX automatically with the React plugin.
     // https://vitejs.dev/config/
     // Use project root index.html and serve static assets from public/
     root: process.cwd(),
+  };
 });

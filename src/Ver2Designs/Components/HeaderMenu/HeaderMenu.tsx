@@ -1,25 +1,26 @@
-import { resetState } from "@/Store/miscellaneousStoreSlice";
-import { useAppDispatch, useAppSelector } from "@/Store/store";
-import { resetAuth } from "@/Ver2Designs/Pages/AuthAndOnboard";
-import { useWallet } from "@buidlerlabs/hashgraph-react-wallets";
-import { HWCConnector } from "@buidlerlabs/hashgraph-react-wallets/connectors";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import Logout from "@mui/icons-material/Logout";
-import Settings from "@mui/icons-material/Settings";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Tooltip from "@mui/material/Tooltip";
-import React, { useCallback, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import HederaIcon from "../../../SVGR/HederaIcon";
-import { useLogoutMutation } from "../../Pages/AuthAndOnboard/api/auth";
-import { styles } from "./styles";
+import { apiBase } from '@/API/apiBase';
+import { resetState } from '@/Store/miscellaneousStoreSlice';
+import { useAppDispatch, useAppSelector } from '@/Store/store';
+import { resetAuth } from '@/Ver2Designs/Pages/AuthAndOnboard';
+import { useWallet } from '@buidlerlabs/hashgraph-react-wallets';
+import { HWCConnector } from '@buidlerlabs/hashgraph-react-wallets/connectors';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import Logout from '@mui/icons-material/Logout';
+import Settings from '@mui/icons-material/Settings';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Tooltip from '@mui/material/Tooltip';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import HederaIcon from '../../../SVGR/HederaIcon';
+import { useLogoutMutation } from '../../Pages/AuthAndOnboard/api/auth';
+import { styles } from './styles';
 
 // Separated style objects
 
@@ -45,12 +46,12 @@ const HeaderMenu = () => {
   }, []);
 
   const handleWalletIdCopy = useCallback(() => {
-    navigator.clipboard.writeText(currentUser?.hedera_wallet_id ?? "");
-    toast.info("Wallet ID copied to clipboard");
+    navigator.clipboard.writeText(currentUser?.hedera_wallet_id ?? '');
+    toast.info('Wallet ID copied to clipboard');
   }, [currentUser?.hedera_wallet_id]);
 
   const handleNavigateAdmin = useCallback(() => {
-    navigate(pathname.includes("admin") ? "/" : "/admin");
+    navigate(pathname.includes('admin') ? '/' : '/admin');
   }, [navigate, pathname]);
 
   const handleLogout = useCallback(async () => {
@@ -65,47 +66,55 @@ const HeaderMenu = () => {
       localStorage.removeItem('user');
       localStorage.removeItem('device_id');
 
+      // Clear RTK Query cache to prevent cross-user data contamination
+      dispatch(apiBase.util.resetApiState());
+
       // Clear Redux state
       dispatch(resetState());
       dispatch(resetAuth());
+
       // Show success message
-      toast.info("Logout Successfully");
-      navigate("/");
+      toast.info('Logout Successfully');
+      navigate('/');
       disconnect(); // Disconnect wallet
-    } catch (err: any) {
-      console.error("Logout error:", err);
-      toast.error("Logout failed. Please try again.");
+    } catch (err: unknown) {
+      console.error('Logout error:', err);
+      toast.error('Logout failed. Please try again.');
     }
-  }, [logout, dispatch]);
+  }, [logout, dispatch, navigate, disconnect]);
 
   // Memoized computed values
-  const isAdmin = useMemo(() =>
-    currentUser?.role && ["ADMIN", "SUPER_ADMIN"].includes(currentUser.role),
+  const isAdmin = useMemo(
+    () =>
+      currentUser?.role && ['ADMIN', 'SUPER_ADMIN'].includes(currentUser.role),
     [currentUser?.role]
   );
 
-  const adminButtonText = useMemo(() =>
-    pathname.includes("admin") ? "User Dashboard" : "Admin Dashboard",
+  const adminButtonText = useMemo(
+    () => (pathname.includes('admin') ? 'User Dashboard' : 'Admin Dashboard'),
     [pathname]
   );
 
-  const userAvatar = useMemo(() =>
-    currentUser?.profile_image_url
-      ? <Avatar src={currentUser.profile_image_url} sx={styles.avatar} />
-      : <Avatar sx={styles.avatar} />,
+  const userAvatar = useMemo(
+    () =>
+      currentUser?.profile_image_url ? (
+        <Avatar src={currentUser.profile_image_url} sx={styles.avatar} />
+      ) : (
+        <Avatar sx={styles.avatar} />
+      ),
     [currentUser?.profile_image_url]
   );
 
   return (
     <Box sx={styles.container}>
-      <Tooltip title="Account Options">
+      <Tooltip title='Account Options'>
         <IconButton
           onClick={handleClick}
-          size="small"
+          size='small'
           sx={styles.avatarButton}
-          aria-controls={open ? "account-menu" : undefined}
-          aria-haspopup="true"
-          aria-expanded={open ? "true" : undefined}
+          aria-controls={open ? 'account-menu' : undefined}
+          aria-haspopup='true'
+          aria-expanded={open ? 'true' : undefined}
         >
           {userAvatar}
         </IconButton>
@@ -113,18 +122,15 @@ const HeaderMenu = () => {
 
       <Menu
         anchorEl={anchorEl}
-        id="account-menu"
+        id='account-menu'
         open={open}
         onClose={handleClose}
         onClick={handleClose}
         PaperProps={styles.menuPaper}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <MenuItem
-          title="Click to copy wallet ID"
-          onClick={handleWalletIdCopy}
-        >
+        <MenuItem title='Click to copy wallet ID' onClick={handleWalletIdCopy}>
           <Avatar sx={styles.menuItemAvatar}>
             <HederaIcon
               size={styles.hederaIcon.size}
@@ -132,12 +138,11 @@ const HeaderMenu = () => {
               fillBg={styles.hederaIcon.fillBg}
             />
           </Avatar>
-          {currentUser?.hedera_wallet_id ?? ""}
+          {currentUser?.hedera_wallet_id ?? ''}
         </MenuItem>
 
         <MenuItem>
-          {userAvatar}
-          @{currentUser?.personal_twitter_handle}
+          {userAvatar}@{currentUser?.personal_twitter_handle}
         </MenuItem>
 
         <Divider />
@@ -145,7 +150,7 @@ const HeaderMenu = () => {
         {isAdmin && (
           <MenuItem onClick={handleNavigateAdmin}>
             <ListItemIcon>
-              <AdminPanelSettingsIcon fontSize="small" />
+              <AdminPanelSettingsIcon fontSize='small' />
             </ListItemIcon>
             {adminButtonText}
           </MenuItem>
@@ -153,16 +158,16 @@ const HeaderMenu = () => {
 
         <MenuItem onClick={handleClose}>
           <ListItemIcon>
-            <Settings fontSize="small" />
+            <Settings fontSize='small' />
           </ListItemIcon>
           Settings
         </MenuItem>
 
         <MenuItem onClick={handleLogout} disabled={isLoggingOut}>
           <ListItemIcon>
-            <Logout fontSize="small" />
+            <Logout fontSize='small' />
           </ListItemIcon>
-          {isLoggingOut ? "Logging out..." : "Logout"}
+          {isLoggingOut ? 'Logging out...' : 'Logout'}
         </MenuItem>
       </Menu>
     </Box>

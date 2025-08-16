@@ -22,15 +22,41 @@ yarn install
 # or
 npm install
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your configuration
-
 # Start development server
 yarn dev
 # or
 npm run dev
 ```
+
+## 🌍 Environment Configuration
+
+The application supports multiple environment configurations:
+
+### Available Environments
+
+- **Local Development** (`.env`): Uses local backend server at `http://localhost:4000`
+- **Remote Development** (`.env.dev`): Uses remote development API at `https://testnet-dev-api.hashbuzz.social`
+
+### Development Scripts
+
+```bash
+# Local development (uses .env - connects to localhost:4000)
+yarn dev
+yarn dev:local
+
+# Remote development (uses .env.dev - connects to remote API)
+yarn dev:remote
+
+# Build for different environments
+yarn build          # Local build
+yarn build:local    # Local build
+yarn build:dev      # Development build
+```
+
+### Environment Files
+
+- `.env` - Local development with backend at localhost:4000
+- `.env.dev` - Development environment with remote API
 
 ## 📁 Project Structure
 

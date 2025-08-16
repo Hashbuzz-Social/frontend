@@ -52,7 +52,6 @@
     "build:low-memory": "node --max-old-space-size=512 --max-semi-space-size=64 ./node_modules/.bin/vite build",
     "preview": "vite preview",
     "serve": "serve -s build -l 3000",
-    "start:prod": "serve -s build -l 3000",
     "start": "vite",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
