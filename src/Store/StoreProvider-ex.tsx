@@ -1,10 +1,10 @@
-import React from "react";
-import { useCookies } from "react-cookie";
-import { toast } from "react-toastify";
-import { useApiInstance } from "../APIConfig/api";
-import { getErrorMessage } from "../Utilities/helpers";
-import { CurrentUser } from "../types";
-import { AppState, EntityBalances } from "../types/state";
+import React from 'react';
+import { useCookies } from 'react-cookie';
+import { toast } from 'react-toastify';
+import { useApiInstance } from '../APIConfig/api';
+import { getErrorMessage } from '../comman/helpers';
+import { CurrentUser } from '../types';
+import { AppState, EntityBalances } from '../types/state';
 
 // Defines the type for the context including the AppState and an update function.
 interface StoreContextType extends AppState {
@@ -15,11 +15,11 @@ interface StoreContextType extends AppState {
 }
 
 export const INITIAL_HBAR_BALANCE_ENTITY: EntityBalances = {
-  entityBalance: "00.00",
-  entityIcon: "HBAR",
-  entitySymbol: "ℏ",
-  entityId: "",
-  entityType: "HBAR",
+  entityBalance: '00.00',
+  entityIcon: 'HBAR',
+  entitySymbol: 'ℏ',
+  entityId: '',
+  entityType: 'HBAR',
 };
 
 // Create a context with a default value of null.
@@ -28,7 +28,7 @@ const StoreContext = React.createContext<StoreContextType | null>(null);
 const INITIAL_STATE: AppState = {
   ping: {
     status: false,
-    hedera_wallet_id: "",
+    hedera_wallet_id: '',
   },
   checkRefresh: false,
   balances: [],
@@ -38,74 +38,86 @@ const INITIAL_STATE: AppState = {
 };
 
 export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
-  const [cookies] = useCookies(["aSToken"]);
-  const [balanceQueryTimer, setBalanceQueryTimer] = React.useState<NodeJS.Timeout | null>(null);
+  const [cookies] = useCookies(['aSToken']);
+  const [balanceQueryTimer, setBalanceQueryTimer] =
+    React.useState<NodeJS.Timeout | null>(null);
   const [state, updateState] = React.useState<AppState>(INITIAL_STATE);
   const { Auth, User } = useApiInstance();
 
   const accountId = state.currentUser?.hedera_wallet_id;
 
   const checkAndUpdateLoggedInUser = React.useCallback(() => {
-    const localData = localStorage.getItem("user");
+    const localData = localStorage.getItem('user');
     if (localData) {
       const currentUser = JSON.parse(localData) as CurrentUser;
       const { aSToken } = cookies;
-      updateState((prevState) => ({
+      updateState(prevState => ({
         ...prevState,
         currentUser,
         auth: {
-          ast: aSToken, auth: true, deviceId: localStorage.getItem("device_id") ?? "", message: "", refreshTok: "" ,
+          ast: aSToken,
+          auth: true,
+          deviceId: localStorage.getItem('device_id') ?? '',
+          message: '',
+          refreshTok: '',
         },
       }));
     }
   }, [cookies]);
 
-  const checkAndUpdateEntityBalances = React.useCallback(async (topup = false) => {
-    try {
-      const balancesData = await User.getTokenBalances();
-      let available_budget = 0;
-      if (!topup) {
-        available_budget = Number(state.currentUser?.available_budget);
-      } else {
-        const currentUser = await User.getCurrentUser();
-        available_budget = currentUser?.available_budget ?? 0;
-      }
+  const checkAndUpdateEntityBalances = React.useCallback(
+    async (topup = false) => {
+      try {
+        const balancesData = await User.getTokenBalances();
+        let available_budget = 0;
+        if (!topup) {
+          available_budget = Number(state.currentUser?.available_budget);
+        } else {
+          const currentUser = await User.getCurrentUser();
+          available_budget = currentUser?.available_budget ?? 0;
+        }
 
-      updateState((prevState) => {
-        const balances: EntityBalances[] = [
-          {
-            ...INITIAL_HBAR_BALANCE_ENTITY,
-            entityBalance: (available_budget / 1e8).toFixed(4),
-            entityId: prevState.currentUser?.hedera_wallet_id ?? "",
-          },
-        ];
+        updateState(prevState => {
+          const balances: EntityBalances[] = [
+            {
+              ...INITIAL_HBAR_BALANCE_ENTITY,
+              entityBalance: (available_budget / 1e8).toFixed(4),
+              entityId: prevState.currentUser?.hedera_wallet_id ?? '',
+            },
+          ];
 
-        balancesData.forEach((d) => {
-          balances.push({
-            entityBalance: d.available_balance.toFixed(4),
-            entityIcon: d.token_symbol,
-            entitySymbol: "",
-            entityId: d.token_id,
-            entityType: d.token_type,
-            decimals: d.decimals,
+          balancesData.forEach(d => {
+            balances.push({
+              entityBalance: d.available_balance.toFixed(4),
+              entityIcon: d.token_symbol,
+              entitySymbol: '',
+              entityId: d.token_id,
+              entityType: d.token_type,
+              decimals: d.decimals,
+            });
           });
+
+          return { ...prevState, balances };
         });
 
-        return { ...prevState, balances };
-      });
-
-      toast.success("Balance is updated successfully.");
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    }
-  }, [User, state.currentUser?.available_budget, state.currentUser?.hedera_wallet_id]);
+        toast.success('Balance is updated successfully.');
+      } catch (err) {
+        toast.error(getErrorMessage(err));
+      }
+    },
+    [
+      User,
+      state.currentUser?.available_budget,
+      state.currentUser?.hedera_wallet_id,
+    ]
+  );
 
   const authCheckPing = React.useCallback(async () => {
-    console.log("Auth" , Auth);
+    console.log('Auth', Auth);
     try {
       const data = await Auth.authPing();
       if (data.wallet_id) {
-        updateState((prevState) => ({
+        updateState(prevState => ({
           ...prevState,
           checkRefresh: true,
           ping: { status: true, hedera_wallet_id: data.wallet_id },
@@ -129,7 +141,7 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
     if (cookies.aSToken) {
       authCheckPing();
     }
-  }, [authCheckPing, cookies.aSToken , Auth]);
+  }, [authCheckPing, cookies.aSToken, Auth]);
 
   React.useEffect(() => {
     if (state.ping.status) {
@@ -145,18 +157,18 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
 
   React.useEffect(() => {
     const params = new URL(document.location.href).searchParams;
-    const token = params.get("aSToken");
-    const userId = params.get("user_id");
-    const brandConnection = params.get("brandConnection");
-    const authStatus = params.get("authStatus");
-    const message = params.get("message");
+    const token = params.get('aSToken');
+    const userId = params.get('user_id');
+    const brandConnection = params.get('brandConnection');
+    const authStatus = params.get('authStatus');
+    const message = params.get('message');
 
-    if (authStatus === "fail" || brandConnection === "fail") {
-      toast.error(message ?? "Error while integration.");
-    } else if (brandConnection === "success") {
-      toast.success(message ?? "Integration completed successfully.");
+    if (authStatus === 'fail' || brandConnection === 'fail') {
+      toast.error(message ?? 'Error while integration.');
+    } else if (brandConnection === 'success') {
+      toast.success(message ?? 'Integration completed successfully.');
     } else if (token && userId) {
-      toast.success("Integration completed.");
+      toast.success('Integration completed.');
     }
   }, []);
 
@@ -182,7 +194,7 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
 export const useStore = () => {
   const context = React.useContext(StoreContext);
   if (!context) {
-    throw new Error("useStore must be used within a StoreProvider");
+    throw new Error('useStore must be used within a StoreProvider');
   }
   return context;
 };

@@ -1,17 +1,16 @@
-import { useGetCurrentUserQuery } from "@/API/user";
-import { updateCurrentUser } from "@/Store/miscellaneousStoreSlice";
-import { useAppDispatch } from "@/Store/store";
-import { Container, useTheme } from "@mui/material";
-import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
-import { DashboardHeader } from "../Components";
-import useBalancesSync from "@/hooks/use-balances-sync";
-
+import { useGetCurrentUserQuery } from '@/API/user';
+import useBalancesSync from '@/hooks/use-balances-sync';
+import { updateCurrentUser } from '@/Store/miscellaneousStoreSlice';
+import { useAppDispatch } from '@/Store/store';
+import { Container, useTheme } from '@mui/material';
+import { useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
+import { DashboardHeader } from '../Components';
 
 const MainLayout = () => {
   useBalancesSync();
   const theme = useTheme();
-  const { data: currentUser, isLoading } = useGetCurrentUserQuery()
+  const { data: currentUser, isLoading } = useGetCurrentUserQuery();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -26,15 +25,15 @@ const MainLayout = () => {
 
   return (
     <Container
-      maxWidth="xl"
+      maxWidth='xl'
       sx={{
-        background: "hsl(0, 0%, 95%)",
-        minHeight: "100vh",
-        [theme.breakpoints.up("sm")]: {
-          display: "grid",
-          gridTemplateRows: "auto 1fr",
-          height: "100vh",
-          gridGap: "12px"
+        background: 'hsl(0, 0%, 95%)',
+        minHeight: '100vh',
+        [theme.breakpoints.up('sm')]: {
+          display: 'grid',
+          gridTemplateRows: 'auto 1fr',
+          height: '100vh',
+          gridGap: '12px',
         },
       }}
     >

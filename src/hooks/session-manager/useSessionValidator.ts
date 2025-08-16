@@ -11,8 +11,8 @@ import {
 } from '@/Ver2Designs/Pages/AuthAndOnboard';
 import { useAuthPingMutation } from '@/Ver2Designs/Pages/AuthAndOnboard/api/auth';
 import { useCallback, useRef, useState } from 'react';
+import { delay, logDebug, logError, logInfo } from '../../comman/utils';
 import type { SessionValidationResult } from './types';
-import { delay, logDebug, logError, logInfo } from './utils';
 
 export const useSessionValidator = (
   setTokenExpiry: (expiryTimestamp?: number) => number,
