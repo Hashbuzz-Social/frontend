@@ -83,6 +83,7 @@ export const campaignApi = apiBase.injectEndpoints({
         url: '/api/campaign/all',
         params: { page, limit },
       }),
+      providesTags: ['Campaign', 'UserData'],
     }),
 
     // Create new campaign with file upload support
@@ -92,6 +93,7 @@ export const campaignApi = apiBase.injectEndpoints({
         method: 'POST',
         body: formData,
       }),
+      invalidatesTags: ['Campaign', 'UserData'],
     }),
 
     // Update campaign status (start, pause, etc.)
@@ -104,6 +106,7 @@ export const campaignApi = apiBase.injectEndpoints({
         method: 'POST',
         body,
       }),
+      invalidatesTags: ['Campaign', 'UserData'],
     }),
 
     // Get campaign statistics
@@ -124,6 +127,7 @@ export const campaignApi = apiBase.injectEndpoints({
         url: '/api/campaign/balance',
         params: { campaignId },
       }),
+      providesTags: ['UserData'],
     }),
 
     // Get card engagement status
@@ -132,11 +136,13 @@ export const campaignApi = apiBase.injectEndpoints({
         url: '/api/campaign/card-status',
         params: { id },
       }),
+      providesTags: ['UserData'],
     }),
 
     // Get reward details
     getRewardDetails: builder.query<RewardDetails, void>({
       query: () => '/api/campaign/reward-details',
+      providesTags: ['UserData'],
     }),
 
     // Upload media
@@ -149,11 +155,13 @@ export const campaignApi = apiBase.injectEndpoints({
         method: 'POST',
         body: formData,
       }),
+      invalidatesTags: ['Campaign'],
     }),
 
     // Get recent tweets
     getRecentTweets: builder.query<{ id: number; content: string }[], void>({
       query: () => '/api/campaign/recent-tweets',
+      providesTags: ['UserData'],
     }),
   }),
   overrideExisting: false,

@@ -1,4 +1,4 @@
-import { CampaignStatus, getCardStausText } from '@/Utilities/helpers';
+import { CampaignStatus, getCardStausText } from '@/comman/helpers';
 import { GridColDef } from '@mui/x-data-grid';
 import { RenderAmountClaimed } from './components/RenderAmountClaimed';
 import { RenderAmountSpent } from './components/RenderAmountSpent';
