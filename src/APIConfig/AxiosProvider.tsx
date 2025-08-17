@@ -9,12 +9,12 @@ import React, {
 } from 'react';
 import { useCookies } from 'react-cookie';
 import { toast } from 'react-toastify';
-import { useStore } from '../Store/StoreProvider';
+// import { useStore } from '../Store/StoreProvider';
 import { getCookieByName, getErrorMessage } from '../comman/helpers';
 
 const generateUniqueId = () => {
   return 'xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = (Math.random() * 16) | 0,
+    const r = (Math.random() * 16) | 0,
       v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
@@ -47,7 +47,7 @@ const AxiosProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const [astToken, setAstToken] = useState<string | null>(
     cookies.aSToken ?? getCookieByName('aSToken')
   );
-  const { auth, dispatch } = useStore();
+  // const { auth } = useStore();
 
   const axiosInstance = useRef<AxiosInstance>(
     axios.create({
@@ -96,8 +96,8 @@ const AxiosProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     removeCookie('XSRF-TOKEN');
 
     // Reset application state
-    dispatch({ type: 'RESET_STATE' });
-  }, [dispatch, removeCookie]);
+    // dispatch({ type: 'RESET_STATE' });
+  }, [removeCookie]);
 
   useEffect(() => {
     if (useRefreshToken) {
@@ -135,12 +135,6 @@ const AxiosProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
       fetchCsrfToken();
     }
   }, []);
-
-  useEffect(() => {
-    setAstToken(
-      cookies.aSToken ?? (auth?.ast ? getCookieByName('aSToken') : undefined)
-    );
-  }, [cookies.aSToken, auth]);
 
   useEffect(() => {
     const instance = axiosInstance.current;
