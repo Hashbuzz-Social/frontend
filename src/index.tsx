@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import AxiosProvider from './APIConfig/AxiosProvider';
 import AppRouter from './AppRouter';
 import './index.css';
 import { store } from './Store/store';
@@ -16,13 +15,11 @@ const App = () => {
   return (
     <React.StrictMode>
       <Provider store={store}>
-        <AxiosProvider>
-          <HashbuzzWalletProvider>
-            <ThemeProvider theme={theme}>
-              <AppRouter />
-            </ThemeProvider>
-          </HashbuzzWalletProvider>
-        </AxiosProvider>
+        <HashbuzzWalletProvider>
+          <ThemeProvider theme={theme}>
+            <AppRouter />
+          </ThemeProvider>
+        </HashbuzzWalletProvider>
       </Provider>
       <ToastContainer />
     </React.StrictMode>
