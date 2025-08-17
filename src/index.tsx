@@ -5,7 +5,6 @@ import { Provider } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AppRouter from './AppRouter';
-import './index.css';
 import { store } from './Store/store';
 import HashbuzzWalletProvider from './Wallet/hashconnectService';
 
