@@ -233,9 +233,9 @@ const TopupModal = ({ data, open, onClose, operation }: TopupModalProps) => {
 
       dispatch(updateCurrentUser(currentUser));
       dispatch(setBalances(newBalances));
-      toast.info(response.data.message);
+      toast.info(response.message);
       onClose?.();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Reimburse error:', err);
       toast.error(err?.message || 'Reimburse failed. Please try again.');
     } finally {
