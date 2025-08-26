@@ -233,6 +233,7 @@ const CreateCampaign: React.FC = () => {
                   onChange={e => dispatch(setSelectedToken(e.target.value))}
                   disabled={isLoadingTokens}
                 >
+                  <MenuItem value=''>Select a token</MenuItem>
                   {campaignState.allTokens.map(token => (
                     <MenuItem
                       key={token.value}
@@ -572,7 +573,10 @@ const CreateCampaign: React.FC = () => {
       <CreatedCampaignPreviewModal
         open={campaignState.open}
         onClose={() => dispatch(setOpen(false))}
-        formData={campaignState.formData}
+        formData={{
+          ...campaignState.formData,
+          fungible_token_id: campaignState.selectedToken,
+        }}
         displayMedia={campaignState.displayMedia}
         isYoutube={campaignState.isYoutube}
         videoTitle={campaignState.videoTitle}
