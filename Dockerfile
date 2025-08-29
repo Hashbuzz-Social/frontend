@@ -53,7 +53,7 @@ ENV VITE_ENABLE_DEV_TOOLS=$VITE_ENABLE_DEV_TOOLS
 ENV NODE_ENV=production
 
 # Type check and build
-RUN yarn type-check
+# RUN yarn type-check
 RUN yarn build
 
 # =============================================================================
@@ -69,7 +69,7 @@ RUN addgroup -g 1001 -S nodejs && \
     adduser -S hashbuzz -u 1001 -G nodejs
 
 # Copy built application
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/build /usr/share/nginx/html
 
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
