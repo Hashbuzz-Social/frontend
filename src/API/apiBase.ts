@@ -53,7 +53,7 @@ const baseQueryWithReauth: BaseQueryFn<
   });
 
   // Execute the initial request
-  let result = await baseQuery(args, api, extraOptions);
+  const result = await baseQuery(args, api, extraOptions);
 
   // Check for auth errors in the response and log them appropriately
   if (result.error) {

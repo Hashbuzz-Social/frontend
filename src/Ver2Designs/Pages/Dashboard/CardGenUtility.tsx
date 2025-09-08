@@ -1,7 +1,8 @@
 import { Box, Card, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { SxProps, Theme } from '@mui/material/styles';
+
 import React from 'react';
+import { cardStyle } from '../../../components/Card/Card.styles';
 
 interface CardGenUtilityProps {
   title: string;
@@ -11,25 +12,6 @@ interface CardGenUtilityProps {
   };
   startIcon: React.ReactNode;
 }
-
-export const cardStyle: SxProps<Theme> = {
-  height: {
-    xs: 'auto',
-    sm: 'auto',
-    md: 180,
-  },
-  backgroundColor: '#ffffff',
-  p: 3,
-  borderRadius: 4,
-  border: '2px solid rgba(0, 0, 0, 0.08)',
-  // boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
-    transform: 'translateY(-2px)',
-    borderColor: 'rgba(102, 126, 234, 0.15)',
-  },
-};
 
 export const CardGenUtility = ({
   title,
