@@ -1,9 +1,18 @@
+<<<<<<< HEAD
 import { Card, Box } from '@mui/material';
 import * as React from 'react';
 import { cardStyle } from '../CardGenUtility';
 import { styled } from '@mui/material/styles';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+=======
+import { Box, Card } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import * as React from 'react';
+import { cardStyle } from '../../../../components/Card/Card.styles';
+>>>>>>> fc03e84 (style(Dashboard-committed-Requests): move inline styles to custom style file and add request images)
 import DashboardUser from '../DashboardUser';
 import AdminViews from './AdminView';
 
