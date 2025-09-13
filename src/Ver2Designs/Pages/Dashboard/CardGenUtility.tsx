@@ -1,9 +1,9 @@
-<<<<<<< HEAD
-import { Box, Card, Divider, Stack, Typography } from '@mui/material';
+import { Card, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { SxProps, Theme, useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
+
 import React from 'react';
+import { cardStyle } from '../../../components/Card/Card.styles';
+import * as SC from './styled';
 
 interface CardGenUtilityProps {
   title: string;
@@ -19,7 +19,6 @@ export const CardGenUtility = ({
   content,
   startIcon,
 }: CardGenUtilityProps) => {
-
   return (
     <Grid size={{ xs: 6, sm: 6, xl: 3, lg: 3 }}>
       <Card elevation={0} sx={cardStyle}>
