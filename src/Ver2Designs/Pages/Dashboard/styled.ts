@@ -1,11 +1,9 @@
-import { Alert, Box, Button, IconButton } from '@mui/material';
-import styled from 'styled-components';
+import { Alert, Box, Button, IconButton, styled } from '@mui/material';
 
-export const StyledCardGenUtility = styled.div`
+export const StyledCardGenUtility = styled('div')`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-
   @media only screen and (max-width: 1000px) {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
@@ -39,17 +37,14 @@ export const StyledPromoBanner = styled(Box)`
     min-height: auto;
     flex-direction: column;
     gap: 16px;
-
     @media (min-width: 600px) {
       padding: 24px;
       min-height: 80px;
     }
-
     @media (min-width: 900px) {
       flex-direction: row;
       gap: 0;
     }
-
     &::before {
       content: '';
       position: absolute;
@@ -72,41 +67,37 @@ export const StyledBannerLeftSide = styled(Box)`
     flex-direction: column;
     text-align: center;
     width: 100%;
-
     @media (min-width: 600px) {
       gap: 16px;
       flex-direction: row;
       text-align: left;
     }
-
     @media (min-width: 900px) {
       width: auto;
     }
   }
 `;
 
-export const StyledSpeakerImage = styled.img`
+export const StyledSpeakerImage = styled('img')`
   width: clamp(60px, 15vw, 100px);
   height: auto;
   max-height: 60px;
   object-fit: contain;
 `;
 
-export const StyledBannerSubtitle = styled.div`
+export const StyledBannerSubtitle = styled('div')`
   opacity: 0.9;
   margin-bottom: 4px;
   font-size: 0.75rem;
-
   @media (min-width: 600px) {
     font-size: 0.875rem;
   }
 `;
 
-export const StyledBannerTitle = styled.div`
+export const StyledBannerTitle = styled('div')`
   font-weight: 700;
   margin-bottom: 0;
   font-size: 1rem;
-
   @media (min-width: 600px) {
     margin-bottom: 8px;
     font-size: 1.25rem;
@@ -121,11 +112,9 @@ export const StyledBannerRightSide = styled(Box)`
     z-index: 1;
     width: 100%;
     justify-content: center;
-
     @media (min-width: 600px) {
       gap: 16px;
     }
-
     @media (min-width: 900px) {
       width: auto;
       justify-content: flex-end;
@@ -143,12 +132,10 @@ export const StyledCampaignerButton = styled(Button)`
     font-size: 0.75rem;
     min-width: auto;
     transition: all 0.2s ease;
-
     @media (min-width: 600px) {
       padding: 12px 24px;
       font-size: 0.875rem;
     }
-
     &:hover {
       background-color: white;
       transform: translateY(-1px);
@@ -159,7 +146,6 @@ export const StyledCampaignerButton = styled(Button)`
 export const StyledCloseIconButton = styled(IconButton)`
   && {
     color: rgba(255, 255, 255, 0.8);
-
     &:hover {
       color: white;
     }
@@ -185,12 +171,10 @@ export const StyledConnectBrandButton = styled(Button)`
     border-radius: 16px;
     font-size: 0.9rem;
     transition: all 0.2s ease;
-
     &:hover {
       background-color: #5a67d8;
       transform: translateY(-1px);
     }
-
     &:disabled {
       background-color: #a0aec0;
       color: white;
@@ -199,7 +183,7 @@ export const StyledConnectBrandButton = styled(Button)`
 `;
 
 // CardGenUtility styled components
-export const StyledCardStack = styled.div`
+export const StyledCardStack = styled('div')`
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -223,19 +207,17 @@ export const StyledIconContainer = styled(Box)`
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-
     @media (min-width: 600px) {
       font-size: 32px;
     }
   }
 `;
 
-export const StyledCardTitle = styled.div`
+export const StyledCardTitle = styled('div')`
   color: #1e293b;
   font-weight: 600;
   font-size: 0.9rem;
   line-height: 1.2;
-
   @media (min-width: 600px) {
     font-size: 1.1rem;
   }
@@ -259,7 +241,6 @@ export const StyledImageContainer = styled(Box)`
     overflow: hidden;
     background-color: #f8fafc;
     border: 1px solid rgba(0, 0, 0, 0.05);
-
     @media (min-width: 600px) {
       width: 50px;
       height: 50px;
@@ -267,13 +248,13 @@ export const StyledImageContainer = styled(Box)`
   }
 `;
 
-export const StyledCardImage = styled.img`
+export const StyledCardImage = styled('img')`
   width: 100%;
   height: 100%;
   object-fit: cover;
 `;
 
-export const StyledTextContainer = styled.div`
+export const StyledTextContainer = styled('div')`
   display: flex;
   flex-direction: column;
   gap: 6.4px;
@@ -285,13 +266,12 @@ interface StyledCardTextProps {
   $isFirst: boolean;
 }
 
-export const StyledCardText = styled.div<StyledCardTextProps>`
+export const StyledCardText = styled('div')<StyledCardTextProps>`
   color: ${props => (props.$isFirst ? '#475569' : '#64748b')};
   font-size: 0.75rem;
   line-height: 1.4;
   font-weight: ${props => (props.$isFirst ? 500 : 400)};
   word-break: break-word;
-
   @media (min-width: 600px) {
     font-size: 0.825rem;
   }
