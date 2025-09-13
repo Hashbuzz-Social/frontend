@@ -1,7 +1,6 @@
-import { Alert, Box, Button, IconButton } from '@mui/material';
-import styled from 'styled-components';
+import { Alert, Box, Button, IconButton, styled } from '@mui/material';
 
-export const StyledCardGenUtility = styled.div`
+export const StyledCardGenUtility = styled('div')`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
@@ -79,14 +78,14 @@ export const StyledBannerLeftSide = styled(Box)`
   }
 `;
 
-export const StyledSpeakerImage = styled.img`
+export const StyledSpeakerImage = styled('img')`
   width: clamp(60px, 15vw, 100px);
   height: auto;
   max-height: 60px;
   object-fit: contain;
 `;
 
-export const StyledBannerSubtitle = styled.div`
+export const StyledBannerSubtitle = styled('div')`
   opacity: 0.9;
   margin-bottom: 4px;
   font-size: 0.75rem;
@@ -95,7 +94,7 @@ export const StyledBannerSubtitle = styled.div`
   }
 `;
 
-export const StyledBannerTitle = styled.div`
+export const StyledBannerTitle = styled('div')`
   font-weight: 700;
   margin-bottom: 0;
   font-size: 1rem;
@@ -184,7 +183,7 @@ export const StyledConnectBrandButton = styled(Button)`
 `;
 
 // CardGenUtility styled components
-export const StyledCardStack = styled.div`
+export const StyledCardStack = styled('div')`
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -214,7 +213,7 @@ export const StyledIconContainer = styled(Box)`
   }
 `;
 
-export const StyledCardTitle = styled.div`
+export const StyledCardTitle = styled('div')`
   color: #1e293b;
   font-weight: 600;
   font-size: 0.9rem;
@@ -249,13 +248,13 @@ export const StyledImageContainer = styled(Box)`
   }
 `;
 
-export const StyledCardImage = styled.img`
+export const StyledCardImage = styled('img')`
   width: 100%;
   height: 100%;
   object-fit: cover;
 `;
 
-export const StyledTextContainer = styled.div`
+export const StyledTextContainer = styled('div')`
   display: flex;
   flex-direction: column;
   gap: 6.4px;
@@ -267,7 +266,7 @@ interface StyledCardTextProps {
   $isFirst: boolean;
 }
 
-export const StyledCardText = styled.div<StyledCardTextProps>`
+export const StyledCardText = styled('div')<StyledCardTextProps>`
   color: ${props => (props.$isFirst ? '#475569' : '#64748b')};
   font-size: 0.75rem;
   line-height: 1.4;

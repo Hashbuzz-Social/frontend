@@ -1,12 +1,11 @@
-import { Box, Button, Drawer, IconButton } from '@mui/material';
-import styled from 'styled-components';
+import { Box, Button, Drawer, IconButton, styled } from '@mui/material';
 
 // Footer styles (existing)
-export const Footer = styled.footer`
+export const Footer = styled('footer')`
   background-color: rgba(0, 96, 231, 0.75);
 `;
 
-export const FooterContiner = styled.div`
+export const FooterContiner = styled('div')`
   display: flex;
   justify-content: space-between;
   padding: 20px;
@@ -20,7 +19,7 @@ export const FooterContiner = styled.div`
   }
 `;
 
-export const FooterColumn = styled.div`
+export const FooterColumn = styled('div')`
   flex: 1;
   padding: 10px;
   flex-direction: column;
@@ -53,7 +52,7 @@ export const FooterColumn = styled.div`
   }
 `;
 
-export const FooterLogo = styled.img`
+export const FooterLogo = styled('img')`
   max-width: 100px;
 `;
 // Header styles
@@ -211,7 +210,7 @@ export const StyledProfileImageContainer = styled(Box)`
   }
 `;
 
-export const StyledProfileImage = styled.img`
+export const StyledProfileImage = styled('img')`
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -232,14 +231,14 @@ export const StyledAvatarPlaceholder = styled(Box)`
   }
 `;
 
-export const StyledUserName = styled.div`
+export const StyledUserName = styled('div')`
   font-weight: 600;
   color: #1e293b;
   font-size: 1rem;
   line-height: 1.5;
 `;
 
-export const StyledUserDisplayName = styled.div`
+export const StyledUserDisplayName = styled('div')`
   color: #64748b;
   font-size: 0.875rem;
   line-height: 1.43;
@@ -253,11 +252,11 @@ export const StyledNavigationSection = styled(Box)`
   }
 `;
 
-export const StyledNavigationList = styled.div`
+export const StyledNavigationList = styled('div')`
   padding: 0 16px;
 `;
 
-export const StyledNavigationItem = styled.div`
+export const StyledNavigationItem = styled('div')`
   margin-bottom: 8px;
 `;
 
@@ -265,7 +264,9 @@ interface StyledNavigationButtonProps {
   $isActive: boolean;
 }
 
-export const StyledNavigationButton = styled.div<StyledNavigationButtonProps>`
+export const StyledNavigationButton = styled(
+  'div'
+)<StyledNavigationButtonProps>`
   display: flex;
   align-items: center;
   width: 100%;
@@ -291,7 +292,7 @@ export const StyledNavigationIcon = styled(Box)<StyledNavigationButtonProps>`
   }
 `;
 
-export const StyledNavigationText = styled.div<StyledNavigationButtonProps>`
+export const StyledNavigationText = styled('div')<StyledNavigationButtonProps>`
   font-weight: ${props => (props.$isActive ? 600 : 400)};
   color: ${props => (props.$isActive ? '#667eea' : '#64748b')};
   font-size: 0.95rem;
