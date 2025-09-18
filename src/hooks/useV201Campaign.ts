@@ -316,13 +316,114 @@ export const useV201Campaign = (): UseV201CampaignReturn => {
         });
       }
     } catch (error: unknown) {
-      console.error('Failed to save draft:', error);
-      const err = error as { data?: { message?: string }; message?: string };
-      toast.error(
+      console.error('Failed to publish campaign:', error);
+      const err = error as {
+        data?: { message?: string };
+        message?: string;
+        status?: number;
+      };
+
+      // Extract error message
+      const errorMessage =
         err?.data?.message ||
-          err?.message ||
-          'Failed to save campaign draft. Please try again.'
-      );
+        err?.message ||
+        'Failed to publish campaign. Please try again.';
+
+      // Check for specific Twitter API errors and provide targeted feedback
+      if (errorMessage.includes('TWITTER_AUTH_EXPIRED')) {
+        toast.error(
+          '🔐 Your 𝕏 account authentication has expired. Please reconnect your business 𝕏 account to continue publishing campaigns.',
+          {
+            position: 'top-right',
+            autoClose: false, // Don't auto-close for authentication errors
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            className: 'twitter-auth-expired-toast',
+          }
+        );
+
+        // Show a second informational toast about reconnecting
+        setTimeout(() => {
+          toast.info(
+            '💡 Click here to reconnect your business 𝕏 account and continue publishing.',
+            {
+              position: 'top-center',
+              autoClose: 10000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              className: 'twitter-reconnect-toast',
+              onClick: () => {
+                // Trigger business Twitter connection flow
+                fetch('/api/integrations/twitter/bizHandle', {
+                  method: 'GET',
+                  credentials: 'include',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                })
+                  .then(response => response.json())
+                  .then(data => {
+                    if (data.url) {
+                      window.location.href = data.url;
+                    }
+                  })
+                  .catch(console.error);
+                toast.dismiss();
+              },
+            }
+          );
+        }, 2000);
+      } else if (errorMessage.includes('TWITTER_FORBIDDEN')) {
+        toast.error(
+          '🚫 Your 𝕏 account does not have permission to post. Please check your account permissions.',
+          {
+            position: 'top-right',
+            autoClose: 6000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
+      } else if (errorMessage.includes('TWITTER_RATE_LIMITED')) {
+        toast.error(
+          '⏰ 𝕏 API rate limit exceeded. Please wait a few minutes before trying again.',
+          {
+            position: 'top-right',
+            autoClose: 6000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
+      } else if (errorMessage.includes('TWITTER_DUPLICATE')) {
+        toast.error(
+          '📝 This tweet content has already been posted. Please modify your campaign text.',
+          {
+            position: 'top-right',
+            autoClose: 6000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
+      } else {
+        // Generic error handling for other cases
+        toast.error(errorMessage, {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
     }
   }, [formData, validateForm, createDraft]);
 
