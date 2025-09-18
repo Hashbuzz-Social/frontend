@@ -5,6 +5,7 @@ import {
   Save as SaveIcon,
   CheckCircle as SuccessIcon,
   CloudUpload as UploadIcon,
+  VideoFile as VideoFileIcon,
 } from '@mui/icons-material';
 import {
   Alert,
@@ -20,12 +21,14 @@ import {
   InputLabel,
   LinearProgress,
   MenuItem,
+  Paper,
   Select,
   SelectChangeEvent,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import React, { useState } from 'react';
 import {
   BudgetValidationResult,
@@ -55,10 +58,9 @@ const CreateCampaignV201: React.FC<CreateCampaignV201Props> = ({ onBack }) => {
     isPublishLoading,
     isLoading,
     savedDraftId,
-    tokenBalances,
     handleFieldChange,
     handleMediaUpload,
-    validateForm,
+    removeMediaFile,
     saveDraft,
     publishCampaign,
     resetForm,
@@ -373,6 +375,9 @@ const CreateCampaignV201: React.FC<CreateCampaignV201Props> = ({ onBack }) => {
                   p: 3,
                   textAlign: 'center',
                   bgcolor: 'grey.50',
+                  display: 'block',
+                  width: '100%',
+                  boxSizing: 'border-box',
                   cursor: 'pointer',
                   '&:hover': {
                     borderColor: 'primary.main',
@@ -401,40 +406,95 @@ const CreateCampaignV201: React.FC<CreateCampaignV201Props> = ({ onBack }) => {
               {formData.media.length > 0 && (
                 <Box sx={{ mt: 2 }}>
                   <Typography variant='subtitle2' gutterBottom>
-                    Selected Files:
+                    Selected Files ({formData.media.length}/5):
                   </Typography>
-                  <Stack spacing={1}>
+                  <Grid container spacing={2}>
                     {formData.media.map((file, index) => (
-                      <Box
-                        key={index}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          p: 1,
-                          bgcolor: 'grey.100',
-                          borderRadius: 1,
-                        }}
-                      >
-                        <Typography variant='body2'>
-                          {file.name} ({(file.size / 1024 / 1024).toFixed(2)}{' '}
-                          MB)
-                        </Typography>
-                        <IconButton
-                          size='small'
-                          onClick={() => {
-                            const newFiles = formData.media.filter(
-                              (_, i) => i !== index
-                            );
-                            // Update form data without the removed file
-                            // This would need to be implemented in the hook
+                      <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+                        <Paper
+                          elevation={1}
+                          sx={{
+                            p: 2,
+                            position: 'relative',
+                            '&:hover .remove-button': {
+                              opacity: 1,
+                            },
                           }}
                         >
-                          <DeleteIcon fontSize='small' />
-                        </IconButton>
-                      </Box>
+                          {/* File Preview */}
+                          <Box sx={{ mb: 1, textAlign: 'center' }}>
+                            {file.type.startsWith('image/') ? (
+                              <Box
+                                component='img'
+                                src={URL.createObjectURL(file)}
+                                alt={file.name}
+                                sx={{
+                                  width: '100%',
+                                  height: 120,
+                                  objectFit: 'cover',
+                                  borderRadius: 1,
+                                  border: '1px solid',
+                                  borderColor: 'divider',
+                                }}
+                              />
+                            ) : (
+                              <Box
+                                sx={{
+                                  width: '100%',
+                                  height: 120,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  bgcolor: 'grey.100',
+                                  borderRadius: 1,
+                                  border: '1px solid',
+                                  borderColor: 'divider',
+                                }}
+                              >
+                                <VideoFileIcon
+                                  sx={{ fontSize: 40, color: 'primary.main' }}
+                                />
+                              </Box>
+                            )}
+                          </Box>
+
+                          {/* File Info */}
+                          <Typography
+                            variant='body2'
+                            noWrap
+                            sx={{ fontWeight: 500, mb: 0.5 }}
+                            title={file.name}
+                          >
+                            {file.name}
+                          </Typography>
+                          <Typography variant='caption' color='text.secondary'>
+                            {(file.size / (1024 * 1024)).toFixed(2)} MB
+                          </Typography>
+
+                          {/* Remove Button */}
+                          <IconButton
+                            className='remove-button'
+                            size='small'
+                            onClick={() => removeMediaFile(index)}
+                            sx={{
+                              position: 'absolute',
+                              top: 8,
+                              right: 8,
+                              bgcolor: 'error.main',
+                              color: 'white',
+                              opacity: 0,
+                              transition: 'opacity 0.2s',
+                              '&:hover': {
+                                bgcolor: 'error.dark',
+                              },
+                            }}
+                          >
+                            <DeleteIcon fontSize='small' />
+                          </IconButton>
+                        </Paper>
+                      </Grid>
                     ))}
-                  </Stack>
+                  </Grid>
                 </Box>
               )}
 

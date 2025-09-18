@@ -55,6 +55,7 @@ export interface UseV201CampaignReturn {
       | { target: { value: string } }
   ) => void;
   handleMediaUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  removeMediaFile: (index: number) => void;
   validateForm: () => boolean;
   saveDraft: () => Promise<void>;
   publishCampaign: () => Promise<void>;
@@ -192,6 +193,14 @@ export const useV201Campaign = (): UseV201CampaignReturn => {
     [errors.media]
   );
 
+  // Remove media file by index
+  const removeMediaFile = useCallback((index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      media: prev.media.filter((_, i) => i !== index),
+    }));
+  }, []);
+
   // Form validation
   const validateForm = useCallback((): boolean => {
     const newErrors: V201CampaignErrors = {};
@@ -254,7 +263,10 @@ export const useV201Campaign = (): UseV201CampaignReturn => {
   // Save draft
   const saveDraft = useCallback(async (): Promise<void> => {
     if (!validateForm()) {
-      toast.error('Please fix the validation errors before saving');
+      toast.error('⚠️ Please fix the validation errors before saving', {
+        position: 'top-right',
+        autoClose: 4000,
+      });
       return;
     }
 
@@ -286,9 +298,22 @@ export const useV201Campaign = (): UseV201CampaignReturn => {
 
       if (result.success && result.data.draftId) {
         setSavedDraftId(result.data.draftId);
-        toast.success('Campaign draft saved successfully!');
+        toast.success(
+          '✅ Campaign draft saved successfully! You can now publish it.',
+          {
+            position: 'top-right',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
       } else {
-        toast.error(result.message || 'Failed to save campaign draft');
+        toast.error(result.message || 'Failed to save campaign draft', {
+          position: 'top-right',
+          autoClose: 5000,
+        });
       }
     } catch (error: unknown) {
       console.error('Failed to save draft:', error);
@@ -323,10 +348,27 @@ export const useV201Campaign = (): UseV201CampaignReturn => {
       }).unwrap();
 
       if (result.success) {
-        toast.success('Campaign published successfully!');
-        navigate('/campaigns');
+        toast.success(
+          '🚀 Campaign published successfully! Redirecting to dashboard...',
+          {
+            position: 'top-right',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
+
+        // Small delay to show success message before navigation
+        setTimeout(() => {
+          navigate('/dashboard?tab=campaigns&refresh=true');
+        }, 1500);
       } else {
-        toast.error(result.message || 'Failed to publish campaign');
+        toast.error(result.message || 'Failed to publish campaign', {
+          position: 'top-right',
+          autoClose: 5000,
+        });
       }
     } catch (error: unknown) {
       console.error('Failed to publish campaign:', error);
@@ -365,6 +407,7 @@ export const useV201Campaign = (): UseV201CampaignReturn => {
     // Actions
     handleFieldChange,
     handleMediaUpload,
+    removeMediaFile,
     validateForm,
     saveDraft,
     publishCampaign: publishCampaignAction,
