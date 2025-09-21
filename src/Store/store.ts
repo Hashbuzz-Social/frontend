@@ -8,8 +8,11 @@ import appStatusSlice from './appStatusSlice';
 import campaignListReducer from './campaignListSlice';
 import campaignReducer from './campaignSlice';
 import miscellaneousStoreSlice from './miscellaneousStoreSlice';
+import { webSocketMiddleware } from './webSocketMiddleware';
+import webSocketReducer from './webSocketSlice';
 
-export const store = configureStore({
+// Create store with WebSocket middleware
+const store = configureStore({
   reducer: {
     appStatus: appStatusSlice,
     app: miscellaneousStoreSlice,
@@ -17,14 +20,18 @@ export const store = configureStore({
     auth: authReducer,
     campaign: campaignReducer,
     campaignList: campaignListReducer,
+    webSocket: webSocketReducer,
     // RTK Query API slices
     [apiBase.reducerPath]: apiBase.reducer,
     [mirrorNodeApi.reducerPath]: mirrorNodeApi.reducer,
   },
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware().concat(apiBase.middleware, mirrorNodeApi.middleware),
+    getDefaultMiddleware()
+      .concat(apiBase.middleware, mirrorNodeApi.middleware)
+      .concat(webSocketMiddleware),
 });
 
+export { store };
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export const useAppDispatch: () => AppDispatch = useDispatch;
