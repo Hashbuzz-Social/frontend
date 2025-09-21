@@ -5,7 +5,9 @@
  * Handles JWT authentication, encrypted messages, reconnection, and event subscription
  */
 
-import { decryptData } from '../utils/wsCrypto';
+import { decryptData } from '../../utils/wsCrypto';
+
+// import { decryptData } from '../utils/wsCrypto';
 
 export interface WebSocketConfig {
   wsUrl: string;
