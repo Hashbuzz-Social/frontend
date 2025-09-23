@@ -192,6 +192,12 @@ export const StyledFooter = styled(Box)(
   margin-top: ${theme.spacing(3)};
   padding-top: ${theme.spacing(2)};
   border-top: 1px solid ${theme.palette.divider};
+
+  ${theme.breakpoints.down('sm')} {
+    margin-top: ${theme.spacing(1)};
+    padding-top: ${theme.spacing(1)};
+    font-size: 12px;
+  }
 `
 );
 
@@ -200,6 +206,11 @@ export const StyledDurationContainer = styled(Box)(
   display: flex;
   align-items: center;
   gap: ${theme.spacing(2)};
+
+  ${theme.breakpoints.down('sm')} {
+    gap: ${theme.spacing(1)};
+    font-size: 12px;
+  }
 `
 );
 
@@ -208,6 +219,11 @@ export const StyledDurationInfo = styled(Box)(
   display: flex;
   align-items: center;
   gap: ${theme.spacing(0.5)};
+
+  ${theme.breakpoints.down('sm')} {
+    gap: ${theme.spacing(0.25)};
+    font-size: 8px;
+  }
 `
 );
 
@@ -219,6 +235,11 @@ export const StyledViewPromoButton = styled(Button)(
   color: ${theme.palette.primary.main};
   min-width: auto;
   padding: ${theme.spacing(0.5)};
+
+  ${theme.breakpoints.down('sm')} {
+    font-size: 12px;
+    padding: ${theme.spacing(0.25)};
+  }
 `
 );
 
