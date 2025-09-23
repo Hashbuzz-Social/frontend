@@ -1,222 +1,177 @@
 import { SxProps, Theme } from '@mui/material';
 
 export const associateTokensStyles: SxProps<Theme> = {
-  minHeight: '100dvh',
-  background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-  position: 'relative',
-  overflow: 'hidden',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background:
-      'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%)',
-    pointerEvents: 'none',
-  },
-};
-
-export const containerStyles: SxProps<Theme> = {
-  position: 'relative',
-  zIndex: 1,
+  background: '#FFFFFF',
   padding: {
-    xs: '20px 16px',
-    sm: '32px 24px',
-    md: '48px 40px',
-    lg: '64px 60px',
+    xs: '16px 12px 0',
+    md: '32px 40px',
+    xl: '40px 200px',
   },
-  minHeight: '100dvh',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: {
-    xs: '24px',
-    md: '32px',
+  height: {
+    xs: '100dvh',
+    md: 'auto',
   },
-};
-
-export const mainContentWrapper: SxProps<Theme> = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: {
-    xs: '24px',
-    md: '32px',
+  display: {
+    xs: 'flex',
+    md: 'block',
   },
-};
-
-export const headerSection: SxProps<Theme> = {
-  textAlign: {
-    xs: 'center',
-    md: 'left',
-  },
-  marginBottom: {
-    xs: '16px',
-    md: '24px',
-  },
-};
-
-export const tokensPaper: SxProps<Theme> = {
-  background: 'rgba(255, 255, 255, 0.95)',
-  backdropFilter: 'blur(20px)',
-  borderRadius: {
-    xs: '16px',
-    md: '24px',
-  },
-  border: '1px solid rgba(255, 255, 255, 0.2)',
-  // boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-  borderColor: 'rgba(107, 114, 128, 0.3)',
-  padding: {
-    xs: '20px',
-    sm: '24px',
-    md: '32px',
-  },
-  overflow: 'hidden',
-  position: 'relative',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '4px',
-    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
-  },
-};
-
-export const tokensHeader: SxProps<Theme> = {
-  marginBottom: {
-    xs: '20px',
-    md: '28px',
-  },
-  paddingBottom: '16px',
-  borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
-};
-
-export const tokensTitle: SxProps<Theme> = {
-  fontWeight: 600,
-  fontSize: {
-    xs: '1.25rem',
-    sm: '1.5rem',
-    md: '1.75rem',
-  },
-  color: '#1a1a1a',
-  marginBottom: '8px',
-  letterSpacing: '-0.025em',
-};
-
-export const tokensSubtitle: SxProps<Theme> = {
-  color: '#6b7280',
-  fontSize: {
-    xs: '0.875rem',
-    md: '1rem',
-  },
-  fontWeight: 400,
-};
-
-export const tokensGrid: SxProps<Theme> = {
-  display: 'grid',
-  gap: {
-    xs: '12px',
-    sm: '16px',
-    md: '20px',
-  },
-  gridTemplateColumns: {
-    xs: '1fr',
-    sm: 'repeat(auto-fit, minmax(300px, 1fr))',
-    lg: 'repeat(auto-fit, minmax(350px, 1fr))',
-  },
-};
-
-export const actionFooter: SxProps<Theme> = {
-  display: 'flex',
-  justifyContent: {
-    xs: 'center',
-    sm: 'space-between',
-  },
-  alignItems: 'center',
-  gap: {
-    xs: '16px',
-    md: '24px',
-  },
-  padding: {
-    xs: '20px 0',
-    md: '32px 0',
-  },
-  marginTop: 'auto',
   flexDirection: {
-    xs: 'column-reverse',
-    sm: 'row',
+    xs: 'column',
+    md: 'initial',
+  },
+  overflowY: {
+    xs: 'hidden',
+    md: 'auto',
   },
 };
 
-export const skipButton: SxProps<Theme> = {
-  borderColor: 'rgba(107, 114, 128, 0.3)',
-  color: '#6b7280',
-  padding: {
-    xs: '12px 24px',
-    md: '14px 32px',
-  },
-  fontSize: {
-    xs: '0.9rem',
-    md: '1rem',
-  },
-  fontWeight: 500,
-  borderRadius: '12px',
-  textTransform: 'none',
-  transition: 'all 0.3s ease',
-  minWidth: {
-    xs: '160px',
-    sm: 'auto',
-  },
-
-  '&:hover': {
-    borderColor: 'rgba(107, 114, 128, 0.5)',
-    background: 'rgba(107, 114, 128, 0.04)',
-    transform: 'translateY(-1px)',
-  },
-};
-
-export const proceedButton: SxProps<Theme> = {
-  padding: {
-    xs: '12px 32px',
-    md: '14px 40px',
-  },
-  fontSize: {
-    xs: '0.9rem',
-    md: '1rem',
-  },
-  fontWeight: 600,
-  borderRadius: '12px',
-  textTransform: 'none',
-  minWidth: {
-    xs: '160px',
-    sm: 'auto',
-  },
-  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
-  },
-
-  '&:active': {
-    transform: 'translateY(0)',
-  },
-};
-
-// Legacy styles for backward compatibility
 export const associateTokenWrapper: SxProps<Theme> = {
-  ...mainContentWrapper,
+  flex: {
+    xs: 1,
+    md: 'initial',
+  },
+  height: {
+    xs: 'auto',
+    md: 'calc(100dvh - 180px)',
+  },
+  overflowY: 'auto',
+  paddingBottom: {
+    xs: '12px',
+    md: '16px',
+  },
 };
 
 export const listContainer: SxProps<Theme> = {
-  ...tokensPaper,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: {
+    xs: '0.75rem',
+    md: '1rem',
+  },
+  padding: {
+    xs: '0.75rem 1rem',
+    md: '1rem 2rem',
+  },
+  border: '1px solid #E9EAFF',
+  borderRadius: '8px',
+  marginTop: {
+    xs: '1.5rem',
+    md: '2rem',
+  },
+  '& h4': {
+    fontSize: {
+      xs: '1.1rem',
+      md: '1.25rem',
+    },
+    lineHeight: 1.64,
+    fontWeight: 500,
+    margin: 0,
+  },
+};
+
+export const tokensListItem: SxProps<Theme> = {
+  display: 'flex',
+  alignItems: 'center',
+  padding: {
+    xs: '8px 0',
+    md: '12px 0',
+  },
+  background: '#FFFFFF',
+  borderBottom: '1px solid #eee',
+  '&:last-child': {
+    borderBottom: 'none',
+  },
+  '& .tokenIIcons': {
+    marginRight: {
+      xs: '1rem',
+      md: '1.5rem',
+    },
+    '& span': {
+      width: {
+        xs: '32px',
+        md: '40px',
+      },
+      height: {
+        xs: '32px',
+        md: '40px',
+      },
+      borderRadius: '50%',
+      background: '#E4E7FF',
+      display: 'flex',
+      alignItems: 'center',
+      fontSize: {
+        xs: '0.75rem',
+        md: '0.85rem',
+      },
+      justifyContent: 'center',
+    },
+  },
+  '& .tokenDetails': {
+    '& h4': {
+      fontSize: {
+        xs: '0.9rem',
+        md: '1rem',
+      },
+      lineHeight: 1.5,
+      fontWeight: 500,
+      margin: 0,
+    },
+    '& p': {
+      fontSize: {
+        xs: '0.8rem',
+        md: '0.875rem',
+      },
+      lineHeight: 1.5,
+      color: '#666',
+      margin: 0,
+    },
+  },
+  '& .linkOrStatus': {
+    marginLeft: 'auto',
+  },
 };
 
 export const associateTokenFooter: SxProps<Theme> = {
-  ...actionFooter,
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  height: '80px',
+  ['@media (max-width:600px)']: {
+    height: '30px', // mobile
+  },
+  ['@media (min-width:600px) and (max-width:900px)']: {
+    height: '70px', // tablet
+  },
+  padding: {
+    xs: '12px 12px 16px',
+    md: '0',
+  },
+  borderTop: {
+    xs: '1px solid #E9EAFF',
+    md: 'none',
+  },
+  background: {
+    xs: '#FFFFFF',
+    md: 'transparent',
+  },
+  position: {
+    xs: 'fixed',
+    md: 'static',
+  },
+  bottom: {
+    xs: 0,
+    md: 'auto',
+  },
+  left: {
+    xs: 0,
+    md: 'auto',
+  },
+  right: {
+    xs: 0,
+    md: 'auto',
+  },
+  zIndex: {
+    xs: 1000,
+    md: 'auto',
+  },
 };

@@ -1,4 +1,12 @@
-import { Alert, Box, Button, IconButton, styled } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  IconButton,
+  styled,
+  TextField,
+  Typography,
+} from '@mui/material';
 
 export const StyledCardGenUtility = styled('div')`
   display: grid;
@@ -568,3 +576,167 @@ export const StyledCardText = styled('div')<StyledCardTextProps>`
     font-size: 0.85rem;
   }
 `;
+
+// promo and history tab nav and search input styled components
+
+export const StyledContainer = styled(Box)(({ theme }) => ({
+  padding: '24px',
+
+  [theme.breakpoints.down('md')]: {
+    padding: '16px',
+  },
+
+  [theme.breakpoints.down('sm')]: {
+    padding: '12px',
+  },
+}));
+
+export const StyledHeaderContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: '24px',
+  gap: '16px',
+
+  [theme.breakpoints.down('md')]: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: '20px',
+    marginBottom: '20px',
+  },
+
+  [theme.breakpoints.down('sm')]: {
+    gap: '16px',
+    marginBottom: '16px',
+  },
+}));
+
+export const StyledTabsContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: '24px',
+
+  [theme.breakpoints.down('md')]: {
+    justifyContent: 'center',
+    gap: '32px',
+  },
+
+  [theme.breakpoints.down('sm')]: {
+    gap: '20px',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+}));
+
+export const StyledTab = styled(Typography)<{
+  isActive?: boolean;
+}>(({ theme, isActive }) => ({
+  cursor: 'pointer',
+  fontWeight: isActive ? 600 : 400,
+  paddingBottom: '8px',
+  position: 'relative',
+  color: isActive ? '#2563eb' : theme.palette.text.secondary,
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  fontSize: '1.25rem',
+  whiteSpace: 'nowrap',
+
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '1.1rem',
+  },
+
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    height: '3px',
+    backgroundColor: '#2563eb',
+    borderRadius: '2px 2px 0 0',
+    transform: isActive ? 'scaleX(1)' : 'scaleX(0)',
+    transformOrigin: 'left center',
+    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  },
+
+  '&:hover': {
+    color: isActive ? '#2563eb' : theme.palette.text.primary,
+
+    '&::after': {
+      transform: 'scaleX(1)',
+      backgroundColor: isActive ? '#2563eb' : theme.palette.text.disabled,
+    },
+  },
+}));
+
+export const StyledSearchField = styled(TextField)(({ theme }) => ({
+  minWidth: '220px',
+  width: '100%',
+  maxWidth: '300px',
+
+  [theme.breakpoints.down('md')]: {
+    minWidth: 'unset',
+    width: '100%',
+    maxWidth: '400px',
+    alignSelf: 'center',
+  },
+
+  [theme.breakpoints.down('sm')]: {
+    maxWidth: '100%',
+  },
+
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '12px',
+    backgroundColor:
+      theme.palette.mode === 'dark'
+        ? 'rgba(255, 255, 255, 0.05)'
+        : 'rgba(0, 0, 0, 0.02)',
+    transition: 'all 0.2s ease-in-out',
+
+    [theme.breakpoints.down('sm')]: {
+      borderRadius: '10px',
+    },
+
+    '&:hover': {
+      backgroundColor:
+        theme.palette.mode === 'dark'
+          ? 'rgba(255, 255, 255, 0.08)'
+          : 'rgba(0, 0, 0, 0.04)',
+
+      '& .MuiOutlinedInput-notchedOutline': {
+        borderColor: theme.palette.primary.main,
+      },
+    },
+
+    '&.Mui-focused': {
+      backgroundColor:
+        theme.palette.mode === 'dark'
+          ? 'rgba(255, 255, 255, 0.1)'
+          : 'rgba(0, 0, 0, 0.06)',
+
+      '& .MuiOutlinedInput-notchedOutline': {
+        borderWidth: '2px',
+        borderColor: theme.palette.primary.main,
+      },
+    },
+
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor:
+        theme.palette.mode === 'dark'
+          ? 'rgba(255, 255, 255, 0.12)'
+          : 'rgba(0, 0, 0, 0.12)',
+      transition: 'border-color 0.2s ease-in-out',
+    },
+  },
+
+  '& .MuiInputAdornment-root': {
+    color: theme.palette.text.secondary,
+  },
+
+  '& .MuiOutlinedInput-input': {
+    '&::placeholder': {
+      color: theme.palette.text.secondary,
+      opacity: 0.7,
+    },
+  },
+}));
+
+export const StyledContentContainer = styled(Box)({});

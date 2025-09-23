@@ -9,47 +9,13 @@ export const TokenListItemStyles: SxProps<Theme> = {
     md: '24px',
   },
   background: 'rgba(255, 255, 255, 0.8)',
-  borderRadius: '16px',
-  border: '1px solid rgba(0, 0, 0, 0.08)',
+
+  borderBottom: '1px solid #eee',
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   cursor: 'pointer',
   position: 'relative',
   overflow: 'hidden',
   backdropFilter: 'blur(10px)',
-
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.12)',
-    background: 'rgba(255, 255, 255, 0.95)',
-    borderColor: 'rgba(102, 126, 234, 0.3)',
-
-    '& .tokenIconWrapper': {
-      transform: 'scale(1.05)',
-      boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-    },
-
-    '& .tokenName': {
-      color: '#667eea',
-    },
-  },
-
-  // Hover gradient effect
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '2px',
-    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
-    transform: 'scaleX(0)',
-    transformOrigin: 'left',
-    transition: 'transform 0.3s ease',
-  },
-
-  '&:hover::before': {
-    transform: 'scaleX(1)',
-  },
 
   // Token Icons Section
   '& .tokenIcons': {
@@ -77,7 +43,8 @@ export const TokenListItemStyles: SxProps<Theme> = {
       md: '56px',
     },
     borderRadius: '50%',
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    background: 'linear-gradient(135deg, #5265ff 0%, #243ae9 100%)',
+
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
