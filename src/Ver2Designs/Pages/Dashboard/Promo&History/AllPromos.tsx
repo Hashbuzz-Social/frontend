@@ -8,7 +8,7 @@ import {
 } from '@mui/icons-material';
 import { CardContent, Typography } from '@mui/material';
 import React from 'react';
-import { AllPromos as promosData } from '../../../../Data/promos';
+import { AllPromos as promosData } from '../../../../Data/Promos';
 import {
   StyledActionChip,
   StyledBrandAvatar,
