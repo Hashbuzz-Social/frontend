@@ -12,12 +12,12 @@
  * @author HashBuzz Team
  */
 
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
-import { useAppDispatch, useAppSelector } from '@/Store/store';
 import { setAuthStatus } from '@/Store/appStatusSlice';
+import { useAppDispatch, useAppSelector } from '@/Store/store';
 import {
   authenticated,
   connectXAccount,
+  markAllTokensAssociated,
   resetAuth,
   walletPaired,
 } from '@/Ver2Designs/Pages/AuthAndOnboard';
@@ -28,6 +28,7 @@ import {
 import { getCookieByName } from '@/comman/helpers';
 import { useAccountId, useWallet } from '@buidlerlabs/hashgraph-react-wallets';
 import { HWCConnector } from '@buidlerlabs/hashgraph-react-wallets/connectors';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // ============================================================================
 // TYPES & CONSTANTS
@@ -297,32 +298,85 @@ export const useAppSessionManager = ({
       console.warn('[SESSION MANAGER] Ping result:', result);
 
       if (!result || typeof result !== 'object') {
-        console.error('[SESSION MANAGER] Invalid ping response format');
+        console.error(
+          '[SESSION MANAGER] Invalid ping response format:',
+          result
+        );
         return false;
       }
 
-      const { isAuthenticated: serverAuthStatus, connectedXAccount } = result;
+      const {
+        isAuthenticated: serverAuthStatus,
+        connectedXAccount,
+        status,
+        wallet_id,
+      } = result;
 
-      if (serverAuthStatus) {
+      console.warn('[SESSION MANAGER] Server auth status:', {
+        serverAuthStatus,
+        status,
+        wallet_id,
+        connectedXAccount,
+      });
+
+      if (serverAuthStatus && status === 'active') {
         // Update token expiry on successful ping
         setTokenExpiry(sessionExpireMinutes);
 
-        // Update Redux state
+        // Update Redux state for returning user
+        console.warn('[SESSION MANAGER] Restoring user session state:', {
+          wallet_id,
+          connectedXAccount,
+        });
+
+        // For returning users, we need to restore their full onboarding state
+        if (wallet_id) {
+          dispatch(walletPaired(wallet_id));
+        }
+
         dispatch(authenticated());
+
         if (connectedXAccount) {
           dispatch(connectXAccount(connectedXAccount));
         }
+
+        // For now, assume returning users have tokens associated
+        // TODO: Get token association status from ping response
+        dispatch(markAllTokensAssociated());
 
         console.warn('[SESSION MANAGER] Session validated successfully');
         return true;
       }
 
-      console.warn('[SESSION MANAGER] Server reports user not authenticated');
+      console.warn(
+        '[SESSION MANAGER] Server reports user not authenticated or inactive session:',
+        {
+          serverAuthStatus,
+          status,
+        }
+      );
       return false;
-    } catch (error) {
-      console.error('[SESSION MANAGER] Ping failed:', error);
+    } catch (error: unknown) {
+      const apiError = error as {
+        message?: string;
+        status?: number;
+        data?: unknown;
+      };
+      console.error('[SESSION MANAGER] Ping failed with error:', {
+        error: apiError?.message,
+        status: apiError?.status,
+        data: apiError?.data,
+      });
 
-      // Retry ping on failure
+      // Check if it's a 401/403 error which indicates authentication failure
+      if (apiError?.status === 401 || apiError?.status === 403) {
+        console.warn(
+          '[SESSION MANAGER] Authentication error - clearing session'
+        );
+        return false;
+      }
+
+      // For network or other errors, retry logic is handled by the caller
       retryCountRef.current++;
       if (retryCountRef.current < CONFIG.MAX_PING_RETRIES) {
         console.warn(
@@ -334,6 +388,7 @@ export const useAppSessionManager = ({
         return pingSession();
       }
 
+      console.error('[SESSION MANAGER] Ping failed after max retries');
       return false;
     }
   }, [sessionCheckPing, dispatch, sessionExpireMinutes]);
@@ -349,58 +404,45 @@ export const useAppSessionManager = ({
       // Ensure device ID exists
       getOrCreateDeviceId();
 
-      // Check if we have authentication cookies
+      // Check if we have authentication cookies (for debugging only)
+      // Note: httpOnly cookies won't be visible here but will be sent automatically with API calls
       const hasToken = !!getCookieByName('token');
       const hasRefreshToken = !!getCookieByName('refreshToken');
 
-      if (!hasToken && !hasRefreshToken) {
-        console.warn('[SESSION MANAGER] No auth cookies found');
-        setSessionState({
-          isAuthenticated: false,
-          isLoading: false,
-          isRefreshing: false,
-          hasInitialized: true,
-          error: null,
-        });
-        return;
-      }
-
-      // Check token expiry status
-      const shouldRefresh = isTokenExpiringSoon(bufferSeconds);
-
-      if (shouldRefresh) {
-        console.warn('[SESSION MANAGER] Token expiring soon, refreshing...');
-        const refreshSuccessful = await performTokenRefresh();
-
-        if (!refreshSuccessful) {
-          setSessionState({
-            isAuthenticated: false,
-            isLoading: false,
-            isRefreshing: false,
-            hasInitialized: true,
-            error: 'Token refresh failed',
-          });
-          return;
+      console.warn(
+        '[SESSION MANAGER] Cookie check (client-side visible only):',
+        {
+          hasToken,
+          hasRefreshToken,
+          note: 'httpOnly cookies not visible here but may still exist',
         }
-      }
+      );
 
-      // Validate session with server ping
+      // Always attempt ping first since httpOnly session cookies may exist
+      // even if not visible to client-side JavaScript
+      console.warn(
+        '[SESSION MANAGER] Attempting session validation with server (checking for httpOnly cookies)...'
+      );
+
+      // Try ping first - this will work if httpOnly session cookies exist
       const pingSuccessful = await pingSession();
 
       if (pingSuccessful) {
-        // Schedule next refresh if not already scheduled and token not recently refreshed
-        if (!shouldRefresh) {
-          const expiry = getTokenExpiry();
-          if (expiry) {
-            const nextRefreshTime = expiry - bufferSeconds * 1000 - Date.now();
-            if (nextRefreshTime > 0) {
-              console.warn(
-                `[SESSION MANAGER] Scheduling initial refresh in ${Math.round(nextRefreshTime / 1000)}s`
-              );
-              refreshTimerRef.current = setTimeout(() => {
-                performTokenRefresh();
-              }, nextRefreshTime);
-            }
+        console.warn(
+          '[SESSION MANAGER] Ping successful - session restored from httpOnly cookies'
+        );
+
+        // Schedule refresh timer if needed
+        const expiry = getTokenExpiry();
+        if (expiry) {
+          const nextRefreshTime = expiry - bufferSeconds * 1000 - Date.now();
+          if (nextRefreshTime > 0) {
+            console.warn(
+              `[SESSION MANAGER] Scheduling refresh in ${Math.round(nextRefreshTime / 1000)}s`
+            );
+            refreshTimerRef.current = setTimeout(() => {
+              performTokenRefresh();
+            }, nextRefreshTime);
           }
         }
 
@@ -411,19 +453,57 @@ export const useAppSessionManager = ({
           hasInitialized: true,
           error: null,
         });
-      } else {
-        // Ping failed, try refresh as last resort
-        console.warn('[SESSION MANAGER] Ping failed, attempting token refresh');
-        const refreshSuccessful = await performTokenRefresh();
-
-        setSessionState({
-          isAuthenticated: refreshSuccessful,
-          isLoading: false,
-          isRefreshing: false,
-          hasInitialized: true,
-          error: refreshSuccessful ? null : 'Session validation failed',
-        });
+        return;
       }
+
+      // Ping failed, check if we have visible cookies for refresh attempt
+      if (hasToken || hasRefreshToken) {
+        console.warn(
+          '[SESSION MANAGER] Ping failed but found client-side cookies, checking if token refresh needed...'
+        );
+
+        // Check if token is expiring and try refresh
+        const shouldRefresh = isTokenExpiringSoon(bufferSeconds);
+
+        if (shouldRefresh) {
+          console.warn(
+            '[SESSION MANAGER] Token expiring soon - attempting refresh...'
+          );
+          const refreshSuccessful = await performTokenRefresh();
+
+          if (refreshSuccessful) {
+            console.warn(
+              '[SESSION MANAGER] Token refresh successful, retrying ping...'
+            );
+            const retryPingSuccessful = await pingSession();
+
+            setSessionState({
+              isAuthenticated: retryPingSuccessful,
+              isLoading: false,
+              isRefreshing: false,
+              hasInitialized: true,
+              error: retryPingSuccessful
+                ? null
+                : 'Session validation failed after refresh',
+            });
+            return;
+          } else {
+            console.warn('[SESSION MANAGER] Token refresh failed');
+          }
+        }
+      }
+
+      // No valid session found
+      console.warn(
+        '[SESSION MANAGER] No valid session found - user needs to authenticate'
+      );
+      setSessionState({
+        isAuthenticated: false,
+        isLoading: false,
+        isRefreshing: false,
+        hasInitialized: true,
+        error: null,
+      });
     } catch (error) {
       console.error('[SESSION MANAGER] Session initialization failed:', error);
       setSessionState({
