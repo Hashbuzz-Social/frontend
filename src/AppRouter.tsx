@@ -1,7 +1,8 @@
+import React from 'react';
 import { RouterProvider } from 'react-router-dom';
 // import SimpleSessionTest from './components/SimpleSessionTest';
-import TokenRefreshDebugger from './components/TokenRefreshDebugger';
-import { useAppSessionManager } from './hooks/session-manager';
+// import TokenRefreshDebugger from './components/TokenRefreshDebugger';
+import { useAppSessionManager } from './hooks';
 import router from './Router.tsx';
 import StyledComponentTheme from './theme/Theme';
 
@@ -10,7 +11,8 @@ const AppRouter = () => {
 
   // Expose to window for debugging (development only)
   if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    (window as any).sessionManager = sessionManager;
+    (window as { sessionManager?: typeof sessionManager }).sessionManager =
+      sessionManager;
   }
 
   // Show loading screen while app is initializing
@@ -31,7 +33,7 @@ const AppRouter = () => {
           {process.env.NODE_ENV === 'development' && (
             <div style={{ fontSize: '12px', opacity: 0.7 }}>
               hasInitialized: {sessionManager.hasInitialized ? '✅' : '❌'} |{' '}
-              isInitializing: {sessionManager.isInitializing ? '⏳' : '✅'} |{' '}
+              isRefreshing: {sessionManager.isRefreshing ? '⏳' : '✅'} |{' '}
               isAppReady: {sessionManager.isAppReady ? '✅' : '❌'}
             </div>
           )}
@@ -42,14 +44,15 @@ const AppRouter = () => {
 
   return (
     <StyledComponentTheme>
-      {process.env.NODE_ENV === 'development' && (
+      {/* Temporarily disabled debugger */}
+      {/* {process.env.NODE_ENV === 'development' && (
         <>
           <TokenRefreshDebugger />
         </>
-      )}
+      )} */}
       <RouterProvider router={router} />
     </StyledComponentTheme>
   );
 };
 
-export default AppRouter;
+export default React.memo(AppRouter);
