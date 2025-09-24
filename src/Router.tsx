@@ -86,7 +86,7 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <Navigate to='/dashboard' replace /> },
+      { index: true, element: <Navigate to='dashboard' replace /> },
       { path: 'dashboard', element: <Dashboard /> },
       // { path: "campaign", element: <Template /> },
       { path: 'create-campaign', element: <CampaignCreatorWrapper /> },
