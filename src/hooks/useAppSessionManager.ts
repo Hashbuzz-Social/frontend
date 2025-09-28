@@ -406,8 +406,8 @@ export const useAppSessionManager = ({
 
       // Check if we have authentication cookies (for debugging only)
       // Note: httpOnly cookies won't be visible here but will be sent automatically with API calls
-      const hasToken = !!getCookieByName('token');
-      const hasRefreshToken = !!getCookieByName('refreshToken');
+      const hasToken = !!getCookieByName('access_token');
+      const hasRefreshToken = !!getCookieByName('refresh_token');
 
       console.warn(
         '[SESSION MANAGER] Cookie check (client-side visible only):',
