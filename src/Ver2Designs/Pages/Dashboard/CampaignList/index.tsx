@@ -224,6 +224,10 @@ const CampaignList = () => {
     [dispatch]
   );
 
+  const handleQuestClick = useCallback(() => {
+    navigate('/app/create-quest');
+  }, [navigate]);
+
   const handleTemplate = useCallback(() => {
     navigate('/app/create-campaign');
   }, [navigate]);
@@ -534,6 +538,13 @@ const CampaignList = () => {
                 >
                   <AddIcon fontSize='small' />
                   Create Campaign
+                </PrimaryButton>
+                <PrimaryButton
+                  disabled={handleCreateCampaignDisability}
+                  onClick={handleQuestClick}
+                >
+                  <AddIcon fontSize='small' />
+                  Create Quest
                 </PrimaryButton>
               </ButtonGroup>
             </ActionBar>
