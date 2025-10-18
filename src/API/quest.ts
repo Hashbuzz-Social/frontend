@@ -57,7 +57,12 @@ export const questApi = apiBase.injectEndpoints({
           formData.append('correct_answers', body.correct_answers);
         }
 
-        // Append media files
+        // Append YouTube URL if provided (as single string, not array)
+        if (body.youtube_url) {
+          formData.append('youtube_url', body.youtube_url);
+        }
+
+        // Append media files (images)
         if (body.media && body.media.length > 0) {
           body.media.forEach((file: File) => {
             formData.append('media', file);

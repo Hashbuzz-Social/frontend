@@ -33,6 +33,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Countdown from 'react-countdown';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { usePublishQuestCampaignMutation } from '../../../../API/quest';
 import { CampaignStatus } from '../../../../comman/helpers';
 import DetailsModal from '../../../../components/PreviewModal/DetailsModal';
 import { useRemoteConfig } from '../../../../hooks';
@@ -130,6 +131,7 @@ const CampaignList = () => {
   const dispatch = useAppDispatch();
   const campaignV201Enabled = useRemoteConfig('campaign_v201') as boolean;
   const [publishCampaign] = usePublishCampaignV201Mutation();
+  const [questPublishCampaign] = usePublishQuestCampaignMutation();
 
   // Use ref to prevent infinite loops
   const isUpdatingRef = useRef(false);
@@ -277,12 +279,22 @@ const CampaignList = () => {
           campaign_command === CampaignCommands.StartCampaign
         ) {
           console.log({ data, campaign_command });
-          await publishCampaign({
-            campaignId: values.id,
-            anyFinalComment: `command: ${campaign_command}`,
-          });
-          toast.success('Campaign publishing sequence is started successfully');
-          return;
+          if (values.campaign_type === 'quest') {
+            await questPublishCampaign({
+              questId: String(values.id),
+            });
+            toast.success('Quest publishing sequence is started successfully');
+            return;
+          } else {
+            await publishCampaign({
+              campaignId: values.id,
+              anyFinalComment: `command: ${campaign_command}`,
+            });
+            toast.success(
+              'Campaign publishing sequence is started successfully'
+            );
+            return;
+          }
         } else {
           const response = await updateCampaignStatus(data).unwrap();
           if (response) {
@@ -306,6 +318,7 @@ const CampaignList = () => {
       refetchCampaigns,
       campaignV201Enabled,
       publishCampaign,
+      questPublishCampaign,
     ]
   );
 
