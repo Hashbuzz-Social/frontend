@@ -31,6 +31,8 @@ export interface DraftQuestRequest {
   type: QuestType;
   fungible_token_id?: string;
   media?: File[];
+  options?: string[]; // Optional - for quiz-type quests
+  correct_answers?: string; // Optional - for quiz-type quests
 }
 
 /**

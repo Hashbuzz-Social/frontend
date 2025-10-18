@@ -45,6 +45,18 @@ export const questApi = apiBase.injectEndpoints({
           formData.append('fungible_token_id', body.fungible_token_id);
         }
 
+        // Append quest options (each option as separate array element)
+        if (body.options && body.options.length > 0) {
+          body.options.forEach((option: string) => {
+            formData.append('options[]', option);
+          });
+        }
+
+        // Append correct answer
+        if (body.correct_answers) {
+          formData.append('correct_answers', body.correct_answers);
+        }
+
         // Append media files
         if (body.media && body.media.length > 0) {
           body.media.forEach((file: File) => {

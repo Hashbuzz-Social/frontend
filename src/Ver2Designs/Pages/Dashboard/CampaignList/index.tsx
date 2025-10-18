@@ -131,8 +131,6 @@ const CampaignList = () => {
   const campaignV201Enabled = useRemoteConfig('campaign_v201') as boolean;
   const [publishCampaign] = usePublishCampaignV201Mutation();
 
-  console.log({ campaignV201Enabled });
-
   // Use ref to prevent infinite loops
   const isUpdatingRef = useRef(false);
 

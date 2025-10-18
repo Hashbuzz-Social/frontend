@@ -6,6 +6,7 @@ import { useGetTokenBalancesQuery } from '@/API/user';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useAppSelector } from '../Store/store';
 
 // Token balance type from balances.ts
 interface TokenBalance {
@@ -26,6 +27,7 @@ export interface QuestCampaignFormData {
   campaign_budget: number;
   type: 'HBAR' | 'FUNGIBLE';
   fungible_token_id?: string;
+  media?: string[] | File[];
 }
 
 // Form validation errors
@@ -86,6 +88,8 @@ const initialFormData: QuestCampaignFormData = {
 
 export const useQuestCampaign = (): UseQuestCampaignReturn => {
   const navigate = useNavigate();
+
+  const currentUser = useAppSelector(state => state.app.currentUser);
 
   // Form state
   const [formData, setFormData] =
@@ -164,25 +168,25 @@ export const useQuestCampaign = (): UseQuestCampaignReturn => {
 
   // Get user balance for selected token type
   const getUserBalance = useCallback((): number => {
-    if (!tokenBalances || tokenBalances.length === 0) return 0;
-
     if (formData.type === 'HBAR') {
-      const hbarBalance = tokenBalances.find(
-        (token: unknown) => (token as TokenBalance).token_id === 'HBAR'
-      );
-      return hbarBalance
-        ? Number((hbarBalance as unknown as TokenBalance).balance)
-        : 0;
-    } else {
-      const selectedToken = tokenBalances.find(
-        (token: unknown) =>
-          (token as TokenBalance).token_id === formData.fungible_token_id
-      );
-      return selectedToken
-        ? Number((selectedToken as unknown as TokenBalance).balance)
-        : 0;
+      const hbarBalance = currentUser?.available_budget;
+
+      return hbarBalance ? hbarBalance / 1e8 : 0;
     }
-  }, [tokenBalances, formData.type, formData.fungible_token_id]);
+    if (!tokenBalances || tokenBalances.length === 0) return 0;
+    const selectedToken = tokenBalances.find(
+      (token: unknown) =>
+        (token as TokenBalance).token_id === formData.fungible_token_id
+    );
+    return selectedToken
+      ? Number((selectedToken as unknown as TokenBalance).balance)
+      : 0;
+  }, [
+    tokenBalances,
+    formData.type,
+    formData.fungible_token_id,
+    currentUser?.available_budget,
+  ]);
 
   // Get maximum recommended budget (80% of balance)
   const getMaxBudget = useCallback((): number => {
@@ -192,13 +196,23 @@ export const useQuestCampaign = (): UseQuestCampaignReturn => {
 
   // Save draft
   const saveDraft = useCallback(
-    async (_additionalData?: Partial<QuestCampaignFormData>) => {
+    async (additionalData?: Partial<QuestCampaignFormData>) => {
       if (!validateForm()) {
         toast.error('Please fix form errors before saving');
         return;
       }
 
       try {
+        // Get correct answer text from question_options array
+        const correctAnswer =
+          additionalData?.question_options &&
+          additionalData.correct_answer_index !== undefined &&
+          additionalData.correct_answer_index !== null
+            ? additionalData.question_options[
+                additionalData.correct_answer_index
+              ]
+            : '';
+
         // Prepare request data
         const requestData = {
           name: formData.name,
@@ -210,7 +224,9 @@ export const useQuestCampaign = (): UseQuestCampaignReturn => {
             formData.type === 'FUNGIBLE'
               ? formData.fungible_token_id
               : undefined,
-          media: [] as File[], // Add media files if needed
+          options: additionalData?.question_options || [],
+          correct_answers: correctAnswer,
+          media: (additionalData?.media as File[] | undefined) || [],
         };
 
         const result = await createDraft(requestData).unwrap();
