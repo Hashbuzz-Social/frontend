@@ -1,7 +1,7 @@
 import {
-  useCreateCampaignDraftV201Mutation,
-  usePublishCampaignV201Mutation,
-} from '@/API/campaign';
+  useDraftQuestCampaignMutation,
+  usePublishQuestCampaignMutation,
+} from '@/API/quest';
 import { useGetTokenBalancesQuery } from '@/API/user';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -95,9 +95,9 @@ export const useQuestCampaign = (): UseQuestCampaignReturn => {
 
   // API hooks
   const [createDraft, { isLoading: isDraftLoading }] =
-    useCreateCampaignDraftV201Mutation();
+    useDraftQuestCampaignMutation();
   const [publishCampaignMutation, { isLoading: isPublishLoading }] =
-    usePublishCampaignV201Mutation();
+    usePublishQuestCampaignMutation();
   const { data: tokenBalances, isLoading: isLoadingTokens } =
     useGetTokenBalancesQuery();
 
@@ -192,54 +192,32 @@ export const useQuestCampaign = (): UseQuestCampaignReturn => {
 
   // Save draft
   const saveDraft = useCallback(
-    async (additionalData?: Partial<QuestCampaignFormData>) => {
+    async (_additionalData?: Partial<QuestCampaignFormData>) => {
       if (!validateForm()) {
         toast.error('Please fix form errors before saving');
         return;
       }
 
       try {
-        // TODO: Implement Quest Campaign API endpoints
-        // For now, use V201 endpoints as placeholder
-        const formDataObj = new FormData();
-        formDataObj.append('name', formData.name);
-        formDataObj.append('tweet_text', formData.question);
-        formDataObj.append(
-          'expected_engaged_users',
-          String(formData.expected_engaged_users)
-        );
-        formDataObj.append('campaign_budget', String(formData.campaign_budget));
-        formDataObj.append('type', formData.type);
+        // Prepare request data
+        const requestData = {
+          name: formData.name,
+          tweet_text: formData.question,
+          expected_engaged_users: formData.expected_engaged_users,
+          campaign_budget: formData.campaign_budget,
+          type: formData.type,
+          fungible_token_id:
+            formData.type === 'FUNGIBLE'
+              ? formData.fungible_token_id
+              : undefined,
+          media: [] as File[], // Add media files if needed
+        };
 
-        if (formData.type === 'FUNGIBLE' && formData.fungible_token_id) {
-          formDataObj.append('fungible_token_id', formData.fungible_token_id);
-        }
+        const result = await createDraft(requestData).unwrap();
 
-        // Add quest-specific data
-        if (additionalData?.question_options) {
-          formDataObj.append(
-            'question_options',
-            JSON.stringify(additionalData.question_options)
-          );
-        }
-        if (additionalData?.correct_answer_index !== undefined) {
-          formDataObj.append(
-            'correct_answer_index',
-            String(additionalData.correct_answer_index)
-          );
-        }
-
-        const result = await createDraft(formDataObj).unwrap();
-
-        if (result) {
-          const draftId =
-            (result as unknown as { campaignId?: string; draftId?: string })
-              .campaignId ||
-            (result as unknown as { campaignId?: string; draftId?: string })
-              .draftId ||
-            'saved';
-          setSavedDraftId(draftId);
-          toast.success('Quest draft saved successfully!');
+        if (result?.data?.questId) {
+          setSavedDraftId(result.data.questId);
+          toast.success(result.message || 'Quest draft saved successfully!');
         }
       } catch (error: unknown) {
         console.error('Error saving draft:', error);
@@ -277,22 +255,21 @@ export const useQuestCampaign = (): UseQuestCampaignReturn => {
         return;
       }
 
+      // Check if draft was saved first
+      if (!savedDraftId) {
+        toast.error('Please save a draft before publishing');
+        return;
+      }
+
       try {
-        // TODO: Implement Quest Campaign publish endpoint
-        // For now, use savedDraftId as campaignId
-        const publishPayload = {
-          campaignId: Number(savedDraftId) || 1,
-          campaignDuration: 7,
-          anyFinalComment: JSON.stringify({
-            question_options: additionalData.question_options,
-            correct_answer_index: additionalData.correct_answer_index,
-          }),
-        };
+        const result = await publishCampaignMutation({
+          questId: savedDraftId,
+        }).unwrap();
 
-        const result = await publishCampaignMutation(publishPayload).unwrap();
-
-        if (result) {
-          toast.success('Quest campaign published successfully!');
+        if (result?.data) {
+          toast.success(
+            result.message || 'Quest campaign published successfully!'
+          );
           resetForm();
           // Navigate to campaigns list or detail page
           setTimeout(() => {
