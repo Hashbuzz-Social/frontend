@@ -278,12 +278,15 @@ const CampaignList = () => {
           campaignV201Enabled &&
           campaign_command === CampaignCommands.StartCampaign
         ) {
-          console.log({ data, campaign_command });
           if (values.campaign_type === 'quest') {
-            await questPublishCampaign({
+            const response = await questPublishCampaign({
               questId: String(values.id),
-            });
-            toast.success('Quest publishing sequence is started successfully');
+            }).unwrap();
+            if (response.data) {
+              toast.success(
+                'Quest publishing sequence is started successfully'
+              );
+            }
             return;
           } else {
             await publishCampaign({
@@ -394,6 +397,7 @@ const CampaignList = () => {
       campaign_start_time: item.campaign_start_time,
       decimals: item.decimals,
       approve: item.approve,
+      campaign_type: item.campaign_type,
     }));
   }, [campaignResponse]);
 
