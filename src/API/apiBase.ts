@@ -165,6 +165,7 @@ export const apiBase = createApi({
     'TokenBalance',
     'Transaction',
     'Quest',
+    'BotException',
   ],
   endpoints: () => ({}),
 });
