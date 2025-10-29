@@ -1,24 +1,26 @@
 import {
   Add as AddIcon,
-  Delete as DeleteIcon,
   Search as SearchIcon,
   Security as SecurityIcon,
-  Visibility as ViewIcon,
 } from '@mui/icons-material';
-import { Alert, Box, Chip, CircularProgress, Tooltip } from '@mui/material';
 import {
-  DataGrid,
-  GridActionsCellItem,
-  GridColDef,
-  GridRowParams,
-} from '@mui/x-data-grid';
-import React, { useMemo, useState } from 'react';
-import { toast } from 'react-toastify';
+  Alert,
+  Box,
+  Chip,
+  CircularProgress,
+  TableContainer as MuiTableContainer,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from '@mui/material';
+import React, { useState } from 'react';
 
 import {
   BotException,
   useGetBotExceptionsQuery,
-  useRemoveBotExceptionMutation,
 } from '../../../API/botExceptions';
 import { AddBotExceptionModal } from './AddBotExceptionModal';
 import {
@@ -29,9 +31,16 @@ import {
   LoadingContainer,
   SearchBox,
   StatusChip,
-  TableContainer,
   Title,
 } from './BotExceptions.styles';
+
+// Memoized styles to prevent re-creation
+const securityIconStyle = { color: '#667eea' };
+const chipStyle = { ml: 1, background: '#e6f3ff', color: '#1565c0' };
+const searchIconStyle = { color: '#718096', mr: 1 };
+const boxStyle = { display: 'flex', gap: 2, alignItems: 'center' };
+const searchBoxStyle = { minWidth: 250 };
+const alertStyle = { mb: 2 };
 
 export const BotExceptionsScreen: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,176 +53,27 @@ export const BotExceptionsScreen: React.FC = () => {
     data: exceptionsResponse,
     isLoading,
     error,
-    refetch,
   } = useGetBotExceptionsQuery();
 
-  const [removeBotException, { isLoading: isRemoving }] =
-    useRemoveBotExceptionMutation();
-
   // Data processing
-  const exceptions = useMemo(() => {
-    if (!exceptionsResponse?.data || !Array.isArray(exceptionsResponse.data)) {
-      return [];
-    }
-    return exceptionsResponse.data;
-  }, [exceptionsResponse]);
+  const exceptions = exceptionsResponse?.data?.exceptions || [];
 
-  const filteredExceptions = useMemo(() => {
-    if (!searchTerm) return exceptions;
-
+  const filteredExceptions = exceptions.filter(exception => {
+    if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
-    return exceptions.filter(
-      exception =>
-        exception.twitter_user_id.toLowerCase().includes(term) ||
-        exception.twitter_username?.toLowerCase().includes(term) ||
-        exception.reason.toLowerCase().includes(term) ||
-        exception.notes?.toLowerCase().includes(term)
+    return (
+      exception.twitter_user_id.toLowerCase().includes(term) ||
+      exception.twitter_username?.toLowerCase().includes(term) ||
+      exception.reason.toLowerCase().includes(term) ||
+      exception.notes?.toLowerCase().includes(term)
     );
-  }, [exceptions, searchTerm]);
+  });
 
   // Event handlers
   const handleAddNew = () => {
     setSelectedException(null);
     setAddModalOpen(true);
   };
-
-  const handleRemove = async (twitterUserId: string) => {
-    if (
-      !window.confirm('Are you sure you want to remove this bot exception?')
-    ) {
-      return;
-    }
-
-    try {
-      const result = await removeBotException({
-        twitter_user_id: twitterUserId,
-      }).unwrap();
-
-      if (result.status === 'success') {
-        toast.success(result.message || 'Bot exception removed successfully');
-        refetch();
-      } else {
-        toast.error(result.message || 'Failed to remove bot exception');
-      }
-    } catch (error) {
-      console.error('Remove bot exception error:', error);
-      toast.error('Failed to remove bot exception. Please try again.');
-    }
-  };
-
-  const handleView = (exception: BotException) => {
-    setSelectedException(exception);
-    setAddModalOpen(true);
-  };
-
-  // DataGrid columns definition
-  const columns: GridColDef[] = [
-    {
-      field: 'twitter_user_id',
-      headerName: 'Twitter User ID',
-      width: 140,
-      renderCell: params => (
-        <Tooltip title={params.value}>
-          <span
-            style={{
-              fontFamily: 'monospace',
-              fontSize: '12px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {params.value}
-          </span>
-        </Tooltip>
-      ),
-    },
-    {
-      field: 'twitter_username',
-      headerName: 'Username',
-      width: 120,
-      renderCell: params => (
-        <span style={{ fontWeight: 500 }}>
-          {params.value ? `@${params.value}` : 'N/A'}
-        </span>
-      ),
-    },
-    {
-      field: 'reason',
-      headerName: 'Reason',
-      width: 200,
-      renderCell: params => (
-        <Tooltip title={params.value}>
-          <span
-            style={{
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              display: 'block',
-            }}
-          >
-            {params.value}
-          </span>
-        </Tooltip>
-      ),
-    },
-    {
-      field: 'is_active',
-      headerName: 'Status',
-      width: 100,
-      renderCell: params => (
-        <StatusChip isActive={params.value}>
-          {params.value ? 'Active' : 'Inactive'}
-        </StatusChip>
-      ),
-    },
-    {
-      field: 'added_by_admin',
-      headerName: 'Added By',
-      width: 140,
-      renderCell: params => (
-        <span style={{ fontSize: '13px' }}>
-          {params.row.added_by_admin?.name || 'System'}
-        </span>
-      ),
-    },
-    {
-      field: 'created_at',
-      headerName: 'Added Date',
-      width: 120,
-      renderCell: params => (
-        <span style={{ fontSize: '12px' }}>
-          {new Date(params.value).toLocaleDateString()}
-        </span>
-      ),
-    },
-    {
-      field: 'actions',
-      type: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      getActions: (params: GridRowParams<BotException>) => [
-        <GridActionsCellItem
-          icon={
-            <Tooltip title='View Details'>
-              <ViewIcon />
-            </Tooltip>
-          }
-          label='View'
-          onClick={() => handleView(params.row)}
-        />,
-        <GridActionsCellItem
-          icon={
-            <Tooltip title='Remove Exception'>
-              <DeleteIcon />
-            </Tooltip>
-          }
-          label='Remove'
-          onClick={() => handleRemove(params.row.twitter_user_id)}
-          disabled={isRemoving}
-        />,
-      ],
-    },
-  ];
 
   // Loading state
   if (isLoading) {
@@ -230,7 +90,7 @@ export const BotExceptionsScreen: React.FC = () => {
   if (error) {
     return (
       <BotExceptionsContainer>
-        <Alert severity='error' sx={{ mb: 2 }}>
+        <Alert severity='error' sx={alertStyle}>
           Failed to load bot exceptions. Please try again later.
         </Alert>
       </BotExceptionsContainer>
@@ -241,25 +101,25 @@ export const BotExceptionsScreen: React.FC = () => {
     <BotExceptionsContainer>
       <HeaderSection>
         <Title>
-          <SecurityIcon sx={{ color: '#667eea' }} />
+          <SecurityIcon sx={securityIconStyle} />
           Bot Detection Exceptions
           <Chip
             label={`${exceptions.length} total`}
             size='small'
-            sx={{ ml: 1, background: '#e6f3ff', color: '#1565c0' }}
+            sx={chipStyle}
           />
         </Title>
 
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Box sx={boxStyle}>
           <SearchBox
             size='small'
             placeholder='Search exceptions...'
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             InputProps={{
-              startAdornment: <SearchIcon sx={{ color: '#718096', mr: 1 }} />,
+              startAdornment: <SearchIcon sx={searchIconStyle} />,
             }}
-            sx={{ minWidth: 250 }}
+            sx={searchBoxStyle}
           />
 
           <AddButton
@@ -283,32 +143,46 @@ export const BotExceptionsScreen: React.FC = () => {
           </p>
         </EmptyState>
       ) : (
-        <TableContainer>
-          <DataGrid
-            rows={filteredExceptions}
-            columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: { page: 0, pageSize: 10 },
-              },
-              sorting: {
-                sortModel: [{ field: 'created_at', sort: 'desc' }],
-              },
-            }}
-            pageSizeOptions={[5, 10, 25, 50]}
-            disableRowSelectionOnClick
-            autoHeight
-            sx={{
-              '& .MuiDataGrid-cell': {
-                borderBottom: '1px solid #f0f0f0',
-              },
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#f8fafc',
-                fontWeight: 600,
-              },
-            }}
-          />
-        </TableContainer>
+        <MuiTableContainer component={Paper} sx={{ mt: 2 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Twitter User ID</TableCell>
+                <TableCell>Username</TableCell>
+                <TableCell>Reason</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Added By</TableCell>
+                <TableCell>Added Date</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredExceptions.map(exception => (
+                <TableRow key={exception.id}>
+                  <TableCell sx={{ fontFamily: 'monospace', fontSize: '12px' }}>
+                    {exception.twitter_user_id}
+                  </TableCell>
+                  <TableCell>
+                    {exception.twitter_username
+                      ? `@${exception.twitter_username}`
+                      : 'N/A'}
+                  </TableCell>
+                  <TableCell>{exception.reason}</TableCell>
+                  <TableCell>
+                    <StatusChip isActive={exception.is_active}>
+                      {exception.is_active ? 'Active' : 'Inactive'}
+                    </StatusChip>
+                  </TableCell>
+                  <TableCell>
+                    {exception.added_by_admin?.name || 'System'}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '12px' }}>
+                    {new Date(exception.created_at).toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </MuiTableContainer>
       )}
 
       {/* Add/Edit Modal */}
@@ -317,7 +191,7 @@ export const BotExceptionsScreen: React.FC = () => {
         onClose={() => setAddModalOpen(false)}
         exception={selectedException}
         onSuccess={() => {
-          refetch();
+          // No need to refetch - RTK Query auto-invalidates via tags
           setAddModalOpen(false);
         }}
       />

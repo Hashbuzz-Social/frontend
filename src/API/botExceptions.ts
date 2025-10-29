@@ -24,6 +24,16 @@ export interface CreateBotExceptionRequest {
   notes?: string;
 }
 
+export interface GetBotExceptionsResponse {
+  status: 'success' | 'error';
+  message: string;
+  data?: {
+    exceptions: BotException[];
+    count: number;
+  };
+  errors?: Array<{ msg: string; path?: string; value?: string }>;
+}
+
 export interface BotExceptionApiResponse {
   status: 'success' | 'error';
   message: string;
@@ -35,7 +45,7 @@ export interface BotExceptionApiResponse {
 export const botExceptionsApi = apiBase.injectEndpoints({
   endpoints: builder => ({
     // Get all bot detection exceptions
-    getBotExceptions: builder.query<BotExceptionApiResponse, void>({
+    getBotExceptions: builder.query<GetBotExceptionsResponse, void>({
       query: () => '/api/V201/bot-exceptions',
       providesTags: ['BotException'],
     }),

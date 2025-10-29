@@ -4,18 +4,22 @@ import styled from 'styled-components';
 export const BotExceptionsContainer = styled(Paper)`
   padding: 24px;
   margin: 0;
-  border-radius: 0;
+  border-radius: 8px;
   box-shadow: none;
   background: #ffffff;
   width: 100%;
-  min-height: 70vh;
+  min-height: calc(100vh - 200px);
+  max-width: 100%;
+  overflow-x: hidden;
 
   @media (max-width: 768px) {
     padding: 16px;
+    min-height: calc(100vh - 180px);
   }
 
   @media (max-width: 480px) {
     padding: 12px;
+    min-height: calc(100vh - 160px);
   }
 `;
 
@@ -93,13 +97,18 @@ export const SearchBox = styled(TextField)`
   }
 `;
 
-export const TableContainer = styled(Box)`
-  overflow-x: auto;
+export const TableContainer = styled('div')`
+  width: 100%;
+  max-width: 100%;
+  min-height: 400px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+  background: #ffffff;
+  overflow: auto;
 
   .MuiDataGrid-root {
     border: none;
+    width: 100%;
 
     .MuiDataGrid-columnHeaders {
       background: #f8fafc;
@@ -108,10 +117,21 @@ export const TableContainer = styled(Box)`
       .MuiDataGrid-columnHeader {
         font-weight: 600;
         color: #2d3748;
+
+        &:focus,
+        &:focus-within {
+          outline: none;
+        }
+      }
+
+      .MuiDataGrid-columnSeparator {
+        display: none;
       }
     }
 
     .MuiDataGrid-row {
+      cursor: pointer;
+
       &:nth-of-type(even) {
         background: #f8fafc;
       }
@@ -124,6 +144,20 @@ export const TableContainer = styled(Box)`
     .MuiDataGrid-cell {
       border-bottom: 1px solid #e2e8f0;
       padding: 12px 16px;
+
+      &:focus,
+      &:focus-within {
+        outline: none;
+      }
+    }
+
+    .MuiDataGrid-footerContainer {
+      border-top: 2px solid #e2e8f0;
+      background: #f8fafc;
+    }
+
+    .MuiDataGrid-virtualScroller {
+      overflow-x: hidden;
     }
   }
 `;
